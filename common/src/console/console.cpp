@@ -163,8 +163,6 @@ std::vector<std::string> Console::tokenize( char *input, const char *delimiter )
 
 void Console::evaluate( std::vector<std::string> input )
 {
-    bool ok = true;
-
     if( input.empty() ) {
         // The input is empty, nothing to do
         return;

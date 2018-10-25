@@ -1,6 +1,7 @@
 #include "common/control/control.h"
 
 Control::Control()
+    : mVerbose( false )
 {
 
 }

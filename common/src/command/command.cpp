@@ -17,8 +17,8 @@ Command::Command( const char *mutator, const char *accessor )
     : mControlObject( NULL )
     , mUsage( "" )
     , mAccessor( "" )
-    , mAccessible( false )
     , mMutator( "" )
+    , mAccessible( false )
     , mMutable( false )
 {
     // Add an accessor
@@ -257,6 +257,12 @@ const char *Command::getMutatorName()
 void Command::addControlObject( Control *obj )
 {
     mCtrlObjList.push_back( obj );
+
+    if( mCtrlObjList.size() == 1 ) {
+        // If we have one object, set it as our default object. I don't think
+        // this is the right way to do this still..
+        mControlObject = mCtrlObjList.front();
+    }
 }
 
 /**
@@ -307,6 +313,6 @@ void Command::setError( uint32_t code, const char *details, cJSON *response )
     cJSON *error = cJSON_CreateObject();
     cJSON_AddNumberToObject( error, PARAM_CODE, code );
     cJSON_AddStringToObject( error, PARAM_TYPE, Error::getCodeString( code ) );
-    cJSON_AddStringToObject( error, PARAM_TYPE, details );
+    cJSON_AddStringToObject( error, PARAM_DETAILS, details );
     cJSON_AddItemToObject( response, PARAM_ERROR, error );
 }

@@ -72,8 +72,8 @@ private:
     const char mAccessor[ COMMAND_NAME_MAX_SIZE ];
     const char mMutator[ COMMAND_NAME_MAX_SIZE ];
 
-    bool mMutable;
     bool mAccessible;
+    bool mMutable;
 };
 
 #endif // COMMAND_H

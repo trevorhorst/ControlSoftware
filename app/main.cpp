@@ -3,6 +3,7 @@
 
 #include "common/console/console.h"
 #include "common/command/command.h"
+#include "common/http/server/server.h"
 #include "beagleboneblack/hardware_beagleboneblack.h"
 
 #include "common/command/command_console.h"
@@ -48,9 +49,13 @@ int main()
     // cJSON_Delete( p );
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
 
+    HttpServer server( resource_index_html, resource_main_js );
+    server.listen();
+
     std::thread *app = new std::thread( &Console::run, &Console::getInstance() );
     app->join();
 
+    server.stop();
 
     delete app;
 

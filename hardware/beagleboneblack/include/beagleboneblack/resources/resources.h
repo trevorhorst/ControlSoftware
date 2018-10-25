@@ -5,8 +5,8 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-extern char ask[];
-extern unsigned int ask_size;
+extern char resource_main_js[];
+extern unsigned int resource_main_js_size;
 
 extern char resource_index_html[];
 extern unsigned int resource_index_html_size;

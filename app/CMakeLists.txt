@@ -9,6 +9,7 @@ target_link_libraries(
     common
     pthread
     readline
+    microhttpd
     )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CONTROL_BIN_DIR})

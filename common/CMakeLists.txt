@@ -9,12 +9,13 @@ add_library(
     src/console/console.cpp
     src/control/control.cpp
     src/error/error.cpp
+    src/http/server/request.cpp
+    src/http/server/server.cpp
     )
 
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/common/include
     )
 
 install(TARGETS ${PROJECT_NAME}
