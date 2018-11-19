@@ -4,12 +4,16 @@ BeagleboneBlack::BeagleboneBlack()
     : Hardware()
     , mIndexPage( nullptr )
 {
-    // mIndexPage = loadResource( ask, ask_size );
-    // printf( "%s\n", ask );
+    mIndexPage = Resources::load(
+                Resources::INDEX_HTML, Resources::INDEX_HTML_SIZE );
+
     printf( "index_html:    size: %d\t\tlast: %02X\n"
-            , resource_index_html_size, resource_index_html[ resource_index_html_size ] );
+            , Resources::INDEX_HTML_SIZE
+            , Resources::INDEX_HTML[ Resources::INDEX_HTML_SIZE ] );
+
     printf( "   main.js:    size: %d\t\tlast: %02X\n"
-            , resource_main_js_size, resource_main_js[ resource_main_js_size ] );
+            , Resources::MAIN_JS_SIZE
+            , Resources::MAIN_JS[ Resources::MAIN_JS_SIZE ] );
 }
 
 BeagleboneBlack::~BeagleboneBlack()

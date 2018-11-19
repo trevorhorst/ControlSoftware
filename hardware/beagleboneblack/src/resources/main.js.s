@@ -1,12 +1,12 @@
     .section .rodata
-    .global resource_main_js
-    .type   resource_main_js, @object
+    .global MAIN_JS
+    .type   MAIN_JS, @object
     .align  4
-resource_main_js:
+MAIN_JS:
     .incbin "main.js"
-resource_main_js_end:
-    .global resource_main_js_size
-    .type   resource_main_js_size, @object
+MAIN_JS_END:
+    .global MAIN_JS_SIZE
+    .type   MAIN_JS_SIZE, @object
     .align  4
-resource_main_js_size:
-    .int    resource_main_js_end - resource_main_js
+MAIN_JS_SIZE:
+    .int    MAIN_JS_END - MAIN_JS

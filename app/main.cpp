@@ -48,8 +48,10 @@ int main()
 
     // cJSON_Delete( p );
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
+    (void)bbb;
 
-    HttpServer server( resource_index_html, resource_main_js );
+    HttpServer server( Resources::INDEX_HTML
+                       , Resources::MAIN_JS );
     server.listen();
 
     std::thread *app = new std::thread( &Console::run, &Console::getInstance() );

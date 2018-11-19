@@ -2,16 +2,18 @@
  * \brief For more details on this, review this stack overflow thread:
  * https://stackoverflow.com/questions/4864866/c-c-with-gcc-statically-add-resource-files-to-executable-library/4910421#4910421
  * */
-#ifndef RESOURCES_H
-#define RESOURCES_H
+#ifndef BEAGLEBONEBLACK_RESOURCES_H
+#define BEAGLEBONEBLACK_RESOURCES_H
 
-extern char resource_main_js[];
-extern unsigned int resource_main_js_size;
+#include "common/resources/resources.h"
 
-extern char resource_index_html[];
-extern unsigned int resource_index_html_size;
+namespace Resources
+{
+    extern "C" char MAIN_JS[];
+    extern "C" unsigned int MAIN_JS_SIZE;
 
-char *loadResource( char *resource, unsigned int resourceSize );
-void unloadResource( char *resource );
+    extern "C" const char INDEX_HTML[];
+    extern "C" const unsigned int INDEX_HTML_SIZE;
+}
 
-#endif //  RESOURCES_H
+#endif // BEAGLEBONEBLACK_RESOURCES_H

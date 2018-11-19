@@ -11,6 +11,7 @@ add_library(
     src/error/error.cpp
     src/http/server/request.cpp
     src/http/server/server.cpp
+    src/resources/resources.cpp
     )
 
 target_include_directories(

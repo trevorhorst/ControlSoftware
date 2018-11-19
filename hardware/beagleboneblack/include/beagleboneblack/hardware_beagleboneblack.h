@@ -20,8 +20,7 @@ private:
     BeagleboneBlack();
     ~BeagleboneBlack();
 
-    char *mIndexPage;
-
+    const char *mIndexPage;
 };
 
 #endif // HARDWARE_BEAGLEBONEBLACK_H

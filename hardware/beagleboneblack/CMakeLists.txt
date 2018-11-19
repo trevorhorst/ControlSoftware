@@ -5,9 +5,8 @@ enable_language( C ASM )
 
 add_library(
     ${PROJECT_NAME} STATIC
-    src/resources/index.s
+    src/resources/index.html.s
     src/resources/main.js.s
-    src/resources/resources.cpp
     src/hardware_beagleboneblack.cpp
     )
 
