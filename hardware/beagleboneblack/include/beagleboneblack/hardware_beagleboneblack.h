@@ -19,8 +19,6 @@ public:
 private:
     BeagleboneBlack();
     ~BeagleboneBlack();
-
-    const char *mIndexPage;
 };
 
 #endif // HARDWARE_BEAGLEBONEBLACK_H
