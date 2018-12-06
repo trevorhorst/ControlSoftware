@@ -13,6 +13,12 @@ uint32_t CommandConsole::setQuit( cJSON *val )
 {
     (void)val;
     uint32_t r = Error::Code::NONE;
-    Console::getInstance().quit();
+    if( cJSON_IsBool( val ) ) {
+        if( cJSON_IsTrue( val ) ) {
+            Console::getInstance().quit();
+        }
+    } else {
+        r = Error::Code::PARAM_INVALID;
+    }
     return r;
 }

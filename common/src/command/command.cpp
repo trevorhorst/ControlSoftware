@@ -8,37 +8,33 @@
                "         param: Parameter to be changed (see ICD)\n" \
                "         val:   New value to set parameter (see ICD)\n"
 
-
 /**
  * @brief Command Constructor
  * @param name Command name
  */
 Command::Command( const char *mutator, const char *accessor )
-    : mControlObject( NULL )
-    , mUsage( "" )
-    , mAccessor( "" )
-    , mMutator( "" )
+    : mControlObject( nullptr )
     , mAccessible( false )
     , mMutable( false )
 {
     // Add an accessor
-    if( accessor == NULL || accessor[ 0 ] == '\0' ) {
-        strncpy( (char*)mAccessor, "\0", 1 );
+    if( accessor == nullptr || accessor[ 0 ] == '\0' ) {
+        strncpy( mAccessor, "\0", 1 );
     } else {
-        strncpy( (char*)mAccessor, accessor, sizeof( mAccessor ) );
+        strncpy( mAccessor, accessor, sizeof( mAccessor ) );
         mAccessible = true;
     }
 
     // Add a mutator
-    if( mutator == NULL || mutator[ 0 ] == '\0' ) {
-        strncpy( (char*)mMutator, "\0", 1 );
+    if( mutator == nullptr || mutator[ 0 ] == '\0' ) {
+        strncpy( mMutator, "\0", 1 );
     } else {
-        strncpy( (char*)mMutator, mutator, sizeof( mMutator ) );
+        strncpy( mMutator, mutator, sizeof( mMutator ) );
         mMutable = true;
     }
 
     // Create the usage text
-    snprintf( (char*)mUsage, sizeof( mUsage ), GENERIC_USAGE_TEXT
+    snprintf( mUsage, sizeof( mUsage ), GENERIC_USAGE_TEXT
               , getMutatorName(), getAccessorName() );
 
     bindMutatorCallback( PARAM_VERBOSE, &Command::setVerbose );
@@ -108,7 +104,7 @@ bool Command::handleRequiredParameters( cJSON*params, cJSON *response )
 {
     printf( "%s\n", __FUNCTION__ );
     uint32_t r = Error::Code::NONE;
-    cJSON *p = NULL;
+    cJSON *p = nullptr;
 
     for( ParameterMap::const_iterator it = mRequiredMap.begin()
          ; it != mRequiredMap.end() && r == Error::Code::NONE; it++ ) {
@@ -117,7 +113,7 @@ bool Command::handleRequiredParameters( cJSON*params, cJSON *response )
         const char *param = it->first;
         p = cJSON_DetachItemFromObject( params, param );
 
-        if( p == NULL ) {
+        if( p == nullptr ) {
             // Parameter missing
             r = Error::Code::PARAM_MISSING;
         } else {
@@ -193,6 +189,8 @@ cJSON *Command::mutate( cJSON *params )
     printf( "%s\n", __FUNCTION__ );
     uint32_t r = Error::Code::NONE;
     cJSON *response = cJSON_CreateObject();
+
+    // Add the command parameter to the response object
     cJSON_AddStringToObject( response, PARAM_COMMAND, getMutatorName() );
 
     bool ok = mControlObject;
@@ -226,6 +224,7 @@ cJSON *Command::mutate( cJSON *params )
         }
     }
 
+    // Add the success parameter to the response object
     bool success = ( r == Error::Code::NONE ) ? true : false;
     cJSON_AddBoolToObject( response, PARAM_SUCCESS, success );
 

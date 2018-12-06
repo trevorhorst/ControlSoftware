@@ -68,9 +68,9 @@ protected:
     ParameterMap mMutatorMap;
 
 private:
-    const char mUsage[ COMMAND_USAGE_MAX_SIZE ];
-    const char mAccessor[ COMMAND_NAME_MAX_SIZE ];
-    const char mMutator[ COMMAND_NAME_MAX_SIZE ];
+    char mUsage[ COMMAND_USAGE_MAX_SIZE ];
+    char mAccessor[ COMMAND_NAME_MAX_SIZE ];
+    char mMutator[ COMMAND_NAME_MAX_SIZE ];
 
     bool mAccessible;
     bool mMutable;

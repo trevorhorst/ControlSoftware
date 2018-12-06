@@ -1,5 +1,10 @@
 #include "common/command/command_handler.h"
 
+/**
+ * @brief Constructor
+ * @param type Command type
+ * @param cmdObj Command object
+ */
 CommandContainer::CommandContainer( Command::Type type, Command *cmdObj )
     : mType( type )
     , mCmdObj( cmdObj )
@@ -7,8 +12,15 @@ CommandContainer::CommandContainer( Command::Type type, Command *cmdObj )
 
 }
 
-cJSON *CommandContainer::call( cJSON *params, cJSON *rsp )
+/**
+ * @brief Command call wrapper
+ * @param params Parameters to pass to the command
+ * @return Response to the call
+ */
+cJSON *CommandContainer::call( cJSON *params )
 {
+    cJSON *rsp = nullptr;
+
     switch( mType ) {
     case Command::ACCESSOR:
         rsp = mCmdObj->access( params );
@@ -21,12 +33,18 @@ cJSON *CommandContainer::call( cJSON *params, cJSON *rsp )
     return rsp;
 }
 
+/**
+ * @brief CommandHandler Constructor
+ */
 CommandHandler::CommandHandler()
     : mCommandMap{}
 {
 
 }
 
+/**
+ * @brief CommandHandler Destructor
+ */
 CommandHandler::~CommandHandler()
 {
     for( auto it = mCommandMap.begin(); it != mCommandMap.end(); it++ ) {
@@ -37,12 +55,17 @@ CommandHandler::~CommandHandler()
     }
 }
 
-void CommandHandler::handle( const char *cmdStr, cJSON *rsp )
+/**
+ * @brief Handles a command
+ * @param cmdStr Command string to handle
+ * @return Response to the call
+ */
+cJSON *CommandHandler::handle( const char *cmdStr )
 {
     printf( "%s:\n", __FUNCTION__ );
+    cJSON *rsp = nullptr;
 
     bool ok = true;
-
     cJSON *parsed = cJSON_Parse( cmdStr );
     if( cJSON_IsInvalid( parsed ) || cJSON_IsNull( parsed ) ) {
         /// @todo The cmdStr is invalid, handle this
@@ -68,9 +91,15 @@ void CommandHandler::handle( const char *cmdStr, cJSON *rsp )
         ok = false;
     }
 
+
     cJSON_Delete( parsed );
+    return rsp;
 }
 
+/**
+ * @brief Adds a command to the command map
+ * @param cmd Command to add to the map
+ */
 void CommandHandler::addCommand( Command *cmd )
 {
     if( cmd->isAccessible() ) {
