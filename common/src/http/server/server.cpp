@@ -1,16 +1,17 @@
 #include "common/http/server/server.h"
 
-#define POST_BUFFER_SIZE 512
-
-const char *askpage = "<html><body>\n\
-                       Upload a file, please!<br>\n\
-                       There are %u clients uploading at the moment.<br>\n\
-                       <form action=\"/filepost\" method=\"post\" enctype=\"multipart/form-data\">\n\
-                       <input name=\"file\" type=\"file\">\n\
-                       <input type=\"submit\" value=\" Send \"></form>\n\
-                       </body></html>";
-
-
+/**
+ * @brief Static method responsible for handling new connections
+ * @param cls
+ * @param connection
+ * @param url
+ * @param method
+ * @param version
+ * @param upload_data
+ * @param upload_data_size
+ * @param con_cls
+ * @return
+ */
 static int answerToConnection (
         void *cls
         , MHD_Connection *connection
@@ -24,11 +25,10 @@ static int answerToConnection (
     ( void )( cls );
     ( void )( version );
 
-
     HttpServer *server = static_cast< HttpServer* >( cls );
     Request *request = static_cast< Request* >( *con_cls );
 
-    if( request == NULL ) {
+    if( request == nullptr ) {
         // Handles a new request
         return server->onRequest( connection, method, url, con_cls );
     } else if( *upload_data_size > 0 ) {
@@ -38,7 +38,6 @@ static int answerToConnection (
         // Handles a finished request
         return server->onRequestDone( request );
     }
-
 }
 
 
@@ -110,36 +109,42 @@ int HttpServer::iteratePost(
 {
     printf( "%s\n", __FUNCTION__ );
     // Unused
-    (void)( key );
-    (void)( content_type );
-    (void)( transfer_encoding );
     (void)( kind );
     (void)( off );
 
     Request *r = static_cast< Request* >( coninfo_cls );
-    // if( isVerbose() ) { printf( "%s\n", r->mMethod ); }
 
-    // printf( "%s\n", content_type );
-    // printf( "%s\n", transfer_encoding );
+    if( key != nullptr ) {
+        printf( "Key: %s\n", key );
+    }
+
+    if( content_type != nullptr ) {
+        printf( "Content-Type: %s\n", content_type );
+    }
+
+    if( transfer_encoding != nullptr ) {
+        printf( "Transfer-Encoding: %s\n", transfer_encoding );
+    }
 
     // con_info->answerstring = servererrorpage;
     // con_info->answercode = MHD_HTTP_INTERNAL_SERVER_ERROR;
 
-    // if( 0 != strcmp( key, "file" ) ) {
-    //     return MHD_NO;
-    // }
-
     if( !r->mFp ) {
-        // if( NULL != ( fp = fopen( filename, "rb" ) ) ) {
-        //     fclose( fp );
-        //     con_info->answerstring = fileexistspage;
-        //     con_info->answercode = MHD_HTTP_FORBIDDEN;
+        // The file pointer is invalid
+        // r->mFp = fopen( filename, "rb" );
+        // if( !r->mFp ) {
+        //     // We could read the file, which means it already exists
+        //     fclose( r->mFp );
+        //     // con_info->answerstring = fileexistspage;
+        //     // con_info->answercode = MHD_HTTP_FORBIDDEN;
         //     return MHD_NO;
         // }
 
-        // r->mFp = fopen( filename, "ab" );
+        // Just write over the file
         r->mFp = fopen( filename, "wb" );
-        if(!r->mFp ) {
+        if( !r->mFp ) {
+            // We failed to open the file for writing
+            // con_info->answercode = MHD_HTTP_FORBIDDEN;
             return MHD_NO;
         }
     }
@@ -156,16 +161,30 @@ int HttpServer::iteratePost(
     return MHD_YES;
 }
 
+/**
+ * @brief Constructor
+ * @param index Index page to serve up
+ * @param main Main javascript to serve up
+ * @param port Port number to attach to
+ * @param secure Enable/Disable secure server
+ */
 HttpServer::HttpServer( const char *index, const char *main
-                        , uint32_t port, bool secure )
+                        , uint16_t port, bool secure )
     : Control()
-    , mServerDaemon( NULL )
+    , mDone( false )
+    , mServerDaemon( nullptr )
+    , mCommandHandler( nullptr )
     , mIndexHtml( index )
     , mMainJs( main )
     , mPort( port )
     , mSecure( secure )
 {
 
+}
+
+void HttpServer::setCommandHandler( CommandHandler *handler )
+{
+    mCommandHandler = handler;
 }
 
 /**
@@ -176,33 +195,59 @@ bool HttpServer::listen()
 {
     bool success = false;
 
+    uint flags = MHD_USE_POLL_INTERNALLY | MHD_USE_PEDANTIC_CHECKS;
+
     if( mSecure ) {
         printf( "Server is secure\n" );
-        // mServerDaemon = MHD_start_daemon(
-        //             MHD_USE_POLL_INTERNALLY | MHD_USE_PEDANTIC_CHECKS | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SSL
-        //             , mPort
-        //             , NULL
-        //             , NULL
-        //             , &AnswerToConnection, this
-        //             , MHD_OPTION_NOTIFY_COMPLETED, &OnResponseSent, this
-        //             , MHD_OPTION_HTTPS_MEM_KEY, mServerKey.c_str()
-        //             , MHD_OPTION_HTTPS_MEM_CERT, mServerCrt.c_str()
-        //             , MHD_OPTION_END
-        //             );
+        flags |= MHD_USE_SSL;
+    }
+
+    /*
+    if( mThreaded ) {
+        flags |= MHD_USE_THREAD_PER_CONNECTION;
+    }
+    */
+
+    /*
+    if( mSecure ) {
+        printf( "Server is secure\n" );
+        mServerDaemon = MHD_start_daemon(
+                    MHD_USE_POLL_INTERNALLY | MHD_USE_PEDANTIC_CHECKS | MHD_USE_THREAD_PER_CONNECTION | MHD_USE_SSL
+                    , mPort
+                    , NULL
+                    , NULL
+                    , &AnswerToConnection, this
+                    , MHD_OPTION_NOTIFY_COMPLETED, &OnResponseSent, this
+                    , MHD_OPTION_HTTPS_MEM_KEY, mServerKey.c_str()
+                    , MHD_OPTION_HTTPS_MEM_CERT, mServerCrt.c_str()
+                    , MHD_OPTION_END
+                    );
     } else {
         mServerDaemon = MHD_start_daemon(
                     MHD_USE_POLL_INTERNALLY | MHD_USE_PEDANTIC_CHECKS | MHD_USE_THREAD_PER_CONNECTION
                     , mPort
-                    , NULL
-                    , NULL
+                    , nullptr
+                    , nullptr
                     , &answerToConnection, this
                     , MHD_OPTION_NOTIFY_COMPLETED, &onResponseSent, this
                     // , MHD_OPTION_SOCK_ADDR, &socket
                     , MHD_OPTION_END
                     );
     }
+    */
 
-    if( mServerDaemon == NULL ) {
+    mServerDaemon = MHD_start_daemon(
+                flags
+                , mPort
+                , nullptr
+                , nullptr
+                , &answerToConnection, this
+                , MHD_OPTION_NOTIFY_COMPLETED, &onResponseSent, this
+                // , MHD_OPTION_SOCK_ADDR, &socket
+                , MHD_OPTION_END
+                );
+
+    if( mServerDaemon == nullptr ) {
         printf( "Server daemon failed to start\n" );
     } else {
         printf( "Server daemon started successfully\n" );
@@ -217,10 +262,10 @@ bool HttpServer::listen()
  */
 void HttpServer::stop()
 {
-    if( mServerDaemon != NULL ) {
+    if( mServerDaemon != nullptr ) {
         printf( "Stopping Server...\n" );
         MHD_stop_daemon( mServerDaemon );
-        mServerDaemon = NULL;
+        mServerDaemon = nullptr;
     }
 }
 
@@ -253,7 +298,7 @@ int HttpServer::onRequest( MHD_Connection *connection
                 connection
                 , POST_BUFFER_SIZE
                 , iteratePost
-                , (void*)r );
+                , static_cast< void* >( r ) );
 
     // A NULL post processor means we will have to handle it ourselves
     if( r->mPostProcessor == NULL ) {
@@ -261,10 +306,10 @@ int HttpServer::onRequest( MHD_Connection *connection
     }
 
     // Fill out the rest of the request
-    r->mFp       = NULL;
+    r->mFp       = nullptr;
     r->mMethod   = (char*)method;
     r->mUrl      = (char*)path;
-    r->mData     = NULL;
+    r->mData     = nullptr;
     r->mDataSize = 0;
 
     *request = r;
@@ -285,10 +330,13 @@ int HttpServer::onRequestBody(
         , size_t *size )
 {
     request->mDataSize += *size;
-    if( request->mData == NULL ) {
+    if( request->mData == nullptr ) {
         // If we currently have no data lets copy over the incoming data
-        request->mData = new char[ *size ];
-        memcpy( (void*)request->mData, data, *size );
+        request->mData = new char[ request->mDataSize + 1 ];
+        memcpy( static_cast< void* >( request->mData ), data, request->mDataSize );
+
+        // Append the null character
+        request->mData[ request->mDataSize ] = '\0';
     } else {
         // Concatinate new data with the old data
 
@@ -296,16 +344,19 @@ int HttpServer::onRequestBody(
         const char* t = request->mData;
 
         // Create a new memory block the size of total data received so far
-        request->mData = new char[ request->mDataSize ];
+        request->mData = new char[ request->mDataSize + 1 ];
 
         // Copy the old data to the new data block
-        memcpy( (void*)request->mData, t, request->mDataSize - *size );
+        memcpy( static_cast< void* >( request->mData ), t, request->mDataSize - *size );
 
         // Get a pointer to the end of the old data
-        const char* n = &request->mData[ request->mDataSize - *size ];
+        char* n = &request->mData[ request->mDataSize - *size ];
 
         // Copy the new data to the end of the old
-        memcpy( (void*)n, data, *size );
+        memcpy( static_cast< void* >( n ), data, *size );
+
+        // Append the null character
+        request->mData[ request->mDataSize ] = '\0';
 
         // Delete the old data block
         delete[] t;
@@ -337,7 +388,6 @@ int HttpServer::onRequestDone( Request *request )
  */
 void HttpServer::processRequest( Request *request )
 {
-
     if( strcmp( request->mMethod, MHD_HTTP_METHOD_GET ) == 0 ) {
         // GET request handler
 
@@ -354,9 +404,7 @@ void HttpServer::processRequest( Request *request )
         //     // Send the style file
         //     request->sendResponse( mStyleBuffer, "text/css", MHD_HTTP_OK );
         }
-    }
-
-    if( strcmp( request->mMethod, MHD_HTTP_METHOD_POST ) == 0 ) {
+    } else if( strcmp( request->mMethod, MHD_HTTP_METHOD_POST ) == 0 ) {
         // POST request handler
 
         if( request->mPostProcessor ) {
@@ -366,58 +414,47 @@ void HttpServer::processRequest( Request *request )
                               , request->mData
                               , request->mDataSize );
 
-            // Leaving this here for now to get rid of the warning, eventually
-            // we will use this
-            ( void ) ret;
+            if( ret == MHD_YES ) {
+                request->sendResponse( HTTP_SERVER_SUCCESS, "text/html"
+                                       , MHD_HTTP_OK );
+            } else {
+                request->sendResponse( HTTP_SERVER_FAILED, "text/html"
+                                       , MHD_HTTP_OK );
+            }
 
         } else {
             // A postprocessor doesn't exist, we need to handle the data
-
-            const char **lastByte = NULL;
-            cJSON *parsed = cJSON_ParseWithOpts( request->mData, lastByte, false );
-            char *temp = cJSON_Print( parsed );
-            printf( "%s\n", temp );
-            free( temp );
-            cJSON_Delete( parsed );
-
-            // Get the body data
-            // QString body = QString::fromUtf8( request->mData, request->mDataSize );
-
-            // Parse the command as JSON
-            // QVariantMap command = ParseJson( body );
-            /*
-            // Check the command type
-            QString type = command.value( "cmd" ).toString();
-            if( mCommandHandler->mCommandList.contains( type ) ) {
-                // If the command type is available
-                Command *cmd = mCommandHandler->mCommandList.value( type );
-                if( command.contains( "parameters" ) ) {
-                    // If there are parameters, then we are setting values
-                    QVariantMap parameters = command.value( "parameters" ).toMap();
-                    cmd->Set( parameters );
-                } else {
-                    // If there are parameters, then we are querying
-                    cmd->Query();
-                }
-
+            if( mCommandHandler != nullptr ) {
+                cJSON *rsp = mCommandHandler->handle( request->mData );
+                request->sendResponse( HTTP_SERVER_SUCCESS, "text/html"
+                                       , MHD_HTTP_OK );
+                /// @todo The rsp object should be created outside the command
+                /// class and passed down
+                cJSON_Delete( rsp );
+                // if( rsp ) {
+                //     char *prtStr = cJSON_Print( rsp );
+                //     request->sendResponse( prtStr, "text/html", MHD_HTTP_OK );
+                //     free( prtStr );
+                // } else {
+                //     request->sendResponse( HTTP_SERVER_BAD_REQUEST
+                //                            , "text/html"
+                //                            , MHD_HTTP_BAD_REQUEST );
+                // }
+            } else {
+                request->sendResponse( HTTP_SERVER_BAD_REQUEST
+                                       , "text/html"
+                                       , MHD_HTTP_BAD_REQUEST );
             }
 
-            // Send response to post
-            QJsonObject message;
-            message.insert( "rsp", QJsonValue::fromVariant( "success" ) );
-            QJsonDocument response( message );
-            request->sendResponse( response.toJson().toStdString().c_str()
-                                   , "application/json"
-                                   , MHD_HTTP_OK );
-           */
         }
 
+    } else {
+        // The user made a bad request
+        request->sendResponse( HTTP_SERVER_BAD_REQUEST
+                               , "text/html"
+                               , MHD_HTTP_BAD_REQUEST );
+
     }
-
-    /// @todo Need to figure out how to properly finish a request
-
-    // If we've made it here, then the client has made a bad request
-    request->sendResponse( askpage, "text/html", MHD_HTTP_BAD_REQUEST );
 }
 
 void HttpServer::printHeaders(Request *request)

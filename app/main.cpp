@@ -8,24 +8,21 @@
 
 #include "common/command/command_console.h"
 
-using CommandCallback = std::function< cJSON* (cJSON*) >;
-using CommandMap      = CharHashMap< CommandCallback >;
-CommandMap mCommandMap;
-
 /**
  * @brief Entry point of the program
  * @return
  */
 int main()
 {
+    CommandHandler commandHandler;
 
     Control ctl;
     Command cmd( "tuner", "qtuner" );
     cmd.addControlObject( &ctl );
-    Console::getInstance().addCommand( &cmd );
+    // commandHandler.addCommand( &cmd );
 
     CommandConsole cmdConsole;
-    Console::getInstance().addCommand( &cmdConsole );
+    commandHandler.addCommand( &cmdConsole );
 
     // printf( "%s\n", cmd.getAccessorName() );
 
@@ -52,10 +49,15 @@ int main()
 
     HttpServer server( Resources::INDEX_HTML
                        , Resources::MAIN_JS );
+    server.setCommandHandler( &commandHandler );
     server.listen();
 
     std::thread *app = new std::thread( &Console::run, &Console::getInstance() );
+    // std::thread *req = new std::thread( &HttpServer::handleRequests, &server );
+    // req->detach();
     app->join();
+
+    server.mDone = true;
 
     server.stop();
 

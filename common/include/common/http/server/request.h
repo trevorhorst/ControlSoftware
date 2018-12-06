@@ -42,7 +42,7 @@ public:
     char *mMethod;
     char *mUrl;
     char *mBody;
-    const char* mData;
+    char* mData;
     uint32_t mDataSize;
     FILE* mFp;
 

@@ -7,14 +7,28 @@
 #include "common/cjson/cJSON.h"
 #include "common/control/control.h"
 #include "common/http/server/request.h"
+#include "common/command/command_handler.h"
+
+#define POST_BUFFER_SIZE 512
+
+#define HTTP_SERVER_PORT_DEFAULT 8080
+
+#define HTTP_SERVER_SUCCESS 	"Success"
+#define HTTP_SERVER_FAILED   	"Failed"
+#define HTTP_SERVER_BAD_REQUEST "Bad Request"
 
 class HttpServer : public Control
 {
 public:
-    HttpServer( const char *index, const char *main
-                , uint32_t port = 8000, bool secure = false );
+    HttpServer( const char *index
+                , const char *main
+                , uint16_t port = HTTP_SERVER_PORT_DEFAULT
+                , bool secure = false );
+
     bool listen();
     void stop();
+
+    void setCommandHandler( CommandHandler *handler );
 
     static int iterateHeaderValues(
             void *cls
@@ -49,11 +63,15 @@ public:
     void printHeaders( Request *request );
     void printBody( Request *request );
 
+    bool mDone;
+
+
 private:
     MHD_Daemon *mServerDaemon;
+    CommandHandler *mCommandHandler;
     const char *mIndexHtml;
     const char *mMainJs;
-    uint32_t mPort;
+    uint16_t mPort;
     bool mSecure;
 };
 

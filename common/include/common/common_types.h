@@ -56,6 +56,7 @@ using CharHashMap = std::unordered_map< const char*, C, CharArrayHash, CharArray
 #define PARAM_COMMAND   "cmd"
 #define PARAM_DETAILS   "details"
 #define PARAM_ERROR     "error"
+#define PARAM_PARAMS    "params"
 #define PARAM_QUIT      "quit"
 #define PARAM_RESULT    "result"
 #define PARAM_SUCCESS   "success"

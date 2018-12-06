@@ -5,6 +5,7 @@ add_library(
     ${PROJECT_NAME} STATIC
     src/cjson/cJSON.c
     src/command/command.cpp
+    src/command/command_handler.cpp
     src/command/command_console.cpp
     src/console/console.cpp
     src/control/control.cpp
