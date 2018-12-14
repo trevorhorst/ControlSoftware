@@ -168,7 +168,52 @@ void Console::evaluate( std::vector<std::string> input )
         return;
     }
 
+    if( input.at( 0 ) == "quit" ) {
+        getInstance().quit();
+        return;
+    }
 
+    // Add the cmd string to the object
+    cJSON *msg    = cJSON_CreateObject();
+    cJSON *params = cJSON_CreateObject();
+    cJSON *cmd    = nullptr;
+
+    for( auto it = input.begin(); it != input.end(); it++ ) {
+        if( *it == input.at( 0 ) ) {
+            // Add the command parameter
+            cmd = cJSON_CreateString( (*it).c_str() );
+        } else {
+            auto t = it;
+            it++;
+            if( it == input.end() ) {
+                printf( "Parameter mismatch\n" );
+                break;
+            } else {
+                // Parse the parameter
+                cJSON *param = cJSON_Parse( (*it).c_str() );
+                // Add the item to the parameter list
+                cJSON_AddItemToObject( params, (*t).c_str(), param );
+            }
+        }
+    }
+
+    cJSON_AddItemToObject( msg, PARAM_COMMAND, cmd );
+    cJSON_AddItemToObject( msg, PARAM_PARAMS, params );
+
+    char *msgStr = cJSON_PrintUnformatted( msg );
+
+    if( isVerbose() ) {
+        printf( "%s\n", msgStr );
+    }
+
+    HttpClient client;
+    client.send( msgStr );
+    cJSON_free( msgStr );
+
+    // Clean up the message, this should delete all the components
+    cJSON_Delete( msg );
+
+    /*
     CommandMap::const_iterator it = mCommandMap.find( input.at( 0 ).c_str() );
     if( it == mCommandMap.end() ) {
         // A matching command was not found
@@ -208,6 +253,7 @@ void Console::evaluate( std::vector<std::string> input )
 
     cJSON_Delete( rsp );
     cJSON_Delete( params );
+    */
 }
 
 void Console::addCommand( Command *cmd )

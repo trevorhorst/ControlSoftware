@@ -62,7 +62,6 @@ CommandHandler::~CommandHandler()
  */
 cJSON *CommandHandler::handle( const char *cmdStr )
 {
-    printf( "%s:\n", __FUNCTION__ );
     cJSON *rsp = nullptr;
 
     bool ok = true;
@@ -75,7 +74,6 @@ cJSON *CommandHandler::handle( const char *cmdStr )
 
     cJSON *cmd = cJSON_GetObjectItem( parsed, PARAM_COMMAND );
     if( ok && cJSON_IsString( cmd ) ) {
-        printf( "%s: %s\n", __FUNCTION__, cmd->valuestring );
         auto it = mCommandMap.find( cmd->valuestring );
         if( it == mCommandMap.end() ) {
             // The command does not exist
@@ -90,7 +88,6 @@ cJSON *CommandHandler::handle( const char *cmdStr )
         /// @todo The cmd is not the type we expect, handle this
         ok = false;
     }
-
 
     cJSON_Delete( parsed );
     return rsp;

@@ -10,6 +10,8 @@ add_library(
     src/console/console.cpp
     src/control/control.cpp
     src/error/error.cpp
+    src/http/http.cpp
+    src/http/client/client.cpp
     src/http/server/request.cpp
     src/http/server/server.cpp
     src/resources/resources.cpp

@@ -179,7 +179,6 @@ HttpServer::HttpServer( const char *index, const char *main
     , mPort( port )
     , mSecure( secure )
 {
-
 }
 
 void HttpServer::setCommandHandler( CommandHandler *handler )
@@ -251,7 +250,7 @@ bool HttpServer::listen()
         printf( "Server daemon failed to start\n" );
     } else {
         printf( "Server daemon started successfully\n" );
-        if( isVerbose() ){ printf( "Listening on port %d\n", mPort ); }
+        printf( "Listening on port %d\n", mPort );
         success = true;
     }
     return success;
@@ -426,8 +425,16 @@ void HttpServer::processRequest( Request *request )
             // A postprocessor doesn't exist, we need to handle the data
             if( mCommandHandler != nullptr ) {
                 cJSON *rsp = mCommandHandler->handle( request->mData );
-                request->sendResponse( HTTP_SERVER_SUCCESS, "text/html"
-                                       , MHD_HTTP_OK );
+                if( rsp == nullptr ) {
+                    request->sendResponse( HTTP_SERVER_BAD_REQUEST, "text/html"
+                                           , MHD_HTTP_OK );
+                } else {
+                    char *rspStr = nullptr;
+                    rspStr = cJSON_Print( rsp );
+                    request->sendResponse( rspStr, "text/html"
+                                           , MHD_HTTP_OK );
+                    cJSON_free( rspStr );
+                }
                 /// @todo The rsp object should be created outside the command
                 /// class and passed down
                 cJSON_Delete( rsp );

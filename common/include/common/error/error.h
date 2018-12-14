@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define ERROR_DETAILS_MAX_SIZE 256
+#define ERROR_DETAILS_SIZE_MAX 256
 
 class Error
 {
@@ -34,7 +34,7 @@ public:
 
 private:
     Code mCode;
-    const char mDetails[ ERROR_DETAILS_MAX_SIZE ];
+    const char mDetails[ ERROR_DETAILS_SIZE_MAX ];
 };
 
 #endif // ERROR_H

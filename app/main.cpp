@@ -4,6 +4,7 @@
 #include "common/console/console.h"
 #include "common/command/command.h"
 #include "common/http/server/server.h"
+#include "common/http/client/client.h"
 #include "beagleboneblack/hardware_beagleboneblack.h"
 
 #include "common/command/command_console.h"
@@ -46,6 +47,7 @@ int main()
     // cJSON_Delete( p );
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
     (void)bbb;
+
 
     HttpServer server( Resources::INDEX_HTML
                        , Resources::MAIN_JS );

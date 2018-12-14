@@ -19,6 +19,7 @@
 
 #include "common/singleton.h"
 #include "common/command/command.h"
+#include "common/http/client/client.h"
 
 class Console
         : public Singleton< Console >

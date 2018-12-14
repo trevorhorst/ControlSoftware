@@ -39,7 +39,7 @@ Error::~Error()
 
 const char *Error::getCodeString( uint32_t c )
 {
-    return mCodeString[ (Code)c ];
+    return mCodeString[ c ];
 }
 
 const char *Error::getCodeString( Code c )
