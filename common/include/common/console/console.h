@@ -21,6 +21,9 @@
 #include "common/command/command.h"
 #include "common/http/client/client.h"
 
+#define CONSOLE_HISTORY_FILE            "control.history"
+#define CONSOLE_HISTORY_FILE_LOCATION   "/tmp"
+
 class Console
         : public Singleton< Console >
         , public Control
@@ -52,6 +55,7 @@ public:
     void quit();
     static void processInput( char *input );
     std::vector< std::string > tokenize( char *input, const char *delimiter = " " );
+    static void evaluate( char *input );
     void evaluate( std::vector< std::string > input );
 
     void addCommand( Command *cmd );
@@ -64,26 +68,5 @@ private:
 
     bool mDone;
 };
-
-// class CommandConsole : public Command {
-//     using Callback = cJSON* (Console::*)( cJSON *params );
-// public:
-//     CommandConsole( const char *mutator )
-//         : Command( mutator, "" )
-//     {
-//         bindMutatorCallback( "quit", &CommandConsole::setQuit );
-//     }
-//
-//     uint32_t setQuit( cJSON *val )
-//     {
-//         uint32_t r = Error::Code::NONE;
-//         (void)val;
-//         Console::getInstance().quit();
-//         return r;
-//     }
-//
-// private:
-//
-// };
 
 #endif // CONSOLE_H

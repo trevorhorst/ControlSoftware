@@ -32,7 +32,8 @@ Console::~Console()
 }
 
 #define MAX_HISTORY_LINES 1000
-#define HISTORY_FNAME "radio_history"
+#define HISTORY_FNAME "control.history"
+
 /**
  * @brief Console::Run Main thread loop
  */
@@ -58,14 +59,15 @@ void Console::run()
         exit(1);
     }
 
-    // char hfile[ 512 ];
-    // snprintf( hfile, sizeof(hfile), "%s/%s", get_current_dir_name(), HISTORY_FNAME );
-    // if( read_history(hfile) ) {
-    //     perror("read_history");
-    // }
+    char hfile[ 512 ];
+    snprintf( hfile, sizeof( hfile ), "%s/%s"
+              , CONSOLE_HISTORY_FILE_LOCATION, CONSOLE_HISTORY_FILE );
+    if( read_history( hfile ) ) {
+        perror("read_history");
+    }
      
     // Set the readline callback handler
-    rl_callback_handler_install( ">", &Console::processInput );
+    rl_callback_handler_install( ">", &Console::evaluate );
 
     fd_set fds;
     while( !mDone ) {
@@ -94,12 +96,12 @@ void Console::run()
         }
     }
     
-    // if( write_history(hfile) ) {
-    //     perror("write_history");
-    // } else {
-    //     // Keep the history to minimum.
-    //     history_truncate_file( hfile, MAX_HISTORY_LINES );
-    // }
+    if( write_history( hfile ) ) {
+        perror( "write_history" );
+    } else {
+        // Keep the history to minimum.
+        history_truncate_file( hfile, MAX_HISTORY_LINES );
+    }
 
     // Restore previous flag settings
     term.c_lflag     = old_lflag;
@@ -128,6 +130,9 @@ void Console::processInput( char *input )
 {
     std::vector< std::string > tokenized = getInstance().tokenize( input );
     getInstance().evaluate( tokenized );
+    if( input ) {
+        add_history( input );
+    }
     free( input );
 }
 
@@ -159,6 +164,68 @@ std::vector<std::string> Console::tokenize( char *input, const char *delimiter )
     }
 
     return tokenized;
+}
+
+void Console::evaluate( char *input )
+{
+    // Tokenize the input
+    std::vector< std::string > tokenized = getInstance().tokenize( input );
+
+    if( tokenized.empty() ) {
+        // The input is empty
+        return;
+    }
+
+    if( tokenized.at( 0 ) == "quit" ) {
+        // The command is to quit, so lets quit. Nothing fancy here.
+        getInstance().quit();
+        return;
+    }
+
+    // Add the cmd string to the object
+    cJSON *msg    = cJSON_CreateObject();
+    cJSON *params = cJSON_CreateObject();
+    cJSON *cmd    = nullptr;
+
+    for( auto it = tokenized.begin(); it != tokenized.end(); it++ ) {
+        if( *it == tokenized.at( 0 ) ) {
+            // Add the command parameter
+            cmd = cJSON_CreateString( (*it).c_str() );
+        } else {
+            auto t = it;
+            it++;
+            if( it == tokenized.end() ) {
+                printf( "Parameter mismatch\n" );
+            } else {
+                // Parse the parameter
+                cJSON *param = cJSON_Parse( (*it).c_str() );
+                // Add the item to the parameter list
+                cJSON_AddItemToObject( params, (*t).c_str(), param );
+            }
+        }
+    }
+
+    cJSON_AddItemToObject( msg, PARAM_COMMAND, cmd );
+    cJSON_AddItemToObject( msg, PARAM_PARAMS, params );
+
+    char *msgStr = cJSON_PrintUnformatted( msg );
+
+    if( getInstance().isVerbose() ) {
+        printf( "%s\n", msgStr );
+    }
+
+    HttpClient client;
+    client.send( msgStr );
+    cJSON_free( msgStr );
+
+    // Clean up the message, this should delete all the components
+    cJSON_Delete( msg );
+
+    if( input ) {
+        add_history( input );
+    }
+
+    free( input );
 }
 
 void Console::evaluate( std::vector<std::string> input )
@@ -202,7 +269,7 @@ void Console::evaluate( std::vector<std::string> input )
 
     char *msgStr = cJSON_PrintUnformatted( msg );
 
-    if( isVerbose() ) {
+    if( getInstance().isVerbose() ) {
         printf( "%s\n", msgStr );
     }
 
