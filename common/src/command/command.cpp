@@ -102,7 +102,7 @@ void Command::bindAccessorCallback( const char *paramName
  */
 bool Command::handleRequiredParameters( cJSON*params, cJSON *response )
 {
-    printf( "%s\n", __FUNCTION__ );
+    // printf( "%s\n", __FUNCTION__ );
     uint32_t r = Error::Code::NONE;
     cJSON *p = nullptr;
 
@@ -146,7 +146,7 @@ const char *Command::usage()
  */
 cJSON *Command::access( cJSON *params )
 {
-    printf( "%s\n", __FUNCTION__ );
+    // printf( "%s\n", __FUNCTION__ );
     cJSON* response = cJSON_CreateObject();
     cJSON_AddStringToObject( response, PARAM_COMMAND, getAccessorName() );
 

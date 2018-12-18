@@ -9,6 +9,7 @@
 
 #include "common/singleton.h"
 #include "common/hardware/hardware.h"
+#include "common/system/system.h"
 
 class BeagleboneBlack
         : public Hardware
@@ -19,6 +20,8 @@ public:
 private:
     BeagleboneBlack();
     ~BeagleboneBlack();
+
+    System mSystem;
 };
 
 #endif // HARDWARE_BEAGLEBONEBLACK_H

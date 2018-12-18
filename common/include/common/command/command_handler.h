@@ -4,6 +4,7 @@
 #include "common/common_types.h"
 #include "common/command/command.h"
 
+
 /**
  * @brief Contains information regarding the required call
  */
@@ -17,13 +18,15 @@ private:
     Command *mCmdObj;
 };
 
+using CommandMap = CharHashMap< CommandContainer* >;
+
 /**
  * @brief Handles any received commands by calling the required methods
  */
 class CommandHandler
 {
-    using CommandMap      = CharHashMap< CommandContainer* >;
 public:
+
     CommandHandler();
     ~CommandHandler();
 

@@ -4,12 +4,14 @@
 #include "common/command/command.h"
 #include "common/console/console.h"
 
-#define COMMAND_CONSOLE "console"
+#define COMMAND_CONSOLE     "console"
+#define COMMAND_QCONSOLE    "qconsole"
 
 class CommandConsole : public Command
 {
 public:
     CommandConsole();
+
     virtual uint32_t setQuit( cJSON *val );
 };
 

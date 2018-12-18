@@ -49,7 +49,6 @@ CommandHandler::~CommandHandler()
 {
     for( auto it = mCommandMap.begin(); it != mCommandMap.end(); it++ ) {
         if( it->second ) {
-            printf( "Deleting\n" );
             delete it->second;
         }
     }

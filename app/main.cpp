@@ -48,9 +48,8 @@ int main()
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
     (void)bbb;
 
+    HttpServer server( Resources::INDEX_HTML, Resources::MAIN_JS );
 
-    HttpServer server( Resources::INDEX_HTML
-                       , Resources::MAIN_JS );
     server.setCommandHandler( &commandHandler );
     server.listen();
 

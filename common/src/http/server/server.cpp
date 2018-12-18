@@ -54,7 +54,7 @@ static void onResponseSent(
         , void **request
         , MHD_RequestTerminationCode *rtc)
 {
-    printf( "Finished Request\n" );
+    // printf( "Finished Request\n" );
     // Unused
     (void)cls;
     (void)connection;
@@ -62,7 +62,7 @@ static void onResponseSent(
 
     Request *r = static_cast< Request* >( *request );
 
-    if( r->mPostProcessor != NULL ) {
+    if( r->mPostProcessor != nullptr ) {
         MHD_destroy_post_processor( r->mPostProcessor );
     }
 
@@ -301,7 +301,7 @@ int HttpServer::onRequest( MHD_Connection *connection
 
     // A NULL post processor means we will have to handle it ourselves
     if( r->mPostProcessor == NULL ) {
-        printf( "PostProcessor is NULL\n" );
+        if( isVerbose() ) { printf( "PostProcessor is NULL\n" ); }
     }
 
     // Fill out the rest of the request
@@ -393,11 +393,11 @@ void HttpServer::processRequest( Request *request )
         if( strcmp( request->mUrl, "/" ) == 0
                 || strcmp( request->mUrl, "/index.html" ) == 0 ) {
             // The index has been requested
-            printf( "Serving up the index\n" );
+            if( isVerbose() ) { printf( "Serving up the index\n" ); }
             request->sendResponse( mIndexHtml, "text/html", MHD_HTTP_OK );
         } else if( strcmp( request->mUrl, "/main.js" ) == 0 ) {
             // The main script file has been requested
-            printf( "Serving up the main.js\n" );
+            if( isVerbose() ){ printf( "Serving up the main.js\n" ); }
             request->sendResponse( mMainJs, "text/javascript", MHD_HTTP_OK );
         // } else if( request->mUrl == "/stylesheet.css" ) {
         //     // Send the style file
