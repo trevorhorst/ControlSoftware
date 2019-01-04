@@ -173,59 +173,56 @@ void Console::evaluate( char *input )
 
     if( tokenized.empty() ) {
         // The input is empty
-        return;
-    }
-
-    if( tokenized.at( 0 ) == "quit" ) {
+    } else if( tokenized.at( 0 ) == "quit" ) {
         // The command is to quit, so lets quit. Nothing fancy here.
         getInstance().quit();
-        return;
-    }
+    } else {
 
-    // Add the cmd string to the object
-    cJSON *msg    = cJSON_CreateObject();
-    cJSON *params = cJSON_CreateObject();
-    cJSON *cmd    = nullptr;
+        // Add the cmd string to the object
+        cJSON *msg    = cJSON_CreateObject();
+        cJSON *params = cJSON_CreateObject();
+        cJSON *cmd    = nullptr;
 
-    for( auto it = tokenized.begin(); it != tokenized.end(); it++ ) {
-        if( *it == tokenized.at( 0 ) ) {
-            // Add the command parameter
-            cmd = cJSON_CreateString( (*it).c_str() );
-        } else {
-            auto t = it;
-            it++;
-            if( it == tokenized.end() ) {
-                printf( "Parameter mismatch\n" );
+        for( auto it = tokenized.begin(); it != tokenized.end(); it++ ) {
+            if( *it == tokenized.at( 0 ) ) {
+                // Add the command parameter
+                cmd = cJSON_CreateString( (*it).c_str() );
             } else {
-                // Parse the parameter
-                cJSON *param = cJSON_Parse( (*it).c_str() );
-                // Add the item to the parameter list
-                cJSON_AddItemToObject( params, (*t).c_str(), param );
+                auto t = it;
+                it++;
+                if( it == tokenized.end() ) {
+                    printf( "Parameter mismatch\n" );
+                } else {
+                    // Parse the parameter
+                    cJSON *param = cJSON_Parse( (*it).c_str() );
+                    // Add the item to the parameter list
+                    cJSON_AddItemToObject( params, (*t).c_str(), param );
+                }
             }
         }
+
+        cJSON_AddItemToObject( msg, PARAM_COMMAND, cmd );
+        cJSON_AddItemToObject( msg, PARAM_PARAMS, params );
+
+        char *msgStr = cJSON_PrintUnformatted( msg );
+
+        if( getInstance().isVerbose() ) {
+            printf( "%s\n", msgStr );
+        }
+
+        HttpClient client;
+        client.send( msgStr );
+        cJSON_free( msgStr );
+
+        // Clean up the message, this should delete all the components
+        cJSON_Delete( msg );
+
     }
-
-    cJSON_AddItemToObject( msg, PARAM_COMMAND, cmd );
-    cJSON_AddItemToObject( msg, PARAM_PARAMS, params );
-
-    char *msgStr = cJSON_PrintUnformatted( msg );
-
-    if( getInstance().isVerbose() ) {
-        printf( "%s\n", msgStr );
-    }
-
-    HttpClient client;
-    client.send( msgStr );
-    cJSON_free( msgStr );
-
-    // Clean up the message, this should delete all the components
-    cJSON_Delete( msg );
 
     if( input ) {
         add_history( input );
+        free( input );
     }
-
-    free( input );
 }
 
 void Console::evaluate( std::vector<std::string> input )
@@ -282,7 +279,8 @@ void Console::evaluate( std::vector<std::string> input )
 
     /*
     CommandMap::const_iterator it = mCommandMap.find( input.at( 0 ).c_str() );
-    if( it == mCommandMap.end() ) {
+    if( it == mCommandMap.end() ) {_invoke_impl<void, void (Console::*)(), Console*>(std::__invoke_memfun_deref, void (Console::*&&)(), Console*&&) (in /media/Storage/Projects/ControlSoftware/build/app/controld)
+
         // A matching command was not found
         if( input.at( 0 ) == "quit" ) {
             getInstance().quit();
