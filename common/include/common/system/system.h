@@ -3,19 +3,18 @@
 
 #include <unistd.h>
 
-#include "common/singleton.h"
-#include "common/control/control.h"
+#include "common/control/control_template.h"
 
 #define SYSTEM_HOSTNAME_SIZE_MAX 128
 
 class System
-        : public Singleton< System >
-        , public Control
+        : public ControlTemplate< System >
 {
-    friend class Singleton< System >;
 public:
     System();
-    void getHostname( char *hostname );
+    const char *getHostname();
+private:
+    char mHostname[ SYSTEM_HOSTNAME_SIZE_MAX ];
 };
 
 #endif // SYSTEM_H

@@ -23,9 +23,9 @@
  */
 class Command
 {
+public:
     using ParameterCallback     = std::function< uint32_t (cJSON*) >;
     using ParameterMap          = CharHashMap< ParameterCallback >;
-public:
 
     enum Type {
         MUTATOR = 0
@@ -34,32 +34,23 @@ public:
 
     Command( const char *mutator , const char *accessor );
     virtual ~Command();
-    virtual void addControlObject( Control* obj );
-    // virtual cJSON *call( cJSON *params ) = 0;
 
     bool isMutable();
     bool isAccessible();
-
 
     const char *getMutatorName();
     const char *getAccessorName();
 
     virtual const char *usage();
-    virtual cJSON *access( cJSON* params );
-    virtual cJSON *mutate( cJSON* params );
+    virtual cJSON *access( cJSON* params ) = 0;
+    virtual cJSON *mutate( cJSON* params ) = 0;
 
-    void bindMutatorCallback(const char *paramName
-                                     , uint32_t (Command::*cb)(cJSON *) );
-    void bindAccessorCallback( const char *paramName
-                                     , uint32_t (Command::*cb)( cJSON * ) );
-
-    uint32_t setVerbose( cJSON *val );
-    uint32_t getVerbose( cJSON *response );
+    virtual uint32_t setVerbose( cJSON *val ) = 0;
+    virtual uint32_t getVerbose( cJSON *response ) = 0;
 
     void setError( uint32_t code, const char* details, cJSON *response );
 
 protected:
-    Control *mControlObject;
     std::vector< Control* > mCtrlObjList;
     virtual bool handleRequiredParameters( cJSON *params, cJSON *response );
 

@@ -8,6 +8,7 @@
 #include "beagleboneblack/hardware_beagleboneblack.h"
 
 #include "common/command/command_console.h"
+#include "common/command/command_system.h"
 
 /**
  * @brief Entry point of the program
@@ -17,34 +18,13 @@ int main()
 {
     CommandHandler commandHandler;
 
-    Control ctl;
-    Command cmd( "tuner", "qtuner" );
-    cmd.addControlObject( &ctl );
-    // commandHandler.addCommand( &cmd );
-
     CommandConsole cmdConsole;
     commandHandler.addCommand( &cmdConsole );
 
-    // printf( "%s\n", cmd.getAccessorName() );
+    System sys;
+    CommandSystem cmdSystem;
+    commandHandler.addCommand( &cmdSystem );
 
-    // bindCommand( &cmd );
-
-    // cJSON *p = cJSON_CreateObject();
-    // cJSON_AddBoolToObject( p, PARAM_VERBOSE, true );
-
-    // // Need to make sure we free our cJSON print strings
-    // char *str = cJSON_Print( p );
-    // printf( "%s\n", str );
-    // free( str );
-
-    // CommandCallback cb = mCommandMap[ COMMAND_QTUNER ];
-    // cJSON *response = cb( p );
-    // str = cJSON_Print( response );
-    // printf( "Response: %s\n", str );
-    // free( str );
-    // cJSON_Delete( response );
-
-    // cJSON_Delete( p );
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
     (void)bbb;
 

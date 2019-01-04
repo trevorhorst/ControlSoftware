@@ -1,7 +1,7 @@
 #include "common/command/command_console.h"
 
 CommandConsole::CommandConsole()
-    : Command( COMMAND_CONSOLE, COMMAND_QCONSOLE )
+    : CommandTemplate< Console >( COMMAND_CONSOLE, COMMAND_QCONSOLE )
 {
     // Lets just go ahead and set the control object here
     mControlObject = &Console::getInstance();

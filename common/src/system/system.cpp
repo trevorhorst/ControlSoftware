@@ -4,7 +4,8 @@ System::System()
 {
 }
 
-void System::getHostname( char *hostname )
+const char *System::getHostname()
 {
-    gethostname( hostname, SYSTEM_HOSTNAME_SIZE_MAX );
+    gethostname( mHostname, SYSTEM_HOSTNAME_SIZE_MAX );
+    return mHostname;
 }

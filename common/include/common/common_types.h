@@ -31,7 +31,7 @@ struct CharArrayHash
      * @param str Char array to hash
      * @return Integer representation of the hash value
      */
-    int operator()( const char *str ) const
+    unsigned long operator()( const char *str ) const
     {
         unsigned long hash = 5381;
         int c;
@@ -44,7 +44,7 @@ struct CharArrayHash
     }
 };
 
-template< class C >
+template< typename C >
 using CharHashMap = std::unordered_map< const char*, C, CharArrayHash, CharArrayCompare >;
 
 #define COMMAND_CONSOLE     "console"

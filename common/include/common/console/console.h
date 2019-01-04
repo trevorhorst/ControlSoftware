@@ -19,6 +19,7 @@
 
 #include "common/singleton.h"
 #include "common/command/command.h"
+#include "common/control/control_template.h"
 #include "common/http/client/client.h"
 
 #define CONSOLE_HISTORY_FILE            "control.history"
@@ -26,7 +27,7 @@
 
 class Console
         : public Singleton< Console >
-        , public Control
+        , public ControlTemplate< Console >
 {
     friend class Singleton< Console >;
 
@@ -38,7 +39,7 @@ class Console
         Command::Type mType;
         Command* mCmdObj;
         cJSON *call( cJSON *params ) {
-            cJSON *rsp = NULL;
+            cJSON *rsp = nullptr;
             if( mType == Command::ACCESSOR ) {
                 rsp = mCmdObj->access( params );
             } else if( mType == Command::MUTATOR ) {

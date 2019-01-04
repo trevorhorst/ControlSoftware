@@ -10,7 +10,7 @@ class Control
 {
 public:
     Control();
-    virtual ~Control(){}
+    virtual ~Control();
 
     uint32_t setVerbose( bool verbose );
     bool isVerbose();

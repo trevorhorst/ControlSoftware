@@ -6,6 +6,11 @@ Control::Control()
 
 }
 
+Control::~Control()
+{
+
+}
+
 uint32_t Control::setVerbose( bool verbose )
 {
     uint32_t r = Error::Code::NONE;

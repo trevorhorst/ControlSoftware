@@ -20,8 +20,6 @@ public:
 private:
     BeagleboneBlack();
     ~BeagleboneBlack();
-
-    System mSystem;
 };
 
 #endif // HARDWARE_BEAGLEBONEBLACK_H
