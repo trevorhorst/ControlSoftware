@@ -18,22 +18,26 @@ int main()
 {
     CommandHandler commandHandler;
 
+    // Create the console
+    Console *console = &Console::getInstance();
     CommandConsole cmdConsole;
     commandHandler.addCommand( &cmdConsole );
 
+    // Create the system
     System sys;
     CommandSystem cmdSystem;
     commandHandler.addCommand( &cmdSystem );
 
+    // Create the hardware
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
     (void)bbb;
 
+    // Create the server
     HttpServer server( Resources::INDEX_HTML, Resources::MAIN_JS );
-
     server.setCommandHandler( &commandHandler );
     server.listen();
 
-    std::thread *app = new std::thread( &Console::run, &Console::getInstance() );
+    std::thread *app = new std::thread( &Console::run, console );
     // std::thread *req = new std::thread( &HttpServer::handleRequests, &server );
     // req->detach();
     app->join();

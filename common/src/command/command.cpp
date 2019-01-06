@@ -35,10 +35,6 @@ Command::Command( const char *mutator, const char *accessor )
     // Create the usage text
     snprintf( mUsage, sizeof( mUsage ), GENERIC_USAGE_TEXT
               , getMutatorName(), getAccessorName() );
-
-    // mMutatorMap[ PARAM_VERBOSE ] = PARAMETER_CALLBACK( &Command::setVerbose );
-
-    // mAccessorMap[ PARAM_VERBOSE ] = PARAMETER_CALLBACK( &Command::getVerbose );
 }
 
 /**
@@ -88,6 +84,10 @@ bool Command::handleRequiredParameters( cJSON*params, cJSON *response )
     return ( r == Error::Code::NONE );
 }
 
+/**
+ * @brief Retrieves the usage text
+ * @return Char array of the usage text
+ */
 const char *Command::usage()
 {
     return mUsage;

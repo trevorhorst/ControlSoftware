@@ -4,7 +4,7 @@ CommandConsole::CommandConsole()
     : CommandTemplate< Console >( COMMAND_CONSOLE, COMMAND_QCONSOLE )
 {
     // Lets just go ahead and set the control object here
-    mControlObject = &Console::getInstance();
+    // mControlObject = &Console::getInstance();
 
     mMutatorMap[ PARAM_QUIT ] = PARAMETER_CALLBACK( &CommandConsole::setQuit );
 }

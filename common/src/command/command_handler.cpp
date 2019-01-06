@@ -99,13 +99,11 @@ cJSON *CommandHandler::handle( const char *cmdStr )
 void CommandHandler::addCommand( Command *cmd )
 {
     if( cmd->isAccessible() ) {
-        printf( "Adding accessor\n" );
         mCommandMap[ cmd->getAccessorName() ]
                 = new CommandContainer( Command::Type::ACCESSOR, cmd );
     }
 
     if( cmd->isMutable() ) {
-        printf( "Adding mutator\n" );
         mCommandMap[ cmd->getMutatorName() ]
                 = new CommandContainer( Command::Type::MUTATOR, cmd );
     }

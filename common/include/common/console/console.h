@@ -26,8 +26,8 @@
 #define CONSOLE_HISTORY_FILE_LOCATION   "/tmp"
 
 class Console
-        : public Singleton< Console >
-        , public ControlTemplate< Console >
+        : public ControlTemplate< Console >
+        , public Singleton< Console >
 {
     friend class Singleton< Console >;
 
