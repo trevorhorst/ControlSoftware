@@ -5,8 +5,6 @@ CommandSystem::CommandSystem()
 {
     mAccessorMap[ PARAM_HOSTNAME ]
             = PARAMETER_CALLBACK( &CommandSystem::getHostname );
-
-    // mControlObject = System::getControlObject( 0 );
 }
 
 uint32_t CommandSystem::getHostname( cJSON *response )

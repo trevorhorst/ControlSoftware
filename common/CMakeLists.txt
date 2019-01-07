@@ -4,10 +4,13 @@ project(common)
 add_library(
     ${PROJECT_NAME} STATIC
     src/cjson/cJSON.c
+    
     src/command/command.cpp
     src/command/command_console.cpp
+    src/command/command_datetime.cpp
     src/command/command_handler.cpp
     src/command/command_system.cpp
+
     src/console/console.cpp
     src/control/control.cpp
     src/error/error.cpp
@@ -16,6 +19,7 @@ add_library(
     src/http/server/request.cpp
     src/http/server/server.cpp
     src/resources/resources.cpp
+    src/system/datetime.cpp
     src/system/system.cpp
     )
 

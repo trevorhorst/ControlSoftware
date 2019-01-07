@@ -5,10 +5,12 @@
 #include "common/command/command.h"
 #include "common/http/server/server.h"
 #include "common/http/client/client.h"
+#include "common/system/datetime.h"
 #include "beagleboneblack/hardware_beagleboneblack.h"
 
 #include "common/command/command_console.h"
 #include "common/command/command_system.h"
+#include "common/command/command_datetime.h"
 
 /**
  * @brief Entry point of the program
@@ -27,6 +29,11 @@ int main()
     System sys;
     CommandSystem cmdSystem;
     commandHandler.addCommand( &cmdSystem );
+
+    // Create the datetime
+    DateTime dateTime;
+    CommandDateTime cmdDateTime;
+    commandHandler.addCommand( &cmdDateTime );
 
     // Create the hardware
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
