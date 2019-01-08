@@ -8,6 +8,8 @@ CommandHelp::CommandHelp()
 
 uint32_t CommandHelp::getCommandMap( cJSON *response )
 {
+    /// @todo There is a memory leak in this method
+
     uint32_t r = Error::Code::NONE;
     // Create an array object
     cJSON *array = cJSON_CreateArray();
