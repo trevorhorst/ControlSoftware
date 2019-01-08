@@ -54,6 +54,11 @@ CommandHandler::~CommandHandler()
     }
 }
 
+CommandMap *CommandHandler::getCommandMap()
+{
+    return &mCommandMap;
+}
+
 /**
  * @brief Handles a command
  * @param cmdStr Command string to handle

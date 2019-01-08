@@ -11,6 +11,7 @@
 #include "common/command/command_console.h"
 #include "common/command/command_system.h"
 #include "common/command/command_datetime.h"
+#include "common/command/command_help.h"
 
 /**
  * @brief Entry point of the program
@@ -43,6 +44,9 @@ int main()
     HttpServer server( Resources::INDEX_HTML, Resources::MAIN_JS );
     server.setCommandHandler( &commandHandler );
     server.listen();
+
+    CommandHelp help;
+    commandHandler.addCommand( &help );
 
     std::thread *app = new std::thread( &Console::run, console );
     // std::thread *req = new std::thread( &HttpServer::handleRequests, &server );

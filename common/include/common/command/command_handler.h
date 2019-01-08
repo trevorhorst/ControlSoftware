@@ -2,6 +2,7 @@
 #define COMMAND_HANDLER_H
 
 #include "common/common_types.h"
+#include "common/control/control_template.h"
 #include "common/command/command.h"
 
 
@@ -24,6 +25,7 @@ using CommandMap = CharHashMap< CommandContainer* >;
  * @brief Handles any received commands by calling the required methods
  */
 class CommandHandler
+        : public ControlTemplate< CommandHandler >
 {
 public:
 
@@ -32,6 +34,7 @@ public:
 
     cJSON *handle( const char *cmdStr );
     void addCommand( Command *cmd );
+    CommandMap *getCommandMap();
 private:
     CommandMap mCommandMap;
 };

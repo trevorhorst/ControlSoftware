@@ -9,6 +9,8 @@
 
 #include "common/common_types.h"
 
+#define COMMAND_EMPTY   ""
+
 #define COMMAND_USAGE_MAX_SIZE 1024
 #define COMMAND_NAME_MAX_SIZE 64
 
