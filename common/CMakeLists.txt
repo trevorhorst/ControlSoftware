@@ -10,6 +10,7 @@ add_library(
     src/command/command_datetime.cpp
     src/command/command_handler.cpp
     src/command/command_help.cpp
+    src/command/command_server.cpp
     src/command/command_system.cpp
 
     src/console/console.cpp

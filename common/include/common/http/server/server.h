@@ -17,18 +17,24 @@
 #define HTTP_SERVER_FAILED   	"Failed"
 #define HTTP_SERVER_BAD_REQUEST "Bad Request"
 
-class HttpServer : public Control
+class HttpServer
+        : public ControlTemplate< HttpServer >
 {
 public:
     HttpServer( const char *index
                 , const char *main
                 , uint16_t port = HTTP_SERVER_PORT_DEFAULT
                 , bool secure = false );
+    ~HttpServer();
 
     bool listen();
     void stop();
 
     void setCommandHandler( CommandHandler *handler );
+
+    bool isRunning();
+
+    uint32_t getPort();
 
     static int iterateHeaderValues(
             void *cls
@@ -63,7 +69,7 @@ public:
     void printHeaders( Request *request );
     void printBody( Request *request );
 
-    bool mDone;
+    // bool mDone;
 
 
 private:

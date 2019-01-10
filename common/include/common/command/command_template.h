@@ -37,7 +37,7 @@ public:
      */
     cJSON *access( cJSON *params )
     {
-        printf( "%s\n", __FUNCTION__ );
+        if( mControlObject->isVerbose() ) { printf( "%s\n", __FUNCTION__ ); }
         cJSON* response = cJSON_CreateObject();
         cJSON_AddStringToObject( response, PARAM_COMMAND, getAccessorName() );
 
@@ -77,7 +77,7 @@ public:
      */
     cJSON *mutate( cJSON *params )
     {
-        printf( "%s\n", __FUNCTION__ );
+        if( mControlObject->isVerbose() ) { printf( "%s\n", __FUNCTION__ ); }
         uint32_t r = Error::Code::NONE;
         cJSON *response = cJSON_CreateObject();
 
@@ -89,12 +89,19 @@ public:
             // The control object isn't valid
             r = Error::Code::CMD_FAILED;
             setError( r, "Control is unavailable", response );
+        } else if( params == nullptr
+                   || cJSON_IsInvalid( params )
+                   || cJSON_IsNull( params ) ) {
+            // The params object is invalid
+            r = Error::Code::PARAM_MISSING;
+            setError( r, PARAM_PARAMS, response );
         } else {
-            // The control object is valid
+            // The control object is valid and we have parameters to work with
             for( cJSON *param = params->child
                  ; r == Error::Code::NONE && param != NULL
                  ; param = param->next ) {
-                ParameterMap::const_iterator it = mMutatorMap.find( param->string );
+                ParameterMap::const_iterator it
+                        = mMutatorMap.find( param->string );
                 if( it == mMutatorMap.end() ) {
                     // No callback was found
                     r = Error::Code::PARAM_INVALID;

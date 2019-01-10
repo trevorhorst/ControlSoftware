@@ -170,9 +170,8 @@ int HttpServer::iteratePost(
  */
 HttpServer::HttpServer( const char *index, const char *main
                         , uint16_t port, bool secure )
-    : Control()
-    , mDone( false )
-    , mServerDaemon( nullptr )
+    // , mDone( false )
+    : mServerDaemon( nullptr )
     , mCommandHandler( nullptr )
     , mIndexHtml( index )
     , mMainJs( main )
@@ -181,9 +180,35 @@ HttpServer::HttpServer( const char *index, const char *main
 {
 }
 
+/**
+ * @brief Destructor
+ */
+HttpServer::~HttpServer()
+{
+    stop();
+}
+
 void HttpServer::setCommandHandler( CommandHandler *handler )
 {
     mCommandHandler = handler;
+}
+
+/**
+ * @brief Retrieves the server port
+ * @return uint16_t representation of the port used by the server
+ */
+uint32_t HttpServer::getPort()
+{
+    return mPort;
+}
+
+bool HttpServer::isRunning()
+{
+    bool running = false;
+    if( mServerDaemon != nullptr ) {
+        running = true;
+    }
+    return running;
 }
 
 /**
@@ -267,7 +292,6 @@ void HttpServer::stop()
         mServerDaemon = nullptr;
     }
 }
-
 
 /**
  * @brief Handles new incoming connections
@@ -431,8 +455,7 @@ void HttpServer::processRequest( Request *request )
                 } else {
                     char *rspStr = nullptr;
                     rspStr = cJSON_Print( rsp );
-                    request->sendResponse( rspStr, "text/html"
-                                           , MHD_HTTP_OK );
+                    request->sendResponse( rspStr, "text/html", MHD_HTTP_OK );
                     cJSON_free( rspStr );
                 }
                 /// @todo The rsp object should be created outside the command

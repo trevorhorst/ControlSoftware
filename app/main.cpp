@@ -9,6 +9,7 @@
 #include "beagleboneblack/hardware_beagleboneblack.h"
 
 #include "common/command/command_console.h"
+#include "common/command/command_server.h"
 #include "common/command/command_system.h"
 #include "common/command/command_datetime.h"
 #include "common/command/command_help.h"
@@ -42,6 +43,9 @@ int main()
 
     // Create the server
     HttpServer server( Resources::INDEX_HTML, Resources::MAIN_JS );
+    CommandServer cmdServer;
+    commandHandler.addCommand( &cmdServer );
+
     server.setCommandHandler( &commandHandler );
     server.listen();
 
@@ -53,7 +57,7 @@ int main()
     // req->detach();
     app->join();
 
-    server.mDone = true;
+    // server.mDone = true;
 
     server.stop();
 
