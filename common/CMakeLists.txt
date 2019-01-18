@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 project(common)
 
-add_library(
-    ${PROJECT_NAME} STATIC
+set( SOURCE
+    ${SOURCE}
+    # cJSON Library
     src/cjson/cJSON.c
-    
+    # Commands
     src/command/command.cpp
     src/command/command_console.cpp
     src/command/command_datetime.cpp
@@ -12,7 +13,6 @@ add_library(
     src/command/command_help.cpp
     src/command/command_server.cpp
     src/command/command_system.cpp
-
     src/console/console.cpp
     src/control/control.cpp
     src/error/error.cpp
@@ -23,6 +23,59 @@ add_library(
     src/resources/resources.cpp
     src/system/datetime.cpp
     src/system/system.cpp
+    )
+
+set( HEADERS
+    ${HEADERS}
+    # cJSON Library
+    include/common/cjson/cJSON.h
+
+    # Commands
+    include/common/command/command.h
+    include/common/command/command_console.h
+    include/common/command/command_datetime.h
+    include/common/command/command_handler.h
+    include/common/command/command_help.h
+    include/common/command/command_led.h
+    include/common/command/command_server.h
+    include/common/command/command_system.h
+    include/common/command/command_template.h
+
+    # Control
+    include/common/control/control.h
+    include/common/control/control_template.h
+
+    # Error
+    include/common/error/error.h
+
+    # Hardware
+    include/common/hardware/hardware.h
+
+    # HTTP
+    include/common/http/http.h
+    include/common/http/client/client.h
+    include/common/http/server/request.h
+    include/common/http/server/server.h
+
+    # Resources
+    include/common/resources/resources.h
+
+    # System
+    include/common/system/datetime.h
+    include/common/system/system.h
+
+    # Console
+    include/common/console/console.h
+
+    # Miscellaneous
+    include/common/common_types.h
+    include/common/singleton.h
+    )
+
+add_library(
+    ${PROJECT_NAME} STATIC
+    ${SOURCE}
+    ${HEADERS}
     )
 
 target_include_directories(
