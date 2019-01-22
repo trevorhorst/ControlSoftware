@@ -3,19 +3,34 @@ project(beagleboneblack)
 
 enable_language( C ASM )
 
-add_library(
-    ${PROJECT_NAME} STATIC
+# List of source files
+set( SOURCE
+    ${SOURCE}
     src/resources/index.html.s
     src/resources/main.js.s
     src/hardware_beagleboneblack.cpp
     )
 
-include_directories( ${CMAKE_SOURCE_DIR}/common/include )
+# List of header files
+set( HEADERS
+    ${HEADERS}
+    include/beagleboneblack/hardware_beagleboneblack.h
+    include/beagleboneblack/resources/resources.h
+    )
+
+add_library(
+    ${PROJECT_NAME} STATIC
+    ${SOURCE}
+    ${HEADERS}
+    )
 
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
+    # Include the project directories
     ${PROJECT_SOURCE_DIR}/resources
     ${PROJECT_SOURCE_DIR}/include
+    # Include the common directory
+    ${CMAKE_SOURCE_DIR}/common/include
     )
 
 install(TARGETS ${PROJECT_NAME}
