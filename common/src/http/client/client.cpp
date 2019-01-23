@@ -18,9 +18,7 @@ HttpClient::Data::Data()
  */
 HttpClient::Data::~Data()
 {
-    if( mData ) {
-        delete[] mData;
-    }
+    clear();
 }
 
 /**
@@ -56,6 +54,18 @@ void HttpClient::Data::write( const char *data, size_t size )
     if( t ) {
         // Delete the pointer to the old data block
         delete[] t;
+    }
+}
+
+/**
+ * @brief Clears the data
+ */
+void HttpClient::Data::clear()
+{
+    if( mData ) {
+        mSize = 0;
+        delete[] mData;
+        mData = nullptr;
     }
 }
 
@@ -131,6 +141,11 @@ void HttpClient::send( const char *str )
     curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, HttpClient::receive );
     curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mData );
 
+    // Set up for cookie usage
+    curl_easy_setopt( mCurl, CURLOPT_COOKIESESSION, true );
+    curl_easy_setopt( mCurl,     CURLOPT_COOKIEJAR, "cs-cookie" );
+    curl_easy_setopt( mCurl,    CURLOPT_COOKIEFILE, "/tmp" );
+
     // Perform the cURL
     CURLcode res = curl_easy_perform( mCurl );
 
@@ -142,6 +157,8 @@ void HttpClient::send( const char *str )
         // Handle the response
         printf( "%s\n", mData.read() );
     }
+
+    mData.clear();
 
     // Free the headers
     curl_slist_free_all( headers );
