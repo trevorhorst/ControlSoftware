@@ -1,6 +1,7 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
+#include <chrono>
 #include <microhttpd.h>
 
 #include "common/common_types.h"
@@ -58,7 +59,7 @@ public:
     void handleRequest();
 
 private:
-
+    std::chrono::high_resolution_clock::time_point mStart;
 };
 
 #endif // REQUEST_H

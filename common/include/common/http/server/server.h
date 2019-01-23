@@ -65,7 +65,11 @@ public:
     int onRequestDone(
             Request *request );
 
+
     void processRequest( Request *request );
+
+    uint32_t getNumConnections();
+
     void printHeaders( Request *request );
     void printBody( Request *request );
 

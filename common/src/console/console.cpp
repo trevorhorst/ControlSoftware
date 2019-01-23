@@ -12,6 +12,8 @@
 #define CONSOLE_MAX_TOKENS  10
 #define CONSOLE_MAX_TOKEN_SIZE 64
 
+HttpClient Console::mClient;
+
 /**
  * @brief Constructor
  */
@@ -210,8 +212,7 @@ void Console::evaluate( char *input )
             printf( "%s\n", msgStr );
         }
 
-        HttpClient client;
-        client.send( msgStr );
+        mClient.send( msgStr );
         cJSON_free( msgStr );
 
         // Clean up the message, this should delete all the components
@@ -219,7 +220,7 @@ void Console::evaluate( char *input )
 
     }
 
-    if( input ) {
+    if( input != nullptr && input[ 0 ] != '\0' ) {
         add_history( input );
         free( input );
     }
@@ -270,8 +271,7 @@ void Console::evaluate( std::vector<std::string> input )
         printf( "%s\n", msgStr );
     }
 
-    HttpClient client;
-    client.send( msgStr );
+    mClient.send( msgStr );
     cJSON_free( msgStr );
 
     // Clean up the message, this should delete all the components

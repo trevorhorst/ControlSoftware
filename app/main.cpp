@@ -20,46 +20,22 @@
  */
 int main()
 {
-    CommandHandler commandHandler;
-
     // Create the console
     Console *console = &Console::getInstance();
-    CommandConsole cmdConsole;
-    commandHandler.addCommand( &cmdConsole );
-
-    // Create the system
-    System sys;
-    CommandSystem cmdSystem;
-    commandHandler.addCommand( &cmdSystem );
-
-    // Create the datetime
-    DateTime dateTime;
-    CommandDateTime cmdDateTime;
-    commandHandler.addCommand( &cmdDateTime );
 
     // Create the hardware
     BeagleboneBlack *bbb = &BeagleboneBlack::getInstance();
-    (void)bbb;
 
-    // Create the server
-    HttpServer server( Resources::INDEX_HTML, Resources::MAIN_JS );
-    CommandServer cmdServer;
-    commandHandler.addCommand( &cmdServer );
-
-    server.setCommandHandler( &commandHandler );
-    server.listen();
+    CommandConsole cmdConsole;
+    bbb->addCommand( &cmdConsole );
 
     CommandHelp help;
-    commandHandler.addCommand( &help );
+    bbb->addCommand( &help );
 
     std::thread *app = new std::thread( &Console::run, console );
     // std::thread *req = new std::thread( &HttpServer::handleRequests, &server );
     // req->detach();
     app->join();
-
-    // server.mDone = true;
-
-    server.stop();
 
     delete app;
 

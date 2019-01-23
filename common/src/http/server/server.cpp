@@ -28,16 +28,20 @@ static int answerToConnection (
     HttpServer *server = static_cast< HttpServer* >( cls );
     Request *request = static_cast< Request* >( *con_cls );
 
+    int32_t ret = 0;
+
     if( request == nullptr ) {
         // Handles a new request
-        return server->onRequest( connection, method, url, con_cls );
+        ret = server->onRequest( connection, method, url, con_cls );
     } else if( *upload_data_size > 0 ) {
         // Handles an existing request
-        return server->onRequestBody( request, upload_data, upload_data_size );
+        ret = server->onRequestBody( request, upload_data, upload_data_size );
     } else {
         // Handles a finished request
-        return server->onRequestDone( request );
+        ret = server->onRequestDone( request );
     }
+
+    return ret;
 }
 
 
@@ -219,7 +223,9 @@ bool HttpServer::listen()
 {
     bool success = false;
 
-    uint flags = MHD_USE_POLL_INTERNALLY | MHD_USE_PEDANTIC_CHECKS;
+    uint flags = MHD_USE_POLL_INTERNALLY
+            | MHD_USE_THREAD_PER_CONNECTION
+            | MHD_USE_PEDANTIC_CHECKS;
 
     if( mSecure ) {
         printf( "Server is secure\n" );
@@ -485,6 +491,12 @@ void HttpServer::processRequest( Request *request )
                                , MHD_HTTP_BAD_REQUEST );
 
     }
+}
+
+uint32_t HttpServer::getNumConnections()
+{
+    return MHD_get_daemon_info( mServerDaemon
+                         , MHD_DAEMON_INFO_CURRENT_CONNECTIONS )->num_connections;
 }
 
 void HttpServer::printHeaders(Request *request)

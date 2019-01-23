@@ -5,6 +5,7 @@ set( SOURCE
     ${SOURCE}
     # cJSON Library
     src/cjson/cJSON.c
+
     # Commands
     src/command/command.cpp
     src/command/command_console.cpp
@@ -13,14 +14,27 @@ set( SOURCE
     src/command/command_help.cpp
     src/command/command_server.cpp
     src/command/command_system.cpp
+
+    # Console
     src/console/console.cpp
+
+    # Control
     src/control/control.cpp
+
+    # Error
     src/error/error.cpp
+
+    # HTTP
     src/http/http.cpp
+    # src/http/client.cpp
     src/http/client/client.cpp
     src/http/server/request.cpp
     src/http/server/server.cpp
+
+    # Resources
     src/resources/resources.cpp
+
+    # System
     src/system/datetime.cpp
     src/system/system.cpp
     )
@@ -53,6 +67,7 @@ set( HEADERS
 
     # HTTP
     include/common/http/http.h
+    # include/common/http/client.h
     include/common/http/client/client.h
     include/common/http/server/request.h
     include/common/http/server/server.h

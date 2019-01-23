@@ -65,6 +65,7 @@ private:
     Console();
     ~Console();
 
+    static HttpClient mClient;
     CommandMap mCommandMap;
 
     bool mDone;

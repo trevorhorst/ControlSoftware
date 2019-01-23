@@ -3,14 +3,14 @@
 
 Request::Request( MHD_Connection *connection )
   : mConnection( connection )
-  , mPostProcessor( NULL )
-  , mMethod( NULL )
-  , mUrl( NULL )
-  , mBody( NULL )
-  , mData( NULL )
-  , mFp( NULL )
+  , mPostProcessor( nullptr )
+  , mMethod( nullptr )
+  , mUrl( nullptr )
+  , mBody( nullptr )
+  , mData( nullptr )
+  , mFp( nullptr )
+  , mStart( std::chrono::high_resolution_clock::now() )
 {
-
 }
 
 void Request::handleRequest()
@@ -25,7 +25,7 @@ int Request::sendResponse(
 {
     int ret;
 
-    struct MHD_Response *response = NULL;
+    struct MHD_Response *response = nullptr;
     response = MHD_create_response_from_buffer(
                 strlen( responseData )
                 , (void*)( responseData )
@@ -38,6 +38,13 @@ int Request::sendResponse(
                              , MHD_HTTP_HEADER_CONTENT_TYPE
                              , responseType );
     ret = MHD_queue_response( mConnection, statusCode, response );
+    // std::chrono::high_resolution_clock::time_point end
+    //         = std::chrono::high_resolution_clock::now();
+
+    // printf( "%ld\n"
+    //         , std::chrono::duration_cast< std::chrono::microseconds >(
+    //             end - mStart ).count() );
+
     MHD_destroy_response( response );
 
     return ret;
