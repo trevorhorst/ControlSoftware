@@ -18,6 +18,7 @@ else()
 endif()
 
 add_subdirectory(app)
+add_subdirectory(remote)
 add_subdirectory(common)
 add_subdirectory(hardware/beagleboneblack)
 
