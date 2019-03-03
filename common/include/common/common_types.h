@@ -47,6 +47,18 @@ struct CharArrayHash
 template< typename C >
 using CharHashMap = std::unordered_map< const char*, C, CharArrayHash, CharArrayCompare >;
 
+namespace Common
+{
+
+struct CharArrayCompare;
+struct CharArrayHash;
+template< typename C > using CharHashMap
+    = std::unordered_map< const char*, C, CharArrayHash, CharArrayCompare >;
+
+void CharArrayCopy( char *dst, const char *src, size_t size );
+
+}
+
 #define COMMAND_CONSOLE     "console"
 #define COMMAND_TUNER       "tuner"
 #define COMMAND_QTUNER      "qtuner"

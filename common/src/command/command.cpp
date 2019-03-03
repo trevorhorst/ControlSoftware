@@ -8,6 +8,8 @@
                "         param: Parameter to be changed (see ICD)\n" \
                "         val:   New value to set parameter (see ICD)\n"
 
+const char *Command::error_control_unavailable = "Control is unavailable";
+
 /**
  * @brief Command Constructor
  * @param name Command name
@@ -21,6 +23,7 @@ Command::Command( const char *mutator, const char *accessor )
         strncpy( mAccessor, "\0", 1 );
     } else {
         strncpy( mAccessor, accessor, sizeof( mAccessor ) );
+        mAccessor[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
         mAccessible = true;
     }
 
@@ -29,6 +32,7 @@ Command::Command( const char *mutator, const char *accessor )
         strncpy( mMutator, "\0", 1 );
     } else {
         strncpy( mMutator, mutator, sizeof( mMutator ) );
+        mMutator[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
         mMutable = true;
     }
 
@@ -50,9 +54,8 @@ Command::~Command()
  * @param response Response object to fill out
  * @return Boolean indicating success of the operation
  */
-bool Command::handleRequiredParameters( cJSON*params, cJSON *response )
+bool Command::handleRequiredParameters( cJSON *params, cJSON *response )
 {
-    // printf( "%s\n", __FUNCTION__ );
     uint32_t r = Error::Code::NONE;
     cJSON *p = nullptr;
 

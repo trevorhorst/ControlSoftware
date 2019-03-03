@@ -53,12 +53,15 @@ public:
     void setError( uint32_t code, const char* details, cJSON *response );
 
 protected:
+
     std::vector< Control* > mCtrlObjList;
     virtual bool handleRequiredParameters( cJSON *params, cJSON *response );
 
     ParameterMap mRequiredMap;
     ParameterMap mAccessorMap;
     ParameterMap mMutatorMap;
+
+    static const char *error_control_unavailable;
 
 private:
     char mUsage[ COMMAND_USAGE_MAX_SIZE ];

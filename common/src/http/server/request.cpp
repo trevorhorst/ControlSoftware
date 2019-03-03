@@ -1,21 +1,46 @@
 #include "common/http/server/request.h"
 
+namespace Http
+{
 
+const uint32_t Request::header_key_size_max   = 128;
+const uint32_t Request::header_value_size_max = 1024;
+
+/**
+ * @brief Constructor
+ * @param connection Connections associated with the request
+ */
 Request::Request( MHD_Connection *connection )
   : mConnection( connection )
   , mPostProcessor( nullptr )
-  , mMethod( nullptr )
-  , mUrl( nullptr )
-  , mBody( nullptr )
-  , mData( nullptr )
   , mFp( nullptr )
-  , mStart( std::chrono::high_resolution_clock::now() )
+  , mMethod( nullptr )
+  , mPath( nullptr )
+  , mData( nullptr )
+  , mDataSize( 0 )
 {
 }
 
-void Request::handleRequest()
+/**
+ * @brief Destructor
+ */
+Request::~Request()
 {
-    sendResponse( DEMO_PAGE, "text/html", MHD_HTTP_OK );
+}
+
+/**
+ * @brief Adds a header to the request
+ * @param key Header key
+ * @param value Header value
+ */
+void Request::addHeader( const char *key, const char *value )
+{
+    mHeaders[ key ] = value;
+}
+
+void Request::appendData( const char *data, size_t size )
+{
+    mBody.append( data, size );
 }
 
 int Request::sendResponse(
@@ -38,19 +63,40 @@ int Request::sendResponse(
                              , MHD_HTTP_HEADER_CONTENT_TYPE
                              , responseType );
     ret = MHD_queue_response( mConnection, statusCode, response );
-    // std::chrono::high_resolution_clock::time_point end
-    //         = std::chrono::high_resolution_clock::now();
-
-    // printf( "%ld\n"
-    //         , std::chrono::duration_cast< std::chrono::microseconds >(
-    //             end - mStart ).count() );
 
     MHD_destroy_response( response );
 
     return ret;
 }
 
-const char* Request::getBody()
+void Request::setMethod( const char *method )
 {
-    return mBody;
+    mMethod = method;
+}
+
+void Request::setPath( const char *path )
+{
+    mPath = path;
+}
+
+const char *Request::getMethod()
+{
+    return mMethod;
+}
+
+const char *Request::getPath()
+{
+    return mPath;
+}
+
+Body *Request::getBody()
+{
+    return &mBody;
+}
+
+Request::HeaderMap *Request::getHeaders()
+{
+    return &mHeaders;
+}
+
 }

@@ -4,6 +4,8 @@
 #include <string.h>
 #include <microhttpd.h>
 
+#include "common/http/http.h"
+
 #include "common/cjson/cJSON.h"
 #include "common/control/control.h"
 #include "common/http/server/request.h"
@@ -11,21 +13,32 @@
 
 #define POST_BUFFER_SIZE 512
 
-#define HTTP_SERVER_PORT_DEFAULT 8080
-
 #define HTTP_SERVER_SUCCESS 	"Success"
 #define HTTP_SERVER_FAILED   	"Failed"
 #define HTTP_SERVER_BAD_REQUEST "Bad Request"
 
-class HttpServer
-        : public ControlTemplate< HttpServer >
+namespace Http {
+
+class Server
+        : public ControlTemplate< Server >
 {
+    static const char *response_success;
+    static const char *response_failed;
+    static const char *response_bad_request;
+
+    static const char *type_text_html;
+    static const char *type_text_javascript;
+
+    static const char *path_base;
+    static const char *path_index_html;
+    static const char *path_main_js;
+
 public:
-    HttpServer( const char *index
-                , const char *main
-                , uint16_t port = HTTP_SERVER_PORT_DEFAULT
-                , bool secure = false );
-    ~HttpServer();
+    Server( const char *index
+            , const char *main
+            , uint16_t port = default_port
+            , bool secure = false );
+    ~Server();
 
     bool listen();
     void stop();
@@ -66,7 +79,8 @@ public:
             Request *request );
 
 
-    void processRequest( Request *request );
+    void process( Request *request );
+    // void processRequest( Request *request );
 
     uint32_t getNumConnections();
 
@@ -84,5 +98,7 @@ private:
     uint16_t mPort;
     bool mSecure;
 };
+
+}
 
 #endif // HTTP_SERVER_H

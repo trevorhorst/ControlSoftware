@@ -11,7 +11,7 @@
 #define PARAM_PORT      "port"
 
 class CommandServer
-        : public CommandTemplate< HttpServer >
+        : public CommandTemplate< Http::Server >
 {
 public:
     CommandServer();

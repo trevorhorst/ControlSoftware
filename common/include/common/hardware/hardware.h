@@ -13,37 +13,12 @@ class Hardware
 {
 public:
 
-    /**
-     * @brief Constructor
-     */
-    Hardware()
-    {}
+    Hardware();
 
-    /**
-     * @brief Destructor
-     */
-    virtual ~Hardware()
-    {}
+    virtual ~Hardware();
 
-    /**
-     * @brief Retrieves a pointer to the command handler
-     * @return Pointer to the command handler
-     */
-    virtual CommandHandler *getCommandHandler()
-    {
-        return &mCommandHandler;
-    }
-
-    /**
-     * @brief Adds a command to the local command handler
-     * @param cmd Desired command to add
-     */
-    virtual void addCommand( Command* cmd )
-    {
-        mCommandHandler.addCommand( cmd );
-    }
-
-protected:
+    virtual CommandHandler *getCommandHandler();
+    virtual void addCommand( Command* cmd );
 
 private:
     CommandHandler mCommandHandler;

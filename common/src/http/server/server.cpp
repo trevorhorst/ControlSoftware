@@ -25,8 +25,8 @@ static int answerToConnection (
     ( void )( cls );
     ( void )( version );
 
-    HttpServer *server = static_cast< HttpServer* >( cls );
-    Request *request = static_cast< Request* >( *con_cls );
+    Http::Server *server = static_cast< Http::Server* >( cls );
+    Http::Request *request = static_cast< Http::Request* >( *con_cls );
 
     int32_t ret = 0;
 
@@ -64,7 +64,7 @@ static void onResponseSent(
     (void)connection;
     (void)rtc;
 
-    Request *r = static_cast< Request* >( *request );
+    Http::Request *r = static_cast< Http::Request* >( *request );
 
     if( r->mPostProcessor != nullptr ) {
         MHD_destroy_post_processor( r->mPostProcessor );
@@ -81,7 +81,28 @@ static void onResponseSent(
     delete r;
 }
 
-int HttpServer::iterateHeaderValues(
+namespace Http {
+
+const char *Server::response_success     = "Success";
+const char *Server::response_failed      = "Failed";
+const char *Server::response_bad_request = "Bad Request";
+
+const char *Server::type_text_html       = "text/html";
+const char *Server::type_text_javascript = "text/javascript";
+
+const char *Server::path_base            = "/";
+const char *Server::path_index_html      = "/index.html";
+const char *Server::path_main_js         = "/main.js";
+
+/**
+ * @brief Iterates over headers values found in the request
+ * @param cls
+ * @param kind
+ * @param key
+ * @param value
+ * @return
+ */
+int Http::Server::iterateHeaderValues(
         void *cls
         , MHD_ValueKind kind
         , const char *key
@@ -90,18 +111,28 @@ int HttpServer::iterateHeaderValues(
     // Unused
     (void)kind;
 
-    // printf( "%20s: %s\n", key, value );
-    CharHashMap< Request::Header > *headers
-            = static_cast< CharHashMap< Request::Header >* >( cls );
-    // Request::Header *h = new Request::Header( value );
-    // headers[ (char*)key ] = Request::Header( value );
-    headers->insert( CharHashMap< Request::Header>::value_type( key
-                                              , Request::Header( value ) ) );
-    // (*headers)[ key ] = Request::Header( value );
+    // Cast the existing headers map
+    Request *header = static_cast< Request* >( cls );
+    // Insert the new header
+    header->addHeader( key, value );
+
     return MHD_YES;
 }
 
-int HttpServer::iteratePost(
+/**
+ * @brief Iterates over the data found in a POST request
+ * @param coninfo_cls
+ * @param kind
+ * @param key
+ * @param filename
+ * @param content_type
+ * @param transfer_encoding
+ * @param data
+ * @param off
+ * @param size
+ * @return
+ */
+int Http::Server::iteratePost(
         void *coninfo_cls
         , MHD_ValueKind kind
         , const char *key
@@ -172,8 +203,8 @@ int HttpServer::iteratePost(
  * @param port Port number to attach to
  * @param secure Enable/Disable secure server
  */
-HttpServer::HttpServer( const char *index, const char *main
-                        , uint16_t port, bool secure )
+Server::Server( const char *index, const char *main
+                          , uint16_t port, bool secure )
     // , mDone( false )
     : mServerDaemon( nullptr )
     , mCommandHandler( nullptr )
@@ -187,12 +218,12 @@ HttpServer::HttpServer( const char *index, const char *main
 /**
  * @brief Destructor
  */
-HttpServer::~HttpServer()
+Server::~Server()
 {
     stop();
 }
 
-void HttpServer::setCommandHandler( CommandHandler *handler )
+void Server::setCommandHandler( CommandHandler *handler )
 {
     mCommandHandler = handler;
 }
@@ -201,12 +232,16 @@ void HttpServer::setCommandHandler( CommandHandler *handler )
  * @brief Retrieves the server port
  * @return uint16_t representation of the port used by the server
  */
-uint32_t HttpServer::getPort()
+uint32_t Server::getPort()
 {
     return mPort;
 }
 
-bool HttpServer::isRunning()
+/**
+ * @brief Determines if the server is running
+ * @return Boolean indicating server status
+ */
+bool Server::isRunning()
 {
     bool running = false;
     if( mServerDaemon != nullptr ) {
@@ -219,7 +254,7 @@ bool HttpServer::isRunning()
  * @brief Starts the HTTP server Daemon
  * @return Boolean indicating success of the operation
  */
-bool HttpServer::listen()
+bool Server::listen()
 {
     bool success = false;
 
@@ -290,7 +325,7 @@ bool HttpServer::listen()
 /**
  * @brief Stops the HTTP server Daemon
  */
-void HttpServer::stop()
+void Server::stop()
 {
     if( mServerDaemon != nullptr ) {
         printf( "Stopping Server...\n" );
@@ -307,7 +342,7 @@ void HttpServer::stop()
  * @param request Pointer to the request object
  * @return Integer value return code
  */
-int HttpServer::onRequest( MHD_Connection *connection
+int Server::onRequest( MHD_Connection *connection
         , const char *method
         , const char *path
         , void **request )
@@ -320,7 +355,7 @@ int HttpServer::onRequest( MHD_Connection *connection
                 connection
                 , MHD_HEADER_KIND
                 , &iterateHeaderValues
-                , &r->mHeaders );
+                , r );
 
     // Create a new post processor
     r->mPostProcessor = MHD_create_post_processor(
@@ -330,16 +365,16 @@ int HttpServer::onRequest( MHD_Connection *connection
                 , static_cast< void* >( r ) );
 
     // A NULL post processor means we will have to handle it ourselves
-    if( r->mPostProcessor == NULL ) {
+    if( r->mPostProcessor == nullptr ) {
         if( isVerbose() ) { printf( "PostProcessor is NULL\n" ); }
     }
 
     // Fill out the rest of the request
-    r->mFp       = nullptr;
-    r->mMethod   = (char*)method;
-    r->mUrl      = (char*)path;
-    r->mData     = nullptr;
-    r->mDataSize = 0;
+    r->setMethod( method );
+    r->setPath( path );
+    // r->mFp       = nullptr;
+    // r->mData     = nullptr;
+    // r->mDataSize = 0;
 
     *request = r;
 
@@ -353,11 +388,14 @@ int HttpServer::onRequest( MHD_Connection *connection
  * @param size New incoming data size
  * @return Integer value return code
  */
-int HttpServer::onRequestBody(
+int Server::onRequestBody(
         Request *request
         , const char *data
         , size_t *size )
 {
+    request->appendData( data, *size );
+
+    /*
     request->mDataSize += *size;
     if( request->mData == nullptr ) {
         // If we currently have no data lets copy over the incoming data
@@ -390,6 +428,7 @@ int HttpServer::onRequestBody(
         // Delete the old data block
         delete[] t;
     }
+    */
 
     *size = 0;
     return MHD_YES;
@@ -400,10 +439,83 @@ int HttpServer::onRequestBody(
  * @param request Pointer to the request object
  * @return Integer value return code
  */
-int HttpServer::onRequestDone( Request *request )
+int Server::onRequestDone( Request *request )
 {
-    processRequest( request );
+    // processRequest( request );
+    process( request );
     return MHD_YES;
+}
+
+void Server::process(Request *request)
+{
+    if( isVerbose() ) { printHeaders( request ); }
+    if( isVerbose() ) { printBody( request ); }
+
+    const char *rspData = response_bad_request;
+    const char *rspType = type_text_html;
+    int rspCode   = MHD_HTTP_BAD_REQUEST;
+
+    // In case we get a response string for the post
+    char *rspStr = nullptr;
+
+    if( strcmp( request->mMethod, MHD_HTTP_METHOD_GET ) == 0 ) {
+        // Handles a GET request
+
+        if( strcmp( request->getPath(), path_base ) == 0
+                || strcmp( request->getPath(), mIndexHtml ) == 0 ) {
+            // The index has been requested
+            rspData = mIndexHtml;
+            rspType = type_text_html;
+            rspCode = MHD_HTTP_OK;
+
+        } else if( strcmp( request->getPath(), path_main_js ) == 0 ) {
+            // The main script file has been requested
+            rspData = mMainJs;
+            rspType = type_text_javascript;
+            rspCode = MHD_HTTP_OK;
+        }
+
+    } else if ( strcmp( request->getMethod(), MHD_HTTP_METHOD_POST ) == 0 ) {
+        // Handles a POST request
+
+        if( request->mPostProcessor != nullptr ) {
+            // A POST processor exists
+            int ret = MHD_post_process( request->mPostProcessor
+                              , request->getBody()->getData()
+                              , request->getBody()->getSize() );
+
+            if( ret == MHD_YES ) {
+                rspData = response_success;
+            } else {
+                rspData = response_failed;
+            }
+
+            rspType = type_text_html;
+            rspCode = MHD_HTTP_OK;
+        } else if( mCommandHandler != nullptr ){
+            // A Command Handler exists so we can attempt to handle the POST
+
+            cJSON *rsp = mCommandHandler->handle( request->getBody()->getData() );
+
+            if( rsp ) {
+                rspStr = cJSON_Print( rsp );
+                rspData = rspStr;
+                rspType = type_text_html;
+                rspCode = MHD_HTTP_OK;
+            }
+
+            cJSON_Delete( rsp );
+
+        }
+    }
+
+    // The last thing we will do is send the response
+    request->sendResponse( rspData, rspType, rspCode );
+
+    if( rspStr ) {
+        // Free the post data
+        cJSON_free( rspStr );
+    }
 }
 
 /**
@@ -415,19 +527,34 @@ int HttpServer::onRequestDone( Request *request )
  * queue. When a new request comes in it will get added to the queue. While a
  * separate thread handles the requests and responds accordingly
  */
-void HttpServer::processRequest( Request *request )
+/*
+void Server::processRequest( Request *request )
 {
+
+    if( isVerbose() ) { printHeaders( request ); }
+    if( isVerbose() ) { printBody( request ); }
+
+    const char *rspData = response_bad_request;
+    const char *rspType = type_text_html;
+    int rspStatusCode   = MHD_HTTP_BAD_REQUEST;
+
     if( strcmp( request->mMethod, MHD_HTTP_METHOD_GET ) == 0 ) {
         // GET request handler
 
         if( strcmp( request->mUrl, "/" ) == 0
                 || strcmp( request->mUrl, "/index.html" ) == 0 ) {
-            // The index has been requested
             if( isVerbose() ) { printf( "Serving up the index\n" ); }
+            // The index has been requested
+            rspData = mIndexHtml;
+            rspType = type_text_html;
+            rspStatusCode = MHD_HTTP_OK;
             request->sendResponse( mIndexHtml, "text/html", MHD_HTTP_OK );
         } else if( strcmp( request->mUrl, "/main.js" ) == 0 ) {
             // The main script file has been requested
             if( isVerbose() ){ printf( "Serving up the main.js\n" ); }
+            rspData = mMainJs;
+            rspType = type_text_javascript;
+            rspStatusCode = MHD_HTTP_OK;
             request->sendResponse( mMainJs, "text/javascript", MHD_HTTP_OK );
         // } else if( request->mUrl == "/stylesheet.css" ) {
         //     // Send the style file
@@ -492,26 +619,29 @@ void HttpServer::processRequest( Request *request )
 
     }
 }
+*/
 
-uint32_t HttpServer::getNumConnections()
+uint32_t Server::getNumConnections()
 {
     return MHD_get_daemon_info( mServerDaemon
                          , MHD_DAEMON_INFO_CURRENT_CONNECTIONS )->num_connections;
 }
 
-void HttpServer::printHeaders(Request *request)
+void Server::printHeaders(Request *request)
 {
-    CharHashMap< Request::Header >::const_iterator it;
+    Request::HeaderMap *headers = request->getHeaders();
     printf( "-- HEADERS START ----------------------------------------\n");
-    for( it = request->mHeaders.begin(); it != request->mHeaders.end(); it++ ) {
-        printf( "%20s: %s\n", it->first, it->second.mValue );
+    for( auto it = headers->begin(); it != headers->end(); it++ ) {
+        printf( "%20s: %s\n", it->first, it->second );
     }
     printf( "-- HEADERS END ------------------------------------------\n");
 }
 
-void HttpServer::printBody( Request *request )
+void Server::printBody( Request *request )
 {
     printf( "-- BODY START -------------------------------------------\n");
-    printf( "%.*s\n", request->mDataSize, request->mData );
+    printf( "%.*s\n", request->getBody()->getSize(), request->getBody()->getData() );
     printf( "-- BODY END ---------------------------------------------\n");
+}
+
 }

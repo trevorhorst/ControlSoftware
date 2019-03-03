@@ -24,6 +24,8 @@ set( SOURCE
     # Error
     src/error/error.cpp
 
+    src/hardware/hardware.cpp
+
     # HTTP
     src/http/http.cpp
     # src/http/client.cpp
@@ -37,6 +39,9 @@ set( SOURCE
     # System
     src/system/datetime.cpp
     src/system/system.cpp
+
+    # Miscellaneous
+    src/common_types.cpp
     )
 
 set( HEADERS

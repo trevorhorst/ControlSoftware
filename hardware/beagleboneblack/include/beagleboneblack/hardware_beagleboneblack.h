@@ -1,7 +1,6 @@
 #ifndef HARDWARE_BEAGLEBONEBLACK_H
 #define HARDWARE_BEAGLEBONEBLACK_H
 
-// #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -30,7 +29,7 @@ private:
 
     System mSystem;
     DateTime mDateTime;
-    HttpServer mServer;
+    Http::Server mServer;
 
     CommandSystem mCmdSystem;
     CommandDateTime mCmdDateTime;

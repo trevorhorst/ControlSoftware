@@ -14,9 +14,27 @@
 
 namespace Http
 {
-    extern const char *LOCALHOST;
 
-    extern const uint16_t DEFAULT_PORT;
+extern const char *localhost;
+
+extern const uint16_t default_port;
+
+class Body {
+public:
+    Body();
+    ~Body();
+
+    void append( const char *data, size_t size );
+    void clear();
+
+    const char *getData();
+    uint32_t getSize();
+
+private:
+    char *mData;
+    uint32_t mSize;
+};
+
 }
 
 #endif // HTTP_H

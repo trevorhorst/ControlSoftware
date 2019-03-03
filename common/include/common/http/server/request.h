@@ -1,65 +1,61 @@
-#ifndef REQUEST_H
-#define REQUEST_H
+/** ****************************************************************************
+ * @file request.h
+ * @author Trevor Horst
+ * @copyright
+ * @brief Request class declaration. Container for all information related to
+ * a request. This class should not actually create any data.
+ * ****************************************************************************/
+#ifndef HTTP_REQUEST_H
+#define HTTP_REQUEST_H
 
-#include <chrono>
 #include <microhttpd.h>
 
 #include "common/common_types.h"
+#include "common/http/http.h"
 
-#define DEMO_PAGE "<html><head><title>libmicrohttpd demo</title>"\
-             "</head><body>libmicrohttpd demo!!</body></html>"
-
-#define REQUEST_HEADER_MAX_KEY_SIZE 128
-#define REQUEST_HEADER_MAX_VALUE_SIZE 1024
+namespace Http
+{
 
 class Request
 {
 public:
 
-    struct Header {
-        Header( const char *value )
-            : mValue( "" )
-        {
-            // Add a value
-            if( value == NULL || value[ 0 ] == '\0' ) {
-                strncpy( (char*)mValue, "\0", 1 );
-            } else {
-                strncpy( (char*)mValue, value, sizeof( mValue ) );
-            }
-        }
-        // char mKey[ REQUEST_HEADER_MAX_KEY_SIZE ];
-        const char mValue[ REQUEST_HEADER_MAX_VALUE_SIZE ];
-    };
+    using HeaderMap = CharHashMap< const char* >;
 
     explicit Request( MHD_Connection *connection );
-
-
-    void setMethod( char *method );
-    void setUrl( char *url );
+    ~Request();
 
     MHD_Connection *mConnection;
     MHD_PostProcessor *mPostProcessor;
-    CharHashMap< Header > mHeaders;
-    char *mMethod;
-    char *mUrl;
-    char *mBody;
+    HeaderMap mHeaders;
+    FILE* mFp;
+    const char *mMethod;
+    const char *mPath;
+    Body mBody;
     char* mData;
     uint32_t mDataSize;
-    FILE* mFp;
 
-    const char* getBody();
+    void setMethod( const char *method );
+    void setPath( const char *path );
 
-    // void finished();
+    const char *getMethod();
+    const char *getPath();
 
-// public slots:
+    Body *getBody();
+    HeaderMap *getHeaders();
+
+    void addHeader( const char *key, const char *value );
+    void appendData( const char *data, size_t size );
+
     int sendResponse( const char *responseData
                       , const char *responseType
                       , int statusCode );
 
-    void handleRequest();
-
 private:
-    std::chrono::high_resolution_clock::time_point mStart;
+    static const uint32_t header_key_size_max;
+    static const uint32_t header_value_size_max;
 };
 
-#endif // REQUEST_H
+}
+
+#endif // HTTP_REQUEST_H

@@ -220,8 +220,12 @@ void Console::evaluate( char *input )
 
     }
 
-    if( input != nullptr && input[ 0 ] != '\0' ) {
-        add_history( input );
+    if( input ) {
+        // Actual input exists
+        if( input[ 0 ] != '\0' ) {
+            // The input is more than just an empty string
+            add_history( input );
+        }
         free( input );
     }
 }

@@ -38,18 +38,20 @@ public:
     cJSON *access( cJSON *params )
     {
         if( mControlObject->isVerbose() ) { printf( "%s\n", __FUNCTION__ ); }
+        uint32_t r = Error::Code::NONE;
         cJSON* response = cJSON_CreateObject();
+
+        // Add the command parameter to the response object
         cJSON_AddStringToObject( response, PARAM_COMMAND, getAccessorName() );
 
         bool ok = mControlObject;
         if( !ok ) {
-            setError( Error::Code::CMD_FAILED, "Control is unavailable", response );
+            setError( Error::Code::CMD_FAILED, error_control_unavailable, response );
         } else {
             ok = handleRequiredParameters( params, response );
         }
 
         if( ok ) {
-            uint32_t r = Error::Code::NONE;
             cJSON* result = cJSON_CreateObject();
 
             ParameterMap::const_iterator it = mAccessorMap.begin();
@@ -98,7 +100,7 @@ public:
         } else {
             // The control object is valid and we have parameters to work with
             for( cJSON *param = params->child
-                 ; r == Error::Code::NONE && param != NULL
+                 ; r == Error::Code::NONE && param != nullptr
                  ; param = param->next ) {
                 ParameterMap::const_iterator it
                         = mMutatorMap.find( param->string );

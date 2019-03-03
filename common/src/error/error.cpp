@@ -19,13 +19,8 @@ const char* Error::mCodeString[] = {
  */
 Error::Error( Code c, const char *details )
     : mCode( c )
-    , mDetails( "" )
 {
-    if( details == NULL || details[ 0 ] == '\0' ) {
-        strncpy( (char*)mDetails, "\0", 1 );
-    } else {
-        strncpy( (char*)mDetails, details, sizeof( mDetails ) );
-    }
+    Common::CharArrayCopy( mDetails, details, ERROR_DETAILS_SIZE_MAX );
 }
 
 /**
@@ -36,6 +31,32 @@ Error::~Error()
 
 }
 
+/**
+ * @brief Retrieves the error code
+ * @return Error code
+ */
+uint32_t Error::getCode()
+{
+    return mCode;
+}
+
+/**
+ * @brief Retrieves the error code string
+ * @return Error code string
+ */
+const char *Error::getCodeString()
+{
+    return mCodeString[ getCode() ];
+}
+
+/**
+ * @brief Retrieves the error details
+ * @return Error details
+ */
+const char *Error::getDetails()
+{
+    return mDetails;
+}
 
 const char *Error::getCodeString( uint32_t c )
 {
