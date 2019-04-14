@@ -90,13 +90,15 @@ public:
         if( !ok ) {
             // The control object isn't valid
             r = Error::Code::CMD_FAILED;
-            setError( r, "Control is unavailable", response );
+            setError( r, error_control_unavailable, response );
+
         } else if( params == nullptr
                    || cJSON_IsInvalid( params )
                    || cJSON_IsNull( params ) ) {
             // The params object is invalid
             r = Error::Code::PARAM_MISSING;
             setError( r, PARAM_PARAMS, response );
+
         } else {
             // The control object is valid and we have parameters to work with
             for( cJSON *param = params->child
@@ -107,6 +109,7 @@ public:
                 if( it == mMutatorMap.end() ) {
                     // No callback was found
                     r = Error::Code::PARAM_INVALID;
+
                 } else {
                     // A callback was found
                     ParameterCallback cb = it->second;
@@ -116,9 +119,11 @@ public:
                         char *str = cJSON_Print( param );
                         printf( "'%s' set to %s\n", param->string, str );
                         free( str );
+
                     } else {
                         // Failed to set parameter
                         setError( r, param->string, response );
+
                     }
                 }
             }

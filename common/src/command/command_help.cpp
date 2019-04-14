@@ -4,7 +4,7 @@ CommandHelp::CommandHelp()
     : CommandTemplate< CommandHandler > ( COMMAND_EMPTY, COMMAND_HELP )
 {
     mAccessorMap[ PARAM_COMMANDS ] = PARAMETER_CALLBACK( &CommandHelp::getCommandMap );
-};
+}
 
 uint32_t CommandHelp::getCommandMap( cJSON *response )
 {

@@ -12,7 +12,7 @@
 #define CONSOLE_MAX_TOKENS  10
 #define CONSOLE_MAX_TOKEN_SIZE 64
 
-HttpClient Console::mClient;
+Http::Client Console::mClient;
 
 /**
  * @brief Constructor
@@ -194,6 +194,7 @@ void Console::evaluate( char *input )
                 it++;
                 if( it == tokenized.end() ) {
                     printf( "Parameter mismatch\n" );
+                    break;
                 } else {
                     // Parse the parameter
                     cJSON *param = cJSON_Parse( (*it).c_str() );

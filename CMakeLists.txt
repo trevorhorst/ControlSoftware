@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(ControlSoftware)
 
 # add_compile_options(-std=c++11)
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic")
 
 if(DEFINED ENV{CONTROL_PROD})
     # In a production build, install the libraries to the system
