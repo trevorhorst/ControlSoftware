@@ -12,6 +12,7 @@ set( SOURCE
     src/command/command_datetime.cpp
     src/command/command_handler.cpp
     src/command/command_help.cpp
+    src/command/command_led.cpp
     src/command/command_server.cpp
     src/command/command_system.cpp
 
@@ -20,6 +21,9 @@ set( SOURCE
 
     # Control
     src/control/control.cpp
+
+    # Drivers
+    src/drivers/led.cpp
 
     # Error
     src/error/error.cpp
@@ -42,6 +46,7 @@ set( SOURCE
 
     # Miscellaneous
     src/common_types.cpp
+    src/string.cpp
     )
 
 set( HEADERS
@@ -63,6 +68,9 @@ set( HEADERS
     # Control
     include/common/control/control.h
     include/common/control/control_template.h
+
+    # Drivers
+    include/common/drivers/led.h
 
     # Error
     include/common/error/error.h
@@ -90,6 +98,7 @@ set( HEADERS
     # Miscellaneous
     include/common/common_types.h
     include/common/singleton.h
+    include/common/string.h
     )
 
 add_library(

@@ -14,6 +14,7 @@ class CommandHelp
 public:
     CommandHelp();
     uint32_t getCommandMap( cJSON *response );
+    uint32_t getCommandUsage( cJSON *response );
 };
 
 #endif // COMMAND_HELP_H

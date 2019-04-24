@@ -20,7 +20,7 @@ const char* Error::mCodeString[] = {
 Error::Error( Code c, const char *details )
     : mCode( c )
 {
-    Common::CharArrayCopy( mDetails, details, ERROR_DETAILS_SIZE_MAX );
+    CharArrayCopy( mDetails, details, ERROR_DETAILS_SIZE_MAX );
 }
 
 /**

@@ -4,15 +4,19 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "beagleboneblack/resources/resources.h"
-
-#include "common/singleton.h"
+#include "common/drivers/led.h"
 #include "common/hardware/hardware.h"
+#include "common/singleton.h"
 #include "common/system/system.h"
 
-#include "common/command/command_system.h"
 #include "common/command/command_datetime.h"
+#include "common/command/command_led.h"
 #include "common/command/command_server.h"
+#include "common/command/command_system.h"
+
+#include "beagleboneblack/resources/resources.h"
+
+#define LED_HEADERS 4
 
 class BeagleboneBlack
         : public Hardware
@@ -27,13 +31,16 @@ private:
     const char *mIndexHtml;
     const char *mMainJs;
 
-    System mSystem;
     DateTime mDateTime;
+    Led mLed[ LED_HEADERS ];
     Http::Server mServer;
+    System mSystem;
 
-    CommandSystem mCmdSystem;
     CommandDateTime mCmdDateTime;
+    CommandLed mCmdLed;
     CommandServer mCmdServer;
+    CommandSystem mCmdSystem;
+
 };
 
 #endif // HARDWARE_BEAGLEBONEBLACK_H

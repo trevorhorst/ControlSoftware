@@ -38,15 +38,25 @@ void Request::addHeader( const char *key, const char *value )
     mHeaders[ key ] = value;
 }
 
+/**
+ * @brief Append data to the request
+ * @param data Data to append
+ * @param size Size of the data to append
+ */
 void Request::appendData( const char *data, size_t size )
 {
     mBody.append( data, size );
 }
 
-int Request::sendResponse(
-        const char *responseData
-        , const char *responseType
-        , int statusCode )
+/**
+ * @brief Send a response to the incoming request
+ * @param responseData Data to send
+ * @param responseType Type of response
+ * @param statusCode Status code in relation to the response
+ * @return Integer indicating the success of the operation
+ */
+int Request::sendResponse( const char *responseData, const char *responseType
+                           , int statusCode )
 {
     int ret;
 
@@ -69,31 +79,55 @@ int Request::sendResponse(
     return ret;
 }
 
+/**
+ * @brief Sets the method type of the request
+ * @param method Desired method type
+ */
 void Request::setMethod( const char *method )
 {
     mMethod = method;
 }
 
+/**
+ * @brief Sets the path of the request
+ * @param path Desired path type
+ */
 void Request::setPath( const char *path )
 {
     mPath = path;
 }
 
+/**
+ * @brief Retrieves the method type of the request
+ * @return Character array representation of the method type
+ */
 const char *Request::getMethod()
 {
     return mMethod;
 }
 
+/**
+ * @brief Retrieves the path type of the request
+ * @return Character array representation of the path
+ */
 const char *Request::getPath()
 {
     return mPath;
 }
 
+/**
+ * @brief Retrieves the body of the request
+ * @return
+ */
 Body *Request::getBody()
 {
     return &mBody;
 }
 
+/**
+ * @brief Retrieves the headers of the request
+ * @return Pointer to the header map of the request
+ */
 Request::HeaderMap *Request::getHeaders()
 {
     return &mHeaders;

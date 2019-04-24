@@ -49,9 +49,10 @@ Command::~Command()
 }
 
 /**
- * @brief Handles any parameters that are required by the command
+ * @brief Handles any parameters that are required by the command. This modifies
+ * the parameter list
  * @param params List of parameters
- * @param response Response object to fill out
+ * @param response Response object to populate
  * @return Boolean indicating success of the operation
  */
 bool Command::handleRequiredParameters( cJSON *params, cJSON *response )
@@ -85,6 +86,21 @@ bool Command::handleRequiredParameters( cJSON *params, cJSON *response )
 
     // Required parameters handled successfully
     return ( r == Error::Code::NONE );
+}
+
+/**
+ * @brief Handles any optional parameters. This may modify how the command is
+ * handled and therefore the programmer is respoonsible for overriding this with
+ * actual functionality.
+ * @param params List of parameters
+ * @param response Response object to populate
+ * @return Boolean indicating success of the operation
+ */
+bool Command::handleOptionalParameters( cJSON *params, cJSON *response )
+{
+    (void)params;
+    (void)response;
+    return true;
 }
 
 /**

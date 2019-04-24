@@ -56,8 +56,10 @@ protected:
 
     std::vector< Control* > mCtrlObjList;
     virtual bool handleRequiredParameters( cJSON *params, cJSON *response );
+    virtual bool handleOptionalParameters( cJSON *params, cJSON *response );
 
     ParameterMap mRequiredMap;
+    ParameterMap mOptionalMap;
     ParameterMap mAccessorMap;
     ParameterMap mMutatorMap;
 

@@ -37,18 +37,20 @@ public:
      */
     cJSON *access( cJSON *params )
     {
-        if( mControlObject->isVerbose() ) { printf( "%s\n", __FUNCTION__ ); }
         uint32_t r = Error::Code::NONE;
         cJSON* response = cJSON_CreateObject();
 
         // Add the command parameter to the response object
         cJSON_AddStringToObject( response, PARAM_COMMAND, getAccessorName() );
 
-        bool ok = mControlObject;
-        if( !ok ) {
-            setError( Error::Code::CMD_FAILED, error_control_unavailable, response );
-        } else {
-            ok = handleRequiredParameters( params, response );
+        bool ok = handleRequiredParameters( params, response );
+
+        if( ok ) {
+            if( mControlObject == nullptr ) {
+                // The control object is invalid
+                setError( Error::Code::CMD_FAILED, error_control_unavailable, response );
+                ok = false;
+            }
         }
 
         if( ok ) {
@@ -79,55 +81,63 @@ public:
      */
     cJSON *mutate( cJSON *params )
     {
-        if( mControlObject->isVerbose() ) { printf( "%s\n", __FUNCTION__ ); }
+        // if( mControlObject->isVerbose() ) { printf( "%s\n", __FUNCTION__ ); }
         uint32_t r = Error::Code::NONE;
         cJSON *response = cJSON_CreateObject();
 
         // Add the command parameter to the response object
         cJSON_AddStringToObject( response, PARAM_COMMAND, getMutatorName() );
 
-        bool ok = mControlObject;
-        if( !ok ) {
-            // The control object isn't valid
-            r = Error::Code::CMD_FAILED;
-            setError( r, error_control_unavailable, response );
+        bool ok = handleRequiredParameters( params, response );
 
-        } else if( params == nullptr
-                   || cJSON_IsInvalid( params )
-                   || cJSON_IsNull( params ) ) {
-            // The params object is invalid
-            r = Error::Code::PARAM_MISSING;
-            setError( r, PARAM_PARAMS, response );
+        if( ok ) {
+            if( mControlObject == nullptr ) {
+                // The control object isn't valid
+                r = Error::Code::CMD_FAILED;
+                setError( r, error_control_unavailable, response );
+                ok = false;
+            }
+        }
 
-        } else {
-            // The control object is valid and we have parameters to work with
-            for( cJSON *param = params->child
-                 ; r == Error::Code::NONE && param != nullptr
-                 ; param = param->next ) {
-                ParameterMap::const_iterator it
-                        = mMutatorMap.find( param->string );
-                if( it == mMutatorMap.end() ) {
-                    // No callback was found
-                    r = Error::Code::PARAM_INVALID;
+        if( ok ) {
+            if( params == nullptr
+                       || cJSON_IsInvalid( params )
+                       || cJSON_IsNull( params ) ) {
+                // The params object is invalid
+                r = Error::Code::PARAM_MISSING;
+                setError( r, PARAM_PARAMS, response );
 
-                } else {
-                    // A callback was found
-                    ParameterCallback cb = it->second;
-                    r = cb( param );
-                    if( r == Error::Code::NONE ) {
-                        // Parameter handled successfully
-                        char *str = cJSON_Print( param );
-                        printf( "'%s' set to %s\n", param->string, str );
-                        free( str );
+            } else {
+                // The control object is valid and we have parameters to work with
+                for( cJSON *param = params->child
+                     ; r == Error::Code::NONE && param != nullptr
+                     ; param = param->next ) {
+                    ParameterMap::const_iterator it
+                            = mMutatorMap.find( param->string );
+                    if( it == mMutatorMap.end() ) {
+                        // No callback was found
+                        r = Error::Code::PARAM_INVALID;
 
                     } else {
-                        // Failed to set parameter
-                        setError( r, param->string, response );
+                        // A callback was found
+                        ParameterCallback cb = it->second;
+                        r = cb( param );
+                        if( r == Error::Code::NONE ) {
+                            // Parameter handled successfully
+                            char *str = cJSON_Print( param );
+                            printf( "'%s' set to %s\n", param->string, str );
+                            free( str );
 
+                        } else {
+                            // Failed to set parameter
+                            setError( r, param->string, response );
+
+                        }
                     }
                 }
             }
         }
+
 
         // Add the success parameter to the response object
         bool success = ( r == Error::Code::NONE ) ? true : false;

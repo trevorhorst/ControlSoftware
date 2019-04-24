@@ -13,6 +13,7 @@ BeagleboneBlack::BeagleboneBlack()
     addCommand( &mCmdSystem );
     addCommand( &mCmdDateTime );
     addCommand( &mCmdServer );
+    addCommand( &mCmdLed );
 
     // Set the command handler and start the server
     mServer.setCommandHandler( getCommandHandler() );

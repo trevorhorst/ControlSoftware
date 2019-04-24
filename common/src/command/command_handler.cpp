@@ -12,6 +12,11 @@ CommandContainer::CommandContainer( Command::Type type, Command *cmdObj )
 
 }
 
+const char *CommandContainer::getUsage()
+{
+    return mCmdObj->usage();
+}
+
 /**
  * @brief Command call wrapper
  * @param params Parameters to pass to the command
@@ -57,6 +62,24 @@ CommandHandler::~CommandHandler()
 CommandMap *CommandHandler::getCommandMap()
 {
     return &mCommandMap;
+}
+
+/**
+ * @brief CommandHandler::getCommandUsage
+ * @param cmd
+ * @return
+ */
+const char *CommandHandler::getCommandUsage( const char *cmd )
+{
+    const char *usage = nullptr;
+    auto it = mCommandMap.find( cmd );
+
+    if( it == mCommandMap.end() ) {
+    } else {
+        usage = it->second->getUsage();
+    }
+
+    return usage;
 }
 
 /**
