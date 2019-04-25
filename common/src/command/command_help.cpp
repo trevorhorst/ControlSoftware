@@ -22,9 +22,3 @@ uint32_t CommandHelp::getCommandMap( cJSON *response )
     }
     return r;
 }
-
-uint32_t CommandHelp::getCommandUsage( cJSON *response )
-{
-    uint32_t r = Error::Code::NONE;
-    return r;
-}

@@ -15,6 +15,7 @@ uint32_t CommandLed::setId(cJSON *val)
             r = Error::Code::PARAM_OUT_OF_RANGE;
         }
     } else {
+        // The type isn't what we expect, syntax error
         r = Error::Code::SYNTAX;
     }
 
