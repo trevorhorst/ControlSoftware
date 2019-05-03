@@ -31,42 +31,19 @@ class Console
 {
     friend class Singleton< Console >;
 
-    struct CommandContainer {
-        CommandContainer( Command::Type type, Command *cmdObj )
-            : mType( type )
-            , mCmdObj( cmdObj )
-        {}
-        Command::Type mType;
-        Command* mCmdObj;
-        cJSON *call( cJSON *params ) {
-            cJSON *rsp = nullptr;
-            if( mType == Command::ACCESSOR ) {
-                rsp = mCmdObj->access( params );
-            } else if( mType == Command::MUTATOR ) {
-                rsp = mCmdObj->mutate( params );
-            }
-            return rsp;
-        }
-    };
-
-    using CommandMap = CharHashMap< CommandContainer* >;
-
 public:
     void run();
     void quit();
-    static void processInput( char *input );
-    std::vector< std::string > tokenize( char *input, const char *delimiter = " " );
-    static void evaluate( char *input );
     void evaluate( std::vector< std::string > input );
-
-    void addCommand( Command *cmd );
+    static void processInput( char *input );
+    static void evaluate( char *input );
+    std::vector< std::string > tokenize( char *input, const char *delimiter = " " );
 
 private:
     Console();
     ~Console();
 
     static Http::Client mClient;
-    CommandMap mCommandMap;
 
     bool mDone;
 };

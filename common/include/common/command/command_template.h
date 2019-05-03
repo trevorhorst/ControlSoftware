@@ -35,16 +35,27 @@ public:
      * @param params List of parameters
      * @return Response object
      */
-    cJSON *access( cJSON *params )
+    bool access( cJSON *params, cJSON *response )
     {
         uint32_t r = Error::Code::NONE;
         const char *details = nullptr;
-        cJSON* response = cJSON_CreateObject();
 
         // Add the command parameter to the response object
         cJSON_AddStringToObject( response, PARAM_COMMAND, getAccessorName() );
 
-        r = handleRequiredParameters( params, details );
+        if( r == Error::Code::NONE ) {
+            if( mRequiredMap.size() > 0 ) {
+                if( params == nullptr ) {
+                    // The params object is invalid
+                    r = Error::Code::PARAM_MISSING;
+                    details = PARAM_PARAMS;
+                } else {
+                    // Only handle the required parameters if they exist? Not sure
+                    // what the best way to handle this is.
+                    r = handleRequiredParameters( params, details );
+                }
+            }
+        }
 
         if( r == Error::Code::NONE ) {
             if( mControlObject == nullptr ) {
@@ -70,26 +81,18 @@ public:
             }
         }
 
+        bool success = false;
         if( r == Error::Code::NONE ) {
             // Add the result to the response object
             cJSON_AddItemToObject( response, PARAM_RESULT, result );
+            success = true;
         } else {
             // There was an error and our result is invalid, free it
+            setError( r, details, response );
             cJSON_free( result );
         }
 
-        bool success = false;
-        if( r == Error::Code::NONE ) {
-            success = true;
-        } else {
-            // Only set an error if there is an error
-            setError( r, details, response );
-        }
-
-        // Add the success parameter to the response object
-        cJSON_AddBoolToObject( response, PARAM_SUCCESS, success );
-
-        return response;
+        return success;
     }
 
     /**
@@ -97,26 +100,27 @@ public:
      * @param params List of parameters
      * @return Response object
      */
-    cJSON *mutate( cJSON *params )
+    bool mutate( cJSON *params, cJSON *response )
     {
         uint32_t r = Error::Code::NONE;
         const char *details = nullptr;
-        cJSON *response = cJSON_CreateObject();
 
         // Add the command parameter to the response object
         cJSON_AddStringToObject( response, PARAM_COMMAND, getMutatorName() );
 
-        if( params == nullptr
-                   || cJSON_IsInvalid( params )
-                   || cJSON_IsNull( params ) ) {
-            // The params object is invalid
-            r = Error::Code::PARAM_MISSING;
-            details = PARAM_PARAMS;
-        }
-
-
         if( r == Error::Code::NONE ) {
-            r = handleRequiredParameters( params, details );
+            if( mRequiredMap.size() > 0 ) {
+                // Required parameters are expected
+                if( params == nullptr ) {
+                    // The params object is invalid
+                    r = Error::Code::PARAM_MISSING;
+                    details = PARAM_PARAMS;
+                } else {
+                    // Only handle the required parameters if they exist? Not sure
+                    // what the best way to handle this is.
+                    r = handleRequiredParameters( params, details );
+                }
+            }
         }
 
         if( r == Error::Code::NONE ) {
@@ -132,6 +136,7 @@ public:
             for( cJSON *param = params->child
                  ; r == Error::Code::NONE && param != nullptr
                  ; param = param->next ) {
+
                 auto it = mMutatorMap.find( param->string );
                 if( it == mMutatorMap.end() ) {
                     // No callback was found
@@ -162,10 +167,7 @@ public:
             setError( r, details, response );
         }
 
-        // Add the success parameter to the response object
-        cJSON_AddBoolToObject( response, PARAM_SUCCESS, success );
-
-        return response;
+        return success;
     }
 
     /**

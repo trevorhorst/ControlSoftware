@@ -495,16 +495,17 @@ void Server::process(Request *request)
         } else if( mCommandHandler != nullptr ){
             // A Command Handler exists so we can attempt to handle the POST
 
-            cJSON *rsp = mCommandHandler->handle( request->getBody()->getData() );
+            cJSON *response = cJSON_CreateObject();
+            mCommandHandler->handle( request->getBody()->getData(), response );
 
-            if( rsp ) {
-                rspStr = cJSON_Print( rsp );
+            if( response ) {
+                rspStr = cJSON_Print( response );
                 rspData = rspStr;
                 rspType = type_text_html;
                 rspCode = MHD_HTTP_OK;
             }
 
-            cJSON_Delete( rsp );
+            cJSON_Delete( response );
 
         }
     }

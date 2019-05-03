@@ -44,8 +44,8 @@ public:
     const char *getAccessorName();
 
     virtual const char *usage();
-    virtual cJSON *access( cJSON* params ) = 0;
-    virtual cJSON *mutate( cJSON* params ) = 0;
+    virtual bool access( cJSON* params, cJSON *response ) = 0;
+    virtual bool mutate( cJSON* params, cJSON *response ) = 0;
 
     virtual uint32_t setVerbose( cJSON *val ) = 0;
     virtual uint32_t getVerbose( cJSON *response ) = 0;
@@ -56,7 +56,6 @@ protected:
 
     std::vector< Control* > mCtrlObjList;
     virtual uint32_t handleRequiredParameters( cJSON *params, const char *&details );
-    // virtual bool handleRequiredParameters( cJSON *params, cJSON *response );
     virtual bool handleOptionalParameters( cJSON *params, cJSON *response );
 
     ParameterMap mRequiredMap;
@@ -67,12 +66,13 @@ protected:
     static const char *error_control_unavailable;
 
 private:
+    bool mAccessible;
+    bool mMutable;
+
     char mUsage[ COMMAND_USAGE_MAX_SIZE ];
     char mAccessor[ COMMAND_NAME_MAX_SIZE ];
     char mMutator[ COMMAND_NAME_MAX_SIZE ];
 
-    bool mAccessible;
-    bool mMutable;
 };
 
 #endif // COMMAND_H

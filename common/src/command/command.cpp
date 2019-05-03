@@ -91,46 +91,6 @@ uint32_t Command::handleRequiredParameters( cJSON *params, const char *&details 
 
 
 /**
- * @brief Handles any parameters that are required by the command. This modifies
- * the parameter list
- * @param params List of parameters
- * @param response Response object to populate
- * @return Boolean indicating success of the operation
- */
-// bool Command::handleRequiredParameters( cJSON *params, cJSON *response )
-// {
-//     uint32_t r = Error::Code::NONE;
-//     cJSON *p = nullptr;
-//
-//     for( ParameterMap::const_iterator it = mRequiredMap.begin()
-//          ; it != mRequiredMap.end() && r == Error::Code::NONE; it++ ) {
-//
-//         // Detach the required parameter
-//         const char *param = it->first;
-//         p = cJSON_DetachItemFromObject( params, param );
-//
-//         if( p == nullptr ) {
-//             // Parameter missing
-//             r = Error::Code::PARAM_MISSING;
-//         } else {
-//             // Parameter found
-//             r = it->second( p );
-//         }
-//
-//         if( r != Error::Code::NONE ) {
-//             // Need to handle the error before we delete the parameter
-//             setError( r, param, response );
-//         }
-//
-//         // Delete all the parameters we detach
-//         if( p ) { cJSON_Delete( p ); }
-//     }
-//
-//     // Required parameters handled successfully
-//     return ( r == Error::Code::NONE );
-// }
-
-/**
  * @brief Handles any optional parameters. This may modify how the command is
  * handled and therefore the programmer is respoonsible for overriding this with
  * actual functionality.
