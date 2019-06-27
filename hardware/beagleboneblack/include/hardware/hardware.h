@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "common/drivers/led.h"
-#include "common/hardware/hardware.h"
+#include "common/hardware/hardware_base.h"
 #include "common/singleton.h"
 #include "common/system/system.h"
 
@@ -14,19 +14,19 @@
 #include "common/command/command_server.h"
 #include "common/command/command_system.h"
 
-#include "beagleboneblack/resources/resources.h"
+#include "hardware/resources/resources.h"
 
 #define LED_HEADERS 4
 
-class BeagleboneBlack
-        : public Hardware
-        , public Singleton< BeagleboneBlack >
+class Hardware
+        : public HardwareBase
+        , public Singleton< Hardware >
 {
-    friend class Singleton< BeagleboneBlack >;
+    friend class Singleton< Hardware >;
 public:
 private:
-    BeagleboneBlack();
-    ~BeagleboneBlack();
+    Hardware();
+    ~Hardware();
 
     const char *mIndexHtml;
     const char *mMainJs;

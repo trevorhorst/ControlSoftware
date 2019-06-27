@@ -82,7 +82,7 @@ bool CommandHandler::handle( const char *cmdStr, cJSON *response )
 
     cJSON *parsed = cJSON_Parse( cmdStr );
     if( parsed == nullptr ) {
-        /// @todo The cmdStr is invalid, handle this
+        /// @todo The cmdStr is invalid, handle this response
         printf( "%s: Command string is invalid\n", __FUNCTION__ );
         ok = false;
     }
@@ -92,7 +92,7 @@ bool CommandHandler::handle( const char *cmdStr, cJSON *response )
 
         auto it = mCommandMap.find( cmd->valuestring );
         if( it == mCommandMap.end() ) {
-            // The command does not exist
+            /// @todo The command does not exist, handle this response
             printf( "%s: The '%s' command does not exist\n"
                     , __FUNCTION__, cmd->valuestring );
             ok = false;
@@ -106,7 +106,7 @@ bool CommandHandler::handle( const char *cmdStr, cJSON *response )
         }
 
     } else {
-        /// @todo The cmd is not the type we expect, handle this
+        /// @todo The cmd is not the type we expect, handle this response
         ok = false;
     }
 

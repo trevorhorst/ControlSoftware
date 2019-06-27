@@ -1,10 +1,10 @@
-#include "beagleboneblack/hardware_beagleboneblack.h"
+#include "hardware/hardware.h"
 
 /**
  * @brief Constructor
  */
-BeagleboneBlack::BeagleboneBlack()
-    : Hardware()
+Hardware::Hardware()
+    : HardwareBase()
     , mIndexHtml( Resources::load( Resources::INDEX_HTML, Resources::INDEX_HTML_SIZE ) )
     , mMainJs( Resources::load( Resources::MAIN_JS, Resources::MAIN_JS_SIZE ) )
     , mServer( mIndexHtml, mMainJs )
@@ -23,7 +23,7 @@ BeagleboneBlack::BeagleboneBlack()
 /**
  * @brief Destructor
  */
-BeagleboneBlack::~BeagleboneBlack()
+Hardware::~Hardware()
 {
     mServer.stop();
     Resources::unload( mIndexHtml );

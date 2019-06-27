@@ -28,7 +28,8 @@ set( SOURCE
     # Error
     src/error/error.cpp
 
-    src/hardware/hardware.cpp
+    # Hardware library
+    src/hardware/hardware_base.cpp
 
     # HTTP
     src/http/http.cpp
@@ -75,8 +76,8 @@ set( HEADERS
     # Error
     include/common/error/error.h
 
-    # Hardware
-    include/common/hardware/hardware.h
+    # Hardware library
+    include/common/hardware/hardware_base.h
 
     # HTTP
     include/common/http/http.h

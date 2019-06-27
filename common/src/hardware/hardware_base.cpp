@@ -1,9 +1,9 @@
-#include "common/hardware/hardware.h"
+#include "common/hardware/hardware_base.h"
 
 /**
  * @brief Constructor
  */
-Hardware::Hardware()
+HardwareBase::HardwareBase()
 {
 
 }
@@ -11,7 +11,7 @@ Hardware::Hardware()
 /**
  * @brief Destructor
  */
-Hardware::~Hardware()
+HardwareBase::~HardwareBase()
 {
 
 }
@@ -20,7 +20,7 @@ Hardware::~Hardware()
  * @brief Retrieves a pointer to the command handler
  * @return Pointer to the command handler
  */
-CommandHandler *Hardware::getCommandHandler()
+CommandHandler *HardwareBase::getCommandHandler()
 {
     return &mCommandHandler;
 }
@@ -29,7 +29,7 @@ CommandHandler *Hardware::getCommandHandler()
  * @brief Adds a command to the local command handler
  * @param cmd Desired command to add
  */
-void Hardware::addCommand( Command *cmd )
+void HardwareBase::addCommand( Command *cmd )
 {
     mCommandHandler.addCommand( cmd );
 }
