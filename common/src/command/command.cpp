@@ -19,8 +19,9 @@ Command::Command( const char *mutator, const char *accessor )
     , mMutable( false )
 {
     // Add an accessor
-    if( accessor == nullptr || accessor[ 0 ] == '\0' ) {
+    if( accessor == nullptr && accessor[ 0 ] == '\0' ) {
         strncpy( mAccessor, "\0", 1 );
+        mAccessible = false;
     } else {
         strncpy( mAccessor, accessor, sizeof( mAccessor ) );
         mAccessor[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
@@ -28,8 +29,9 @@ Command::Command( const char *mutator, const char *accessor )
     }
 
     // Add a mutator
-    if( mutator == nullptr || mutator[ 0 ] == '\0' ) {
+    if( mutator == nullptr && mutator[ 0 ] == '\0' ) {
         strncpy( mMutator, "\0", 1 );
+        mMutable = false;
     } else {
         strncpy( mMutator, mutator, sizeof( mMutator ) );
         mMutator[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';

@@ -9,13 +9,13 @@
 
 #include "common/command/command_handler.h"
 
-class Hardware
+class HardwareBase
 {
 public:
 
-    Hardware();
+    HardwareBase();
 
-    virtual ~Hardware();
+    virtual ~HardwareBase();
 
     virtual CommandHandler *getCommandHandler();
     virtual void addCommand( Command* cmd );
