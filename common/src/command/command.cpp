@@ -98,7 +98,7 @@ uint32_t Command::handleRequiredParameters( cJSON *params, const char *&details 
  * @param response Response object to populate
  * @return Boolean indicating success of the operation
  */
-bool Command::handleOptionalParameters( cJSON *params, cJSON *response )
+uint32_t Command::handleOptionalParameters( cJSON *params, cJSON *response )
 {
     (void)params;
     (void)response;

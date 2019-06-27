@@ -24,18 +24,7 @@ const char *CommandContainer::getUsage()
  */
 bool CommandContainer::call( cJSON *params, cJSON *response )
 {
-    bool success = false;
-
-    switch( mType ) {
-    case Command::ACCESSOR:
-        success = mCmdObj->access( params, response );
-        break;
-    case Command::MUTATOR:
-        success = mCmdObj->mutate( params, response );
-        break;
-    }
-
-    return success;
+    return mCmdObj->call( params, response, mType );
 }
 
 /**

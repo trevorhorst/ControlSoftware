@@ -7,7 +7,8 @@
 #define COMMAND_LED     "led"
 #define COMMAND_QLED    "qled"
 
-#define PARAM_ID    "id"
+#define PARAM_ID        "id"
+#define PARAM_ENABLE    "enable"
 
 class CommandLed
         : public CommandTemplate< Led >
@@ -16,6 +17,9 @@ public:
     CommandLed();
 
     virtual uint32_t setId( cJSON *val );
+    virtual uint32_t setEnable( cJSON *val );
+
+    virtual uint32_t getEnable( cJSON *response );
 };
 
 #endif // COMMAND_LED_H

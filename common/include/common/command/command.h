@@ -44,6 +44,7 @@ public:
     const char *getAccessorName();
 
     virtual const char *usage();
+    virtual bool call( cJSON *params, cJSON *response, Type ) = 0;
     virtual bool access( cJSON* params, cJSON *response ) = 0;
     virtual bool mutate( cJSON* params, cJSON *response ) = 0;
 
@@ -55,8 +56,9 @@ public:
 protected:
 
     std::vector< Control* > mCtrlObjList;
+
     virtual uint32_t handleRequiredParameters( cJSON *params, const char *&details );
-    virtual bool handleOptionalParameters( cJSON *params, cJSON *response );
+    virtual uint32_t handleOptionalParameters( cJSON *params, cJSON *response );
 
     ParameterMap mRequiredMap;
     ParameterMap mOptionalMap;

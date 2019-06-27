@@ -8,6 +8,13 @@ class Led
 {
 public:
     Led();
+
+    uint32_t setEnable( bool enable );
+
+    bool isEnabled();
+
+private:
+    bool mEnable;
 };
 
 #endif // LED_H

@@ -31,6 +31,38 @@ public:
     }
 
     /**
+     * @brief Call the command
+     * @param params List of parameters
+     * @param response
+     * @param type
+     * @return
+     */
+    bool call( cJSON *params, cJSON *response, Type type )
+    {
+        bool success = false;
+        const char *command = nullptr;
+
+        /// @todo Required parameter handling goes here. They should be handled
+        /// the same for both access and mutate
+
+        switch( type ) {
+        case Type::ACCESSOR:
+            command = getAccessorName();
+            success = access( params, response );
+            break;
+        case Type::MUTATOR:
+            command = getMutatorName();
+            success = mutate( params, response );
+            break;
+        }
+
+        // Add the command parameter to the response object
+        cJSON_AddStringToObject( response, PARAM_COMMAND, command );
+
+        return success;
+    }
+
+    /**
      * @brief Access handler, retrieves status of accessible parameters
      * @param params List of parameters
      * @return Response object
@@ -39,9 +71,6 @@ public:
     {
         uint32_t r = Error::Code::NONE;
         const char *details = nullptr;
-
-        // Add the command parameter to the response object
-        cJSON_AddStringToObject( response, PARAM_COMMAND, getAccessorName() );
 
         if( r == Error::Code::NONE ) {
             if( mRequiredMap.size() > 0 ) {
@@ -104,9 +133,6 @@ public:
     {
         uint32_t r = Error::Code::NONE;
         const char *details = nullptr;
-
-        // Add the command parameter to the response object
-        cJSON_AddStringToObject( response, PARAM_COMMAND, getMutatorName() );
 
         if( r == Error::Code::NONE ) {
             if( mRequiredMap.size() > 0 ) {
