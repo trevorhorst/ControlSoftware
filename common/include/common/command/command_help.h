@@ -6,6 +6,7 @@
 
 #define COMMAND_HELP    "help"
 
+#define PARAM_COMMAND_  "command"
 #define PARAM_COMMANDS  "commands"
 
 class CommandHelp
@@ -13,8 +14,14 @@ class CommandHelp
 {
 public:
     CommandHelp();
+
+    uint32_t setCommand( cJSON *response );
+
     uint32_t getCommandMap( cJSON *response );
     uint32_t getCommandUsage( cJSON *response );
+protected:
+
+    const char *mUsage;
 };
 
 #endif // COMMAND_HELP_H

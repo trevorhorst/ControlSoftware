@@ -27,10 +27,6 @@ Console::Console()
  */
 Console::~Console()
 {
-    CommandMap::const_iterator it;
-    for( it = mCommandMap.begin(); it != mCommandMap.end(); it++ ) {
-        delete it->second;
-    }
 }
 
 #define MAX_HISTORY_LINES 1000
@@ -281,62 +277,4 @@ void Console::evaluate( std::vector<std::string> input )
 
     // Clean up the message, this should delete all the components
     cJSON_Delete( msg );
-
-    /*
-    CommandMap::const_iterator it = mCommandMap.find( input.at( 0 ).c_str() );
-    if( it == mCommandMap.end() ) {_invoke_impl<void, void (Console::*)(), Console*>(std::__invoke_memfun_deref, void (Console::*&&)(), Console*&&) (in /media/Storage/Projects/ControlSoftware/build/app/controld)
-
-        // A matching command was not found
-        if( input.at( 0 ) == "quit" ) {
-            getInstance().quit();
-        }
-        return;
-    }
-
-    cJSON *params = cJSON_CreateObject();
-    CommandContainer *cmd = it->second;
-
-    for( size_t s = 1; s < input.size(); s += 2 ) {
-        std::string key = input.at( s );
-        if( key.length() == 0 ) {
-            printf( "Key is empty\n " );
-            return;
-        }
-
-        if( input.at( s ) == "help"
-                || s + 1 >= input.size() ) {
-            // Improper use of the command or asking for help
-            printf( "%s\n", cmd->mCmdObj->usage() );
-            return;
-        }
-
-        cJSON_AddItemToObject( params
-                               , key.c_str()
-                               , cJSON_Parse( input.at( s + 1 ).c_str() ) );
-
-    }
-
-    cJSON *rsp = cmd->call( params );
-    char *rspText = cJSON_Print( rsp );
-    printf( "%s\n", rspText );
-    free( rspText );
-
-    cJSON_Delete( rsp );
-    cJSON_Delete( params );
-    */
-}
-
-void Console::addCommand( Command *cmd )
-{
-    if( cmd->isAccessible() ) {
-        // The command is accessible
-        mCommandMap[ cmd->getAccessorName() ]
-                = new CommandContainer( Command::Type::ACCESSOR, cmd );
-    }
-
-    if( cmd->isMutable() ) {
-        // The command is mutable
-        mCommandMap[ cmd->getMutatorName() ]
-                = new CommandContainer( Command::Type::MUTATOR, cmd );
-    }
 }

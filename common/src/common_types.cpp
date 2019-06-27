@@ -2,7 +2,7 @@
 
 void CharArrayCopy( char *dst, const char *src, size_t size )
 {
-    if( src == nullptr && src[ 0 ] == '\0' ) {
+    if( src == nullptr || src[ 0 ] == '\0' ) {
         strncpy( dst, "\0", 1 );
     } else {
         strncpy( dst, src, size );

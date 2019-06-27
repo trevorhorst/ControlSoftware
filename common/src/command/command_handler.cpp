@@ -22,20 +22,9 @@ const char *CommandContainer::getUsage()
  * @param params Parameters to pass to the command
  * @return Response to the call
  */
-cJSON *CommandContainer::call( cJSON *params )
+bool CommandContainer::call( cJSON *params, cJSON *response )
 {
-    cJSON *rsp = nullptr;
-
-    switch( mType ) {
-    case Command::ACCESSOR:
-        rsp = mCmdObj->access( params );
-        break;
-    case Command::MUTATOR:
-        rsp = mCmdObj->mutate( params );
-        break;
-    }
-
-    return rsp;
+    return mCmdObj->call( params, response, mType );
 }
 
 /**
@@ -87,13 +76,12 @@ const char *CommandHandler::getCommandUsage( const char *cmd )
  * @param cmdStr Command string to handle
  * @return Response to the call
  */
-cJSON *CommandHandler::handle( const char *cmdStr )
+bool CommandHandler::handle( const char *cmdStr, cJSON *response )
 {
-    cJSON *rsp = nullptr;
-
     bool ok = true;
+
     cJSON *parsed = cJSON_Parse( cmdStr );
-    if( cJSON_IsInvalid( parsed ) || cJSON_IsNull( parsed ) ) {
+    if( parsed == nullptr ) {
         /// @todo The cmdStr is invalid, handle this
         printf( "%s: Command string is invalid\n", __FUNCTION__ );
         ok = false;
@@ -101,6 +89,7 @@ cJSON *CommandHandler::handle( const char *cmdStr )
 
     cJSON *cmd = cJSON_GetObjectItem( parsed, PARAM_COMMAND );
     if( ok && cJSON_IsString( cmd ) ) {
+
         auto it = mCommandMap.find( cmd->valuestring );
         if( it == mCommandMap.end() ) {
             // The command does not exist
@@ -108,16 +97,21 @@ cJSON *CommandHandler::handle( const char *cmdStr )
                     , __FUNCTION__, cmd->valuestring );
             ok = false;
         } else {
+            // The command exists
             cJSON *params = cJSON_GetObjectItem( parsed, PARAM_PARAMS );
-            rsp = it->second->call( params );
+            bool success = it->second->call( params, response );
+
+            // Add the success parameter to the response object
+            cJSON_AddBoolToObject( response, PARAM_SUCCESS, success );
         }
+
     } else {
         /// @todo The cmd is not the type we expect, handle this
         ok = false;
     }
 
     cJSON_Delete( parsed );
-    return rsp;
+    return ok;
 }
 
 /**
