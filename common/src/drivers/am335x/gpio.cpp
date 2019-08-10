@@ -32,7 +32,7 @@ Gpio::Gpio( uint32_t address )
  */
 uint32_t Gpio::setOutput( uint32_t pin, bool output )
 {
-    uint32_t mask = 1 << pin;
+    uint32_t mask = ( 1 << pin ) | mMap.map()->dataout.mData;
     if( output ) {
         mMap.map()->dataout.set_pin( mask );
     } else {
@@ -51,7 +51,7 @@ uint32_t Gpio::setDirection( uint32_t pin, const char *direction )
 {
     uint32_t err = Error::Code::NONE;
 
-    uint32_t mask = 1 << pin;
+    uint32_t mask = ( 1 << pin ) | mMap.map()->oe.mData;
     if( direction == nullptr ) {
         err = Error::Code::PARAM_INVALID;
     } else if( strcmp( str_input, direction ) == 0 ) {
