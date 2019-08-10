@@ -251,6 +251,15 @@ bool Server::isRunning()
 }
 
 /**
+ * @brief Retrieves secure status of the server
+ * @return bool indicating secure status
+ */
+bool Server::isSecure()
+{
+    return mSecure;
+}
+
+/**
  * @brief Starts the HTTP server Daemon
  * @return Boolean indicating success of the operation
  */

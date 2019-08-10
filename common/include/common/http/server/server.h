@@ -46,6 +46,7 @@ public:
     void setCommandHandler( CommandHandler *handler );
 
     bool isRunning();
+    bool isSecure();
 
     uint32_t getPort();
 
