@@ -10,9 +10,12 @@
 #include "common/system/system.h"
 
 #include "common/command/command_datetime.h"
+#include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
 #include "common/command/command_server.h"
 #include "common/command/command_system.h"
+
+#include "common/drivers/am335x/gpio.h"
 
 #include "hardware/resources/resources.h"
 
@@ -31,15 +34,18 @@ private:
     const char *mIndexHtml;
     const char *mMainJs;
 
+    AM335X::Gpio mGpio[ 4 ];
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
     Http::Server mServer;
     System mSystem;
 
     CommandDateTime mCmdDateTime;
+    CommandGpio mCmdGpio;
     CommandLed mCmdLed;
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
+
 
 };
 

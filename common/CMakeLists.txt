@@ -10,6 +10,7 @@ set( SOURCE
     src/command/command.cpp
     src/command/command_console.cpp
     src/command/command_datetime.cpp
+    src/command/command_gpio.cpp
     src/command/command_handler.cpp
     src/command/command_help.cpp
     src/command/command_led.cpp
@@ -24,6 +25,7 @@ set( SOURCE
 
     # Drivers
     src/drivers/led.cpp
+    src/drivers/am335x/gpio.cpp
 
     # Error
     src/error/error.cpp
@@ -59,6 +61,7 @@ set( HEADERS
     include/common/command/command.h
     include/common/command/command_console.h
     include/common/command/command_datetime.h
+    include/common/command/command_gpio.h
     include/common/command/command_handler.h
     include/common/command/command_help.h
     include/common/command/command_led.h
@@ -72,6 +75,7 @@ set( HEADERS
 
     # Drivers
     include/common/drivers/led.h
+    include/common/drivers/am335x/gpio.h
 
     # Error
     include/common/error/error.h
@@ -98,6 +102,7 @@ set( HEADERS
 
     # Miscellaneous
     include/common/common_types.h
+    include/common/register.h
     include/common/singleton.h
     include/common/string.h
     )
