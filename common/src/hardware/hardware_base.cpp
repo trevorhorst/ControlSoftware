@@ -1,5 +1,17 @@
 #include "common/hardware/hardware_base.h"
 
+bool HardwareBase::mSimulated = false;
+
+bool HardwareBase::isSimulated()
+{
+    return mSimulated;
+}
+
+void HardwareBase::setSimulated( bool simulated )
+{
+    mSimulated = simulated;
+}
+
 /**
  * @brief Constructor
  */

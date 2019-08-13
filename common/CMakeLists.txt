@@ -90,6 +90,9 @@ set( HEADERS
     include/common/http/server/request.h
     include/common/http/server/server.h
 
+    # Option parser
+    include/common/option_parser.h
+
     # Resources
     include/common/resources/resources.h
 

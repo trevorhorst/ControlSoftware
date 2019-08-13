@@ -20,8 +20,12 @@ public:
     virtual CommandHandler *getCommandHandler();
     virtual void addCommand( Command* cmd );
 
+    static void setSimulated( bool simulated );
+    static bool isSimulated();
+
 private:
     CommandHandler mCommandHandler;
+    static bool mSimulated;
 };
 
 #endif // HARDWARE_H

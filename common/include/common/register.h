@@ -113,6 +113,8 @@ public:
     {
         int err = 0;
 
+        unmapInterface();
+
         if( mSimulated ) {
             // If this is a simulation, just fake the memory
             mMap = new T();

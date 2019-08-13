@@ -14,9 +14,9 @@ const char Gpio::str_output[] = "output";
  * @brief Constructor
  * @param address Register address
  */
-Gpio::Gpio( uint32_t address )
+Gpio::Gpio( uint32_t address, bool simulated )
     : ControlTemplate< Gpio >()
-    , mMap( address )
+    , mMap( address, simulated )
 {
     (void)address;
     printf( "GPIO Revision %d.%d\n", mMap.map()->revision.mMajor()
