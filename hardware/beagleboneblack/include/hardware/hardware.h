@@ -32,7 +32,7 @@ private:
     ~Hardware();
 
     const char *mIndexHtml;
-    const char *mMainJs;
+    const char *mBundleJs;
 
     AM335X::Gpio mGpio[ 4 ];
     DateTime mDateTime;

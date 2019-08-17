@@ -9,8 +9,8 @@
 
 namespace Resources
 {
-    extern "C" char MAIN_JS[];
-    extern "C" unsigned int MAIN_JS_SIZE;
+    extern "C" char BUNDLE_JS[];
+    extern "C" unsigned int BUNDLE_JS_SIZE;
 
     extern "C" const char INDEX_HTML[];
     extern "C" const unsigned int INDEX_HTML_SIZE;

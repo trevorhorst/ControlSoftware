@@ -92,7 +92,7 @@ const char *Server::type_text_javascript = "text/javascript";
 
 const char *Server::path_base            = "/";
 const char *Server::path_index_html      = "/index.html";
-const char *Server::path_main_js         = "/main.js";
+const char *Server::path_bundle_js         = "/bundle.js";
 
 /**
  * @brief Iterates over headers values found in the request
@@ -477,7 +477,7 @@ void Server::process(Request *request)
             rspType = type_text_html;
             rspCode = MHD_HTTP_OK;
 
-        } else if( strcmp( request->getPath(), path_main_js ) == 0 ) {
+        } else if( strcmp( request->getPath(), path_bundle_js ) == 0 ) {
             // The main script file has been requested
             rspData = mMainJs;
             rspType = type_text_javascript;

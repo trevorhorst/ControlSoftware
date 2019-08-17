@@ -31,7 +31,7 @@ class Server
 
     static const char *path_base;
     static const char *path_index_html;
-    static const char *path_main_js;
+    static const char *path_bundle_js;
 
 public:
     Server( const char *index

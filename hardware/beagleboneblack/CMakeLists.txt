@@ -7,7 +7,7 @@ enable_language( C ASM )
 set( SOURCE
     ${SOURCE}
     src/resources/index.html.s
-    src/resources/main.js.s
+    src/resources/bundle.js.s
     src/hardware.cpp
     )
 
