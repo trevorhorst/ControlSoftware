@@ -5,12 +5,13 @@
  */
 Hardware::Hardware()
     : HardwareBase()
-    , mIndexHtml( Resources::load( Resources::INDEX_HTML, Resources::INDEX_HTML_SIZE ) )
-    , mBundleJs( Resources::load( Resources::BUNDLE_JS, Resources::BUNDLE_JS_SIZE ) )
-    , mGpio{ { AM335X::gpio0_base, isSimulated() }
-             , { AM335X::gpio1_base, isSimulated() }
-             , { AM335X::gpio2_base, isSimulated() }
-             , { AM335X::gpio3_base, isSimulated() }
+    , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
+    , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
+    , mClockModule{ AM335X::addr_clock_module, isSimulated() }
+    , mGpio{ { AM335X::addr_gpio0_base, isSimulated() }
+             , { AM335X::addr_gpio1_base, isSimulated() }
+             , { AM335X::addr_gpio2_base, isSimulated() }
+             , { AM335X::addr_gpio3_base, isSimulated() }
              }
     , mServer( mIndexHtml, mBundleJs )
 {

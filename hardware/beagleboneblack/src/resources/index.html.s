@@ -1,12 +1,12 @@
     .section .rodata
-    .global INDEX_HTML
-    .type   INDEX_HTML, %object
+    .global index_html
+    .type   index_html, %object
     .align  4
-INDEX_HTML:
+index_html:
     .incbin "index.html"
-INDEX_HTML_END:
-    .global INDEX_HTML_SIZE
-    .type   INDEX_HTML_SIZE, %object
+index_html_end:
+    .global index_html_size
+    .type   index_html_size, %object
     .align  4
-INDEX_HTML_SIZE:
-    .int    INDEX_HTML_END - INDEX_HTML
+index_html_size:
+    .int    index_html_end - index_html

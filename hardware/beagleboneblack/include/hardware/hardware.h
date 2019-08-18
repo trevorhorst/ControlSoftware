@@ -15,6 +15,7 @@
 #include "common/command/command_server.h"
 #include "common/command/command_system.h"
 
+#include "common/drivers/am335x/clock_module.h"
 #include "common/drivers/am335x/gpio.h"
 
 #include "hardware/resources/resources.h"
@@ -34,6 +35,7 @@ private:
     const char *mIndexHtml;
     const char *mBundleJs;
 
+    AM335X::ClockModule mClockModule;
     AM335X::Gpio mGpio[ 4 ];
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];

@@ -1,12 +1,12 @@
     .section .rodata
-    .global BUNDLE_JS
-    .type   BUNDLE_JS, %object
+    .global bundle_js
+    .type   bundle_js, %object
     .align  4
-BUNDLE_JS:
+bundle_js:
     .incbin "bundle.js"
-BUNDLE_JS_END:
-    .global BUNDLE_JS_SIZE
-    .type   BUNDLE_JS_SIZE, %object
+bundle_js_end:
+    .global bundle_js_size
+    .type   bundle_js_size, %object
     .align  4
-BUNDLE_JS_SIZE:
-    .int    BUNDLE_JS_END - BUNDLE_JS
+bundle_js_size:
+    .int    bundle_js_end - bundle_js

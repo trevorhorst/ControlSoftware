@@ -6,10 +6,10 @@
 
 namespace AM335X {
 
-extern const uint32_t gpio0_base;
-extern const uint32_t gpio1_base;
-extern const uint32_t gpio2_base;
-extern const uint32_t gpio3_base;
+extern const uint32_t addr_gpio0_base;
+extern const uint32_t addr_gpio1_base;
+extern const uint32_t addr_gpio2_base;
+extern const uint32_t addr_gpio3_base;
 
 class Gpio
         : public ControlTemplate< Gpio >

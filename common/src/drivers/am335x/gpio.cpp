@@ -2,10 +2,10 @@
 
 namespace AM335X {
 
-const uint32_t gpio0_base = 0x44E07000;
-const uint32_t gpio1_base = 0x4804C000;
-const uint32_t gpio2_base = 0x481AC000;
-const uint32_t gpio3_base = 0x481AE000;
+const uint32_t addr_gpio0_base = 0x44E07000;
+const uint32_t addr_gpio1_base = 0x4804C000;
+const uint32_t addr_gpio2_base = 0x481AC000;
+const uint32_t addr_gpio3_base = 0x481AE000;
 
 const char Gpio::str_input[] = "input";
 const char Gpio::str_output[] = "output";
@@ -18,7 +18,6 @@ Gpio::Gpio( uint32_t address, bool simulated )
     : ControlTemplate< Gpio >()
     , mMap( address, simulated )
 {
-    (void)address;
     printf( "GPIO Revision %d.%d\n", mMap.map()->revision.mMajor()
             , mMap.map()->revision.mMinor() );
     printf( "%s: gpio size %lu\n", __FUNCTION__, sizeof( RegisterMap ) );
