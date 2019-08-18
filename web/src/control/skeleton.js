@@ -33,4 +33,4 @@ class Skeleton extends React.Component {
   }
 };
 
-export default ControlLed;
+export default Skeleton;

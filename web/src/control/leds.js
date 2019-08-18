@@ -42,6 +42,10 @@ class ControlLed extends React.Component {
       API.sendCommand( { "cmd":"led", "params":{ "id": index, "enable": ledsState[ index ]  } } )
       .then( function( result ) {
       } )
+      .catch( function( reason ) {
+        // Do something with the error
+        console.log( reason )
+      })
 
       this.setState( { leds: ledsState } )
     }

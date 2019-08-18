@@ -1,5 +1,7 @@
+/**
+ * @brief Navigation tool component
+ */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,13 +11,11 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 
-import ControlLed from './leds.js';
 import Timer from './timer.js';
+import ControlLed from './leds.js';
+import ControlGpio from './gpio.js';
 
 const drawerWidth = 240
 
@@ -70,12 +70,11 @@ class IndexPage extends React.Component {
     // Set component
     let comp = this;
 
-    let controlLed = <ControlLed />
-
     // List of control pages
     let listPages = [
-      <Timer />,
-      <ControlLed />
+      <ControlGpio />
+      , <ControlLed />
+      , <Timer />
     ]
 
     // Select which page we want to render 
@@ -85,7 +84,7 @@ class IndexPage extends React.Component {
       let classes = useStyles();
       // Populate drawer items, map multiple components at once
       let drawerItems =
-        [ 'Timer', 'LED' ].map( ( text, index ) => (
+        [ 'GPIO', 'LED', 'Timer' ].map( ( text, index ) => (
           <ListItem button key={text}>
             <ListItemText 
               primary={ text } 

@@ -26,11 +26,9 @@ class Timer extends React.Component {
       } )
       res = result.result.datetime
     } )
-  }
-
-
-  componentWillMount() {
-
+    .catch( function() {
+      // Do something to handle the error - or don't       
+    } )
   }
 
   componentDidMount() {
