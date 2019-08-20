@@ -1,5 +1,5 @@
 /* API Routes */
-let XHR_TIMEOUT = 5000;  // 5000 milliseconds before API gives up
+let XHR_TIMEOUT_MS = 5000;  // 5000 milliseconds before API gives up
 
 // require("babel-polyfill");
 // var baseRoute = window.location.href + 'api/command'
@@ -18,7 +18,7 @@ function doFilePost(route, payload) {
 
         var xhr = new XMLHttpRequest();
         xhr.open('POST', route);
-        xhr.timeout = XHR_TIMEOUT; // timeout (milliseconds)
+        xhr.timeout = XHR_TIMEOUT_MS; // timeout (milliseconds)
         //xhr.setRequestHeader('Content-Type', 'multipart/form-data');
         xhr.onload = function() {
             if (xhr.status >= 200 && xhr.status < 300) {
@@ -60,7 +60,7 @@ function doPost( route, payload ) {
         var xhr = new XMLHttpRequest();
 		xhr.open( 'POST', route );
 		// Timeout in milliseconds
-        xhr.timeout = XHR_TIMEOUT;
+        xhr.timeout = XHR_TIMEOUT_MS;
         xhr.setRequestHeader( 
 			'Content-Type', 'application/json; charset=UTF-8' );
 
@@ -100,7 +100,7 @@ function doPostResolve(route, payload) {
     return new Promise(function(resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', route);
-        xhr.timeout = XHR_TIMEOUT; // timeout (milliseconds)
+        xhr.timeout = XHR_TIMEOUT_MS; // timeout (milliseconds)
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
             if (xhr.status >= 200 && xhr.status < 300) {
