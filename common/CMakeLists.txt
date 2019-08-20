@@ -27,6 +27,7 @@ set( SOURCE
     src/drivers/led.cpp
     src/drivers/am335x/gpio.cpp
     src/drivers/am335x/clock_module.cpp
+    src/drivers/am335x/control_module.cpp
 
     # Error
     src/error/error.cpp
@@ -78,6 +79,7 @@ set( HEADERS
     include/common/drivers/led.h
     include/common/drivers/am335x/gpio.h
     include/common/drivers/am335x/clock_module.h
+    include/common/drivers/am335x/control_module.h
 
     # Error
     include/common/error/error.h

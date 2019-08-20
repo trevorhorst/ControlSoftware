@@ -101,18 +101,20 @@ public:
 
     void dumpRevision();
 
+
     bool getOutput( uint32_t pin );
     bool getInput( uint32_t pin );
 
     const char *getDirection( uint32_t pin );
 
+    uint32_t getOutput();
+    uint32_t getInput();
+
     uint32_t setOutput( uint32_t pin, bool output );
     uint32_t setDirection( uint32_t pin, const char *direction );
 
 private:
-    RegisterMap mRegister;
-    MemoryMappedRegister< RegisterMap > mMap;
-
+    MemoryMappedRegister< RegisterMap > mRegister;
 };
 
 }

@@ -1,7 +1,6 @@
 /** ****************************************************************************
- * @file drv_clock_module_am335x.h
+ * @file common/drivers/clock_module.h
  * @author Trevor Horst
- * @copyright G3 Technologies, Inc 2018
  * @brief Driver for the AM335x clock module
  * ****************************************************************************/
 

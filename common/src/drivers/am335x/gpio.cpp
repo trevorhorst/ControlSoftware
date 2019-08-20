@@ -16,10 +16,10 @@ const char Gpio::str_output[] = "output";
  */
 Gpio::Gpio( uint32_t address, bool simulated )
     : ControlTemplate< Gpio >()
-    , mMap( address, simulated )
+    , mRegister( address, simulated )
 {
-    printf( "GPIO Revision %d.%d\n", mMap.map()->revision.mMajor()
-            , mMap.map()->revision.mMinor() );
+    printf( "GPIO Revision %d.%d\n", mRegister.map()->revision.mMajor()
+            , mRegister.map()->revision.mMinor() );
     printf( "%s: gpio size %lu\n", __FUNCTION__, sizeof( RegisterMap ) );
 }
 
@@ -31,11 +31,11 @@ Gpio::Gpio( uint32_t address, bool simulated )
  */
 uint32_t Gpio::setOutput( uint32_t pin, bool output )
 {
-    uint32_t mask = ( 1 << pin ) | mMap.map()->dataout.mData;
+    uint32_t mask = ( 1 << pin ) | mRegister.map()->dataout.mData;
     if( output ) {
-        mMap.map()->dataout.set_pin( mask );
+        mRegister.map()->dataout.set_pin( mask );
     } else {
-        mMap.map()->dataout.pin();
+        mRegister.map()->dataout.pin();
     }
     return 0;
 }
@@ -50,13 +50,13 @@ uint32_t Gpio::setDirection( uint32_t pin, const char *direction )
 {
     uint32_t err = Error::Code::NONE;
 
-    uint32_t mask = ( 1 << pin ) | mMap.map()->oe.mData;
+    uint32_t mask = ( 1 << pin ) | mRegister.map()->oe.mData;
     if( direction == nullptr ) {
         err = Error::Code::PARAM_INVALID;
     } else if( strcmp( str_input, direction ) == 0 ) {
-        mMap.map()->oe.mData |= mask;
+        mRegister.map()->oe.mData |= mask;
     } else if( strcmp( str_output, direction ) == 0 ) {
-        mMap.map()->oe.mData &= ~mask;
+        mRegister.map()->oe.mData &= ~mask;
     } else {
         err = Error::Code::PARAM_OUT_OF_RANGE;
     }
@@ -65,14 +65,23 @@ uint32_t Gpio::setDirection( uint32_t pin, const char *direction )
 }
 
 /**
- * @brief Gets the data output on the pin
+ * @brief Gets the data output of a specific pin
  * @param pin Desired pin on the GPIO bank
  * @return Data output on the pin; true indicate high, false indicates low
  */
 bool Gpio::getOutput( uint32_t pin )
 {
     uint32_t mask = 1 << pin;
-    return mMap.map()->dataout.mData & mask;
+    return mRegister.map()->dataout.mData & mask;
+}
+
+/**
+ * @brief Get the data output of the bank
+ * @return Data output on the bank
+ */
+uint32_t Gpio::getOutput()
+{
+    return mRegister.map()->dataout.mData;
 }
 
 /**
@@ -83,7 +92,16 @@ bool Gpio::getOutput( uint32_t pin )
 bool Gpio::getInput( uint32_t pin )
 {
     uint32_t mask = 1 << pin;
-    return mMap.map()->datain.mData & mask;
+    return mRegister.map()->datain.mData & mask;
+}
+
+/**
+ * @brief Gets the data input of the bank
+ * @return Samepled input data for the bank
+ */
+uint32_t Gpio::getInput()
+{
+    return mRegister.map()->datain.mData;
 }
 
 /**
@@ -95,7 +113,7 @@ const char *Gpio::getDirection( uint32_t pin )
 {
     const char *direction = nullptr;
     uint32_t mask = 1 << pin;
-    if( mMap.map()->oe.mData & mask ) {
+    if( mRegister.map()->oe.mData & mask ) {
         direction = str_input;
     } else {
         direction = str_output;

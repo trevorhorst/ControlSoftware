@@ -7,7 +7,8 @@ Hardware::Hardware()
     : HardwareBase()
     , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
     , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
-    , mClockModule{ AM335X::addr_clock_module, isSimulated() }
+    , mControlModule( AM335X::addr_control_module, isSimulated() )
+    , mClockModule( AM335X::addr_clock_module, isSimulated() )
     , mGpio{ { AM335X::addr_gpio0_base, isSimulated() }
              , { AM335X::addr_gpio1_base, isSimulated() }
              , { AM335X::addr_gpio2_base, isSimulated() }
