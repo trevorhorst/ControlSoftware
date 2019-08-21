@@ -34,7 +34,7 @@ public:
         , ACCESSOR = 1
     };
 
-    Command( const char *mutator , const char *accessor );
+    Command( const char *mutator, const char *accessor, const char *optional );
     virtual ~Command();
 
     bool isMutable();
@@ -58,12 +58,17 @@ protected:
     std::vector< Control* > mCtrlObjList;
 
     virtual uint32_t handleRequiredParameters( cJSON *params, const char *&details );
-    virtual uint32_t handleOptionalParameters( cJSON *params, cJSON *response );
+    virtual uint32_t handleOptionalParameters( cJSON *params, const char *&details );
 
     ParameterMap mRequiredMap;
-    ParameterMap mOptionalMap;
     ParameterMap mAccessorMap;
     ParameterMap mMutatorMap;
+
+    ParameterCallback mOptional;
+    ParameterMap mOptionalAccessorMap;
+    ParameterMap mOptionalMutatorMap;
+
+    char mOptionalParameter[ COMMAND_NAME_MAX_SIZE ];
 
     static const char *error_control_unavailable;
 

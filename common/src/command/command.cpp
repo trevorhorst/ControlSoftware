@@ -14,12 +14,13 @@ const char *Command::error_control_unavailable = "Control is unavailable";
  * @brief Command Constructor
  * @param name Command name
  */
-Command::Command( const char *mutator, const char *accessor )
-    : mAccessible( false )
+Command::Command( const char *mutator, const char *accessor, const char *optional )
+    : mOptional( nullptr )
+    , mAccessible( false )
     , mMutable( false )
 {
     // Add an accessor
-    if( accessor == nullptr && accessor[ 0 ] == '\0' ) {
+    if( accessor == nullptr || accessor[ 0 ] == '\0' ) {
         strncpy( mAccessor, "\0", 1 );
         mAccessible = false;
     } else {
@@ -29,13 +30,21 @@ Command::Command( const char *mutator, const char *accessor )
     }
 
     // Add a mutator
-    if( mutator == nullptr && mutator[ 0 ] == '\0' ) {
+    if( mutator == nullptr || mutator[ 0 ] == '\0' ) {
         strncpy( mMutator, "\0", 1 );
         mMutable = false;
     } else {
         strncpy( mMutator, mutator, sizeof( mMutator ) );
         mMutator[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
         mMutable = true;
+    }
+
+    // Add the optional parameter
+    if( optional == nullptr || optional[ 0 ] == '\0' ) {
+        strncpy( mOptionalParameter, "\0", 1 );
+    } else {
+        strncpy( mOptionalParameter, optional, sizeof( mOptionalParameter ) );
+        mOptionalParameter[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
     }
 
     // Create the usage text
@@ -100,11 +109,36 @@ uint32_t Command::handleRequiredParameters( cJSON *params, const char *&details 
  * @param response Response object to populate
  * @return Boolean indicating success of the operation
  */
-uint32_t Command::handleOptionalParameters( cJSON *params, cJSON *response )
+uint32_t Command::handleOptionalParameters( cJSON *params, const char *&details )
 {
     (void)params;
-    (void)response;
-    return true;
+    (void)details;
+    uint32_t r = Error::Code::NONE;
+
+    // const char *param = nullptr;
+    // cJSON *p = nullptr;
+    // for( auto it = mOptionalMap.begin()
+    //      ; it != mOptionalMap.end() && r == Error::Code::NONE
+    //      ; it++ ) {
+
+    //     // Detach the optional parameter
+    //     param = it->first;
+    //     p = cJSON_DetachItemFromObject( params, param );
+
+    //     if( p != nullptr ) {
+    //         r = it->second( p );
+    //     }
+
+    //     // Delete all the parameters we detach
+    //     if( p ) { cJSON_Delete( p ); }
+
+    // }
+
+    // if( r != Error::Code::NONE ) {
+    //     details = param;
+    // }
+
+    return r;
 }
 
 /**

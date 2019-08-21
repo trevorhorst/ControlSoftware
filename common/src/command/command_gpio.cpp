@@ -1,21 +1,30 @@
 #include "common/command/command_gpio.h"
 
 CommandGpio::CommandGpio( const char *mutator, const char *accessor )
-    : CommandTemplate< AM335X::Gpio >( mutator, accessor )
+    : CommandTemplate< AM335X::Gpio >( mutator, accessor, PARAM_PIN )
     , mPin( 0 )
     , mBank( 0 )
 {
     mRequiredMap[ PARAM_BANK ] = PARAMETER_CALLBACK( &CommandGpio::setBank );
-    mRequiredMap[ PARAM_PIN ] = PARAMETER_CALLBACK( &CommandGpio::setPin );
+    // mRequiredMap[ PARAM_PIN ] = PARAMETER_CALLBACK( &CommandGpio::setPin );
 
-    mMutatorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::setOutput );
-    mMutatorMap[ PARAM_DIR ] = PARAMETER_CALLBACK( &CommandGpio::setDirection );
+    // mMutatorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::setOutput );
+    // mMutatorMap[ PARAM_DIR ] = PARAMETER_CALLBACK( &CommandGpio::setDirection );
 
     mAccessorMap[ PARAM_BANK ] = PARAMETER_CALLBACK( &CommandGpio::getBank );
-    mAccessorMap[ PARAM_PIN ] = PARAMETER_CALLBACK( &CommandGpio::getPin );
-    mAccessorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::getOutput );
-    mAccessorMap[ PARAM_INPUT ] = PARAMETER_CALLBACK( &CommandGpio::getInput );
-    mAccessorMap[ PARAM_DIR ] = PARAMETER_CALLBACK( &CommandGpio::getDirection );
+    mAccessorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::getBankOutput );
+    mAccessorMap[ PARAM_INPUT ] = PARAMETER_CALLBACK( &CommandGpio::getBankInput );
+
+    mOptional = PARAMETER_CALLBACK( &CommandGpio::setPin );
+
+    mOptionalAccessorMap[ PARAM_BANK ] = PARAMETER_CALLBACK( &CommandGpio::getBank );
+    mOptionalAccessorMap[ PARAM_PIN ] = PARAMETER_CALLBACK( &CommandGpio::getPin );
+    mOptionalAccessorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::getOutput );
+    mOptionalAccessorMap[ PARAM_INPUT ] = PARAMETER_CALLBACK( &CommandGpio::getInput );
+    mOptionalAccessorMap[ PARAM_DIR ] = PARAMETER_CALLBACK( &CommandGpio::getDirection );
+
+    mOptionalMutatorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::setOutput );
+    mOptionalMutatorMap[ PARAM_DIR ] = PARAMETER_CALLBACK( &CommandGpio::setDirection );
 }
 
 uint32_t CommandGpio::setBank( cJSON *val )
@@ -100,5 +109,19 @@ uint32_t CommandGpio::getDirection( cJSON *response )
 {
     uint32_t r = Error::Code::NONE;
     cJSON_AddStringToObject( response, PARAM_DIR, mControlObject->getDirection( mPin ) );
+    return r;
+}
+
+uint32_t CommandGpio::getBankOutput( cJSON *response )
+{
+    uint32_t r = Error::Code::NONE;
+    cJSON_AddNumberToObject( response, PARAM_OUTPUT, mControlObject->getOutput() );
+    return r;
+}
+
+uint32_t CommandGpio::getBankInput( cJSON *response )
+{
+    uint32_t r = Error::Code::NONE;
+    cJSON_AddNumberToObject( response, PARAM_INPUT, mControlObject->getInput() );
     return r;
 }
