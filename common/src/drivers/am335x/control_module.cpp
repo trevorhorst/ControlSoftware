@@ -11,7 +11,6 @@ ControlModule::ControlModule( uint32_t address, bool simulated )
     : ControlTemplate< ControlModule >()
     , mRegister( address, simulated )
 {
-    dumpPins();
 }
 
 /**
