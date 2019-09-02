@@ -24,10 +24,12 @@ set( SOURCE
     src/control/control.cpp
 
     # Drivers
-    src/drivers/led.cpp
     src/drivers/am335x/gpio.cpp
     src/drivers/am335x/clock_module.cpp
     src/drivers/am335x/control_module.cpp
+    src/drivers/devices/gps/venus638flpx.cpp
+    src/drivers/led.cpp
+    src/drivers/serial.cpp
 
     # Error
     src/error/error.cpp
@@ -76,10 +78,12 @@ set( HEADERS
     include/common/control/control_template.h
 
     # Drivers
-    include/common/drivers/led.h
     include/common/drivers/am335x/gpio.h
     include/common/drivers/am335x/clock_module.h
     include/common/drivers/am335x/control_module.h
+    include/common/drivers/devices/gps/venus638flpx.h
+    include/common/drivers/led.h
+    include/common/drivers/serial.h
 
     # Error
     include/common/error/error.h

@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <thread>
 
 #include "common/drivers/led.h"
 #include "common/hardware/hardware_base.h"
@@ -18,9 +19,12 @@
 #include "common/drivers/am335x/control_module.h"
 #include "common/drivers/am335x/clock_module.h"
 #include "common/drivers/am335x/gpio.h"
+#include "common/drivers/devices/gps/venus638flpx.h"
+#include "common/drivers/serial.h"
 
 #include "hardware/resources/resources.h"
 
+#define NUM_GPIO_HEADERS 4
 #define LED_HEADERS 4
 
 class Hardware
@@ -28,6 +32,7 @@ class Hardware
         , public Singleton< Hardware >
 {
     friend class Singleton< Hardware >;
+    static const char *str_gps_device;
 public:
 private:
     Hardware();
@@ -36,9 +41,12 @@ private:
     const char *mIndexHtml;
     const char *mBundleJs;
 
+
+    Serial mGpsSerial;
+    Venus638FLPx mGps;
     AM335X::ControlModule mControlModule;
     AM335X::ClockModule mClockModule;
-    AM335X::Gpio mGpio[ 4 ];
+    AM335X::Gpio mGpio[ NUM_GPIO_HEADERS ];
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
     Http::Server mServer;
@@ -49,6 +57,8 @@ private:
     CommandLed mCmdLed;
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
+
+    std::thread *mSerialMonitor;
 
 
 };
