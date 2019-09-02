@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "common/error/error.h"
+#include "common/logger/log.h"
 
 class Control
 {

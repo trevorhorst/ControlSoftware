@@ -44,6 +44,9 @@ set( SOURCE
     src/http/server/request.cpp
     src/http/server/server.cpp
 
+    # Logger
+    src/logger/log.cpp
+
     # Resources
     src/resources/resources.cpp
 
@@ -97,6 +100,9 @@ set( HEADERS
     include/common/http/client/client.h
     include/common/http/server/request.h
     include/common/http/server/server.h
+
+    # Logger
+    include/common/logger/log.h
 
     # Option parser
     include/common/option_parser.h
