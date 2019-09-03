@@ -462,25 +462,22 @@ int Serial::Read (void *Buffer,unsigned int MaxNbBytes,unsigned int TimeOut_ms)
     return 0;                                                           // Timeout reached, return 0
 }
 
-// ******************************************
-//  Class TimeOut
-// ******************************************
-
-
-/*!
-    \brief      Constructor of the class TimeOut.
-*/
-// Constructor
+/**
+ * @brief Constructor
+ */
 TimeOut::TimeOut()
-{}
+{
 
-/*!
-    \brief      Initialise the timer. It writes the current time of the day in the structure PreviousTime.
-*/
-//Initialize the timer
+}
+
+/**
+ * @brief Destructor
+ */
 void TimeOut::InitTimer()
 {
-    gettimeofday(&PreviousTime, nullptr);
+    // Initialize the timer. It writes the current time of the day in the
+    // structure PreviousTime.
+    gettimeofday( &mPreviousTime, nullptr );
 }
 
 /*!
@@ -491,15 +488,21 @@ void TimeOut::InitTimer()
 //Return the elapsed time since initialization
 unsigned long int TimeOut::ElapsedTime_ms()
 {
-    struct timeval CurrentTime;
-    int sec,usec;
-    gettimeofday(&CurrentTime, nullptr);                                   // Get current time
-    sec=CurrentTime.tv_sec-PreviousTime.tv_sec;                         // Compute the number of second elapsed since last call
-    usec=CurrentTime.tv_usec-PreviousTime.tv_usec;                      // Compute
-    if (usec<0) {                                                       // If the previous usec is higher than the current one
-        usec=1000000-PreviousTime.tv_usec+CurrentTime.tv_usec;          // Recompute the microseonds
-        sec--;                                                          // Substract one second
+    struct timeval currentTime;
+    long sec = 0;
+    long usec = 0;
+    // Get the current time
+    gettimeofday( &currentTime, nullptr );
+    // Compute the number of elapsed time since the last call
+    sec = currentTime.tv_sec - mPreviousTime.tv_sec;
+    usec = currentTime.tv_usec - mPreviousTime.tv_usec;
+    // If the previous usec is higher than the current one
+    if( usec < 0 ) {
+        // Recompute the microseconds
+        usec = 1000000 - mPreviousTime.tv_usec + currentTime.tv_usec;   // Recompute the microseonds
+        // Subtract one second
+        sec--;
     }
-    return sec*1000+usec/1000;
+    return static_cast< unsigned long >( sec * 1000 + usec / 1000 );
 }
 
