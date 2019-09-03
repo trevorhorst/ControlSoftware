@@ -66,47 +66,8 @@ Serial::~Serial()
 
 
 /**
- * @brief Open the serial port
- * @param Device : Port name (COM1, COM2, ... for Windows ) or (/dev/ttyS0, /dev/ttyACM0, /dev/ttyUSB0 ... for linux)
- * @param Bauds : Baud rate of the serial port.
- *
- *           \n Supported baud rate for Windows :
- *                   - 110
- *                   - 300
- *                   - 600
- *                   - 1200
- *                   - 2400
- *                   - 4800
- *                   - 9600
- *                   - 14400
- *                   - 19200
- *                   - 38400
- *                   - 56000
- *                   - 57600
- *                   - 115200
- *                   - 128000
- *                   - 256000
- *
- *          \n Supported baud rate for Linux :\n
- *                   - 110
- *                   - 300
- *                   - 600
- *                   - 1200
- *                   - 2400
- *                   - 4800
- *                   - 9600
- *                   - 19200
- *                   - 38400
- *                   - 57600
- *                   - 115200
- *
- * @return 1 success
- * @return -1 device not found
- * @return -2 error while opening the device
- * @return -3 error while getting port parameters
- * @return -4 Speed (Bauds) not recognized
- * @return -5 error while writing port parameters
- * @return -6 error while writing timeout parameters
+ * @brief Opens the serial port interface
+ * @return int32_t error code
  */
 
 int32_t Serial::openInterface()
@@ -118,7 +79,7 @@ int32_t Serial::openInterface()
     mFileDescriptor = open( mInterface, O_RDWR | O_NOCTTY | O_NDELAY );
     if( mFileDescriptor == -1 ) {
         error = -2;                                            // If the device is not open, return -1
-        LOG_WARN( "%s: Interface failed to open - %s\n"
+        LOG_WARN( "%s: Interface failed to open - %s"
                 , mInterface, strerror( errno ) );
     } else {
 
@@ -172,7 +133,7 @@ int32_t Serial::openInterface()
 void Serial::closeInterface()
 {
     if( close( mFileDescriptor ) < 0 ) {
-        LOG_WARN( "%s: failed to close - %s\n"
+        LOG_WARN( "%s: failed to close - %s"
                 , mInterface, strerror( errno ) );
     } else {
         LOG_INFO( "%s: closed", mInterface );
@@ -203,11 +164,22 @@ void Serial::flushTransmitter()
 }
 
 /**
+ * @brief Determine the number of bytes available on the receiver
+ * @return int32_t bytes
+ */
+int32_t Serial::availableBytes()
+{
+    int32_t bytes = 0;
+    ioctl( mFileDescriptor, FIONREAD, &bytes );
+    return bytes;
+}
+
+/**
  * @brief Read a byte from the interface
  * @param buffer Buffer to store data
  * @return int32_t error code
  */
-int32_t Serial::readByte( char *buffer )
+int32_t Serial::readByte( uint8_t *buffer )
 {
     int32_t error = 0;
 
@@ -222,7 +194,7 @@ int32_t Serial::readByte( char *buffer )
     return error;
 }
 
-int32_t Serial::readBytes( char *buffer, int32_t size )
+int32_t Serial::readBytes( uint8_t *buffer, int32_t size )
 {
     int32_t error = 0;
 
@@ -243,10 +215,20 @@ int32_t Serial::readBytes( char *buffer, int32_t size )
     return error;
 }
 
+/**
+ * @brief Reads a specified pattern from the interface
+ * @param start Start sequence
+ * @param startSize Size of the start sequence
+ * @param stop Stop sequence
+ * @param stopSize Size of the stop sequence
+ * @param buffer Buffer to store data
+ * @param bufferSize Size of the storage buffer
+ * @return int32_t error code
+ */
 int32_t Serial::readPattern( 
-    const char *start, int32_t startSize
-    , const char *stop, int32_t stopSize
-    , char *buffer, int32_t bufferSize )
+    const uint8_t *start, int32_t startSize
+    , const uint8_t *stop, int32_t stopSize
+    , uint8_t *buffer, int32_t bufferSize )
 {
     int32_t error = 0;
 
@@ -264,6 +246,7 @@ int32_t Serial::readPattern(
 
         int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet
             , nullptr, nullptr, nullptr );
+
         if( sel == 1 ) {
 
             // Read a byte from the buffer
@@ -272,15 +255,15 @@ int32_t Serial::readPattern(
             if( startFound ) {
                 // The start has been found, look for the stop
 
-				if( buffer[ bytesRead ] == stop[ stopIncr ] ) {
+                if( buffer[ bytesRead ] == stop[ stopIncr ] ) {
                     // Our current byte matches our stop byte, increment both
-					stopIncr++;
-					bytesRead++;
+                    stopIncr++;
+                    bytesRead++;
                 } else {
-                    //  Our current byte does not match our stop byte, reset
+                    // Our current byte does not match our stop byte, reset
                     // the increment
                     stopIncr = 0;
-					bytesRead++;
+                    bytesRead++;
                 }
 
                 if( stopIncr == stopSize ) {
@@ -291,21 +274,21 @@ int32_t Serial::readPattern(
             } else {
                 // The start byte hasn't been found, look for the start
                 
-				if( buffer[ bytesRead ] == start[ startIncr ] ) {
+                if( buffer[ bytesRead ] == start[ startIncr ] ) {
                     // Our current byte matches our start byte, increment both
-					startIncr++;
-					bytesRead++;
-				} else {
+                    startIncr++;
+                    bytesRead++;
+                } else {
                     // Our current byte does not match our start byte, reset the
                     // increment and the bytes read
-					startIncr = 0;
-					bytesRead = 0;
-				}
+                    startIncr = 0;
+                    bytesRead = 0;
+                }
 
-				if( startIncr == startSize ) {
+                if( startIncr == startSize ) {
                     // We have matched all of our start bytes
-					startFound = true;
-				}
+                    startFound = true;
+                }
 
 
             }
@@ -315,66 +298,22 @@ int32_t Serial::readPattern(
     return error;
 }
 
-int32_t Serial::readInterface()
+/**
+ * @brief Write bytes to the serial interface
+ * @param buffer Buffer to write
+ * @param size Size of the buffer to write
+ * @return int32_t error code
+ */
+int32_t Serial::writeBytes( const uint8_t *buffer, uint32_t size )
 {
     int32_t error = 0;
 
-    char inputBuffer[ 2048 ];
-    inputBuffer[ 0 ] = 0;
-    // char str[]       = "\xA0\xA1\x00\x02\x02\x00\x02\x0D\x0A";
-    unsigned char str[] = "\xA0\xA1\x00\x03\x09\x00\x09\x0D\x0A";
-    FD_ZERO( &mFileDescriptorSet );
-    FD_SET( fd, &mFileDescriptorSet );
-
-    FlushReceiver();
-    tcflush(fd,TCOFLUSH);
-    // for( int i = 0; i < 10; i++ ) {
-    //     // printf( "0x%02X ", str[ i ] );
-    //     WriteChar( str[ i ] );
-    // }
-    write( fd, str, 10 );
-    // usleep( 50000 );
-    printf( "\n" );
-    char buffer[ 128 ];
-    readSegment( buffer, 128 );
-    if( buffer[ 4 ] == '\x83' ) {
-        printf( "Ack Received\n" );
-        readSegment( buffer, 128 );
-        if( buffer[ 4 ] == '\x83' ) {
-            printf( "Ack Received\n" );
-            readSegment( buffer, 128 );
-        } else {
-            printf( "Nack Received\n" );
-        }
-    }
-
-
-    // Write( str, 10 );
-    // usleep( 50000 );
-    // int32_t size = 100;
-    // char readback[ size ];
-    // for( int i = 0; i < size; i++ ) {
-    //     readback[ i ] = 0;
-    // }
-
-    // ReadString( readback, '\x0A', size, 0 );
-    // read( fd, readback, size );
-    // for( int i = 0; i < size; i++ ) {
-    //     printf( "0x%02X ", static_cast< u_char >( readback[ i ] ) );
-    // }
-    // printf( "\nReadBack: %s\n", readback );
-    while( !mDone ) {
-        // printf( "Select triggered: ReadString\n" );
-        int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet, nullptr, nullptr, nullptr );
-        if( sel == 1 ) {
-            // usleep( 250000 );
-            // ReadString( inputBuffer, '\n', 1024, 5000 );
-            inputBuffer[ 0 ] = 0;
-            ssize_t bytes = read( fd, inputBuffer, 2048 );
-            inputBuffer[ bytes ] = 0;
-            // ReadString( inputBuffer, '\n', 1024, 0 );
-            printf( "%s", inputBuffer );
-        } else {
+    if( mFileDescriptor <= 0 ) {
+        error = -1;
+    } else {
+        ssize_t bytesWritten = write( mFileDescriptor, buffer, size );
+        if( bytesWritten != size ) {
+            LOG_WARN( "%s: only wrote %d bytes, expected %d", bytesWritten, size );
             error = -1;
         }
     }
@@ -382,63 +321,8 @@ int32_t Serial::readInterface()
     return error;
 }
 
-/*!
-     \brief Write a char on the current serial port
-     \param Byte : char to send on the port (must be terminated by '\0')
-     \return 1 success
-     \return -1 error while writting data
-  */
-char Serial::WriteChar(const char Byte)
-{
-    if (write(fd,&Byte,1)!=1)                                           // Write the char
-        return -1;                                                      // Error while writting
-    return 1;                                                           // Write operation successfull
-}
-
-
-
-//________________________________________
-// ::: Read/Write operation on strings :::
-
-
-/*!
-     \brief Write a string on the current serial port
-     \param String : string to send on the port (must be terminated by '\0')
-     \return 1 success
-     \return -1 error while writting data
-  */
-char Serial::WriteString(const char *String)
-{
-#ifdef __linux__
-    int Lenght=strlen(String);                                          // Lenght of the string
-    if (write(fd,String,Lenght)!=Lenght)                                // Write the string
-        return -1;                                                      // error while writing
-    return 1;                                                           // Write operation successfull
-#endif
-}
-
 // _____________________________________
 // ::: Read/Write operation on bytes :::
-
-
-
-/*!
-     \brief Write an array of data on the current serial port
-     \param Buffer : array of bytes to send on the port
-     \param NbBytes : number of byte to send
-     \return 1 success
-     \return -1 error while writting data
-  */
-char Serial::Write(const void *Buffer, const unsigned int NbBytes)
-{
-    if( write( fd, Buffer, NbBytes ) != (ssize_t)NbBytes ) {                              // Write data
-        return -1;
-    } // Error while writing
-
-    return 1;                                                           // Write operation successfull
-}
-
-
 
 /*!
      \brief Wait for a byte from the serial device and return the data read
@@ -549,65 +433,6 @@ int Serial::ReadString(char *String,char FinalChar,unsigned int MaxNbBytes,unsig
     return -3;                                                          // Buffer is full : return -3
 }
 
-int32_t Serial::readSegment( char *buffer, int32_t size )
-{
-    int32_t error = 0;
-
-    for( int32_t i = 0; i < size; i++ ) {
-        buffer[ i ] = 0;
-    }
-    int32_t sequenceSize = 2;
-    char startSequence[] = { '\xA0', '\xA1' };
-    char endSequence[] = { '\x0D', '\x0A' };
-
-    bool done = false;
-    while( !done ) {
-        readChar( &buffer[ 0 ] );
-        if( buffer[ 0 ] == startSequence[ 0 ] ) {
-            readChar( &buffer[ 1 ] );
-            if( buffer[ 1 ] == startSequence[ 1 ] ) {
-                // read( fd, &buffer[ 2 ], strlen( startSequence ) );
-                printf( "Found start sequence!\n" );
-                bool messageDone = false;
-                int32_t index = sequenceSize;
-                while( !messageDone ) {
-                    readChar( &buffer[ index ]);
-                    if( buffer[ index ] == endSequence[ 0 ] ) {
-                        readChar( &buffer[ index + 1 ] );
-                        if( buffer[ index + 1 ] == endSequence[ 1 ] ) {
-                            printf( "Found end sequence!\n" );
-                            messageDone = true;
-                        }
-                    }
-                    index++;
-                }
-                done = true;
-            }
-        }
-    }
-
-    for( int32_t i = 0; i < size; i++ ) {
-        printf( "0x%02X ", static_cast< unsigned char >( buffer[ i ] ) );
-    }
-    printf( "\n" );
-
-    return error;
-}
-
-int32_t Serial::readChar(char *byte)
-{
-    int32_t error = 0;
-
-    int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet, nullptr, nullptr, nullptr );
-    if( sel == 1 ) {
-        read( fd, byte, 1 );
-    } else {
-        error = -1;
-    }
-
-    return error;
-}
-
 /*!
      \brief Read an array of bytes from the serial device (with timeout)
      \param Buffer : array of bytes read from the serial device
@@ -637,40 +462,6 @@ int Serial::Read (void *Buffer,unsigned int MaxNbBytes,unsigned int TimeOut_ms)
     return 0;                                                           // Timeout reached, return 0
 }
 
-
-
-
-// _________________________
-// ::: Special operation :::
-
-
-
-/*!
-    \brief Empty receiver buffer (UNIX only)
-*/
-
-void Serial::FlushReceiver()
-{
-#ifdef __linux__
-    tcflush(fd,TCIFLUSH);
-#endif
-}
-
-
-
-/*!
-    \brief  Return the number of bytes in the received buffer (UNIX only)
-    \return The number of bytes in the received buffer
-*/
-int Serial::Peek()
-{
-    int Nbytes=0;
-#ifdef __linux__
-    ioctl(fd, FIONREAD, &Nbytes);
-#endif
-    return Nbytes;
-}
-
 // ******************************************
 //  Class TimeOut
 // ******************************************
@@ -689,7 +480,7 @@ TimeOut::TimeOut()
 //Initialize the timer
 void TimeOut::InitTimer()
 {
-    gettimeofday(&PreviousTime, NULL);
+    gettimeofday(&PreviousTime, nullptr);
 }
 
 /*!
@@ -702,7 +493,7 @@ unsigned long int TimeOut::ElapsedTime_ms()
 {
     struct timeval CurrentTime;
     int sec,usec;
-    gettimeofday(&CurrentTime, NULL);                                   // Get current time
+    gettimeofday(&CurrentTime, nullptr);                                   // Get current time
     sec=CurrentTime.tv_sec-PreviousTime.tv_sec;                         // Compute the number of second elapsed since last call
     usec=CurrentTime.tv_usec-PreviousTime.tv_usec;                      // Compute
     if (usec<0) {                                                       // If the previous usec is higher than the current one

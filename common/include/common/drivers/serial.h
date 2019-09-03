@@ -63,41 +63,34 @@ public:
     void setDone() { mDone = true; }
     void closeInterface();
     int32_t openInterface();
-    int32_t readByte( char *buffer );
-    int32_t readBytes( char *buffer, int32_t size );
-    int32_t readPattern( const char *start, int32_t startSize, const char *stop
-        , int32_t stopSize, char *buffer, int32_t bufferSize );
 
     void flushReceiver();
     void flushTransmitter();
 
-    int32_t readInterface();
-    int32_t readChar( char *byte );
-    int32_t readSegment( char *buffer, int32_t size );
+    int32_t availableBytes();
+
+    int32_t readByte( uint8_t *buffer );
+    int32_t readBytes( uint8_t *buffer, int32_t size );
+    int32_t readPattern(
+            const uint8_t *start, int32_t startSize
+            , const uint8_t *stop, int32_t stopSize
+            , uint8_t *buffer, int32_t bufferSize );
+
+    int32_t writeBytes( const uint8_t *buffer, uint32_t size );
 
 ////////////////////////////////////////////////////////////////////////////////
 // Old Methods 
 ////////////////////////////////////////////////////////////////////////////////
 
-    // Write a char
-    char    WriteChar   (char);
     // Read a char (with timeout)
     char    ReadChar    (char *pByte,const unsigned int TimeOut_ms=NULL);
-    // Write a string
-    char    WriteString (const char *String);
     // Read a string (with timeout)
     int     ReadString  (   char *String,
                             char FinalChar,
                             unsigned int MaxNbBytes,
                             const unsigned int TimeOut_ms=NULL);
-    // Write an array of bytes
-    char    Write       (const void *Buffer, const unsigned int NbBytes);
     // Read an array of byte (with timeout)
     int     Read        (void *Buffer,unsigned int MaxNbBytes,const unsigned int TimeOut_ms=NULL);
-    // Empty the received buffer
-    void    FlushReceiver();
-    // Return the number of bytes in the received buffer
-    int     Peek();
 
 private:
 

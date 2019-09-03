@@ -1,3 +1,10 @@
+/** ***************************************************************************
+ * @file venus638flpx.cpp
+ * @author Trevor Horst
+ * @copyright None
+ * @brief Implementation of the Venus638FLPx driver
+ * ****************************************************************************/
+
 #include "common/drivers/devices/gps/venus638flpx.h"
 
 const uint8_t Venus638FLPx::Message::start_sequence[] = { 0xA0, 0xA1 };
@@ -70,6 +77,24 @@ Venus638FLPx::Message::~Message()
     }
 }
 
+/**
+ * @brief Retreive a pointer to the data
+ * @return uint8_t*
+ */
+const uint8_t *Venus638FLPx::Message::getData()
+{
+    return mData;
+}
+
+/**
+ * @brief Length of the data in the message
+ * @return uint32_t
+ */
+uint32_t Venus638FLPx::Message::getDataLength()
+{
+    return mDataLength;
+}
+
 const char Venus638FLPx::gpgga_sequence[] = "$GPGGA";
 const char Venus638FLPx::gpgsa_sequence[] = "$GPGSA";
 const char Venus638FLPx::gpgsv_sequence[] = "$GPGSV";
@@ -84,25 +109,95 @@ const char Venus638FLPx::gps_sentence_end_sequence[] = "\n";
 Venus638FLPx::Venus638FLPx( Serial *serial )
     : mSerial( serial )
 {
-    dumpSentences();
+    dumpVersion();
 }
 
+/**
+ * @brief Send a message to the device
+ * @param message Message container
+ * @param response Buffer to store the response
+ * @param size Size of the response buffer
+ * @return int32_t error code
+ */
+int32_t Venus638FLPx::sendMessage( Message &message, uint8_t *response, int32_t size )
+{
+    int32_t error = 0;
+    error = mSerial->writeBytes( message.getData(), message.getDataLength() );
+
+    // The first reply should be an ACK in response to our message
+    if( error >= 0 ) {
+        error = mSerial->readPattern(
+                    Message::start_sequence, Message::start_sequence_length
+                    , Message::end_sequence, Message::end_sequence_length
+                    , response, size );
+
+    }
+
+    int32_t messageIdOffset = Message::start_sequence_length 
+        + Message::end_sequence_length;
+    
+    if( ( error >= 0 ) && ( response[ messageIdOffset ] == Message::Id::ACK ) ) {
+        // We received an ACK for our message, read again
+        error = mSerial->readPattern( 
+                    Message::start_sequence, Message::start_sequence_length
+                    , Message::end_sequence, Message::end_sequence_length
+                    , response, size );
+    }
+
+    if( ( error >= 0 ) && ( response[ messageIdOffset ] == Message::Id::ACK ) ) {
+        // We received a response for our message, read one more time
+        error = mSerial->readPattern( 
+                    Message::start_sequence, Message::start_sequence_length
+                    , Message::end_sequence, Message::end_sequence_length
+                    , response, size );
+    }
+
+    return error;
+}
+
+/**
+ * @brief Dumps version info from the device
+ */
+void Venus638FLPx::dumpVersion()
+{
+    int32_t error = 0;
+
+    uint8_t body = 0;
+    uint8_t buffer[ 128 ];
+    Message message( Message::Id::QUERY_SOFTWARE_VERSION, &body, 1 );
+
+    error = sendMessage( message, buffer, 128 );
+
+    if( error >= 0 ) {
+        int32_t idOffset = Message::start_sequence_length
+                               + Message::end_sequence_length;
+
+        uint8_t *kernel = &buffer[ idOffset + Message::SoftwareVersion::KERNEL_VERSION ];
+        LOG_INFO( "Kernel Version: %02x.%02x.%02x"
+            , kernel[ 1 ], kernel[ 2 ], kernel[ 3 ] );
+        uint8_t *odm = &buffer[ idOffset + Message::SoftwareVersion::ODM_VERSION ];
+        LOG_INFO( "   ODM Version: %02x.%02x.%02x"
+            , odm[ 1 ], odm[ 2 ], odm[ 3 ] );
+        uint8_t *revision = &buffer[ idOffset + Message::SoftwareVersion::REVISION ];
+        LOG_INFO( "      Revision: %02x.%02x.%02x"
+            , revision[ 1 ], revision[ 2 ], revision[ 3 ] );
+    } else {
+        LOG_ERROR( "unable to query device" );
+    }
+}
+
+/**
+ * @brief Prints the first GPS sentence found from the device
+ */
 void Venus638FLPx::printSentence()
 {
-    char buffer[ 256 ];
-    mSerial->readPattern( 
-        gps_sentence_start_sequence, strlen( gps_sentence_start_sequence )
-        , gps_sentence_end_sequence, strlen( gps_sentence_end_sequence )
-        ,  buffer, 256 );
+    uint8_t buffer[ 256 ];
+    mSerial->readPattern(
+                reinterpret_cast< const uint8_t* >( gps_sentence_start_sequence )
+                , strlen( gps_sentence_start_sequence )
+                , reinterpret_cast< const uint8_t* >( gps_sentence_end_sequence )
+                , strlen( gps_sentence_end_sequence )
+                ,  buffer, 256 );
     buffer[ 255] = 0;
-    printf( "%s", buffer );
-}
-
-void Venus638FLPx::dumpSentences()
-{
-    printSentence();
-    printSentence();
-    printSentence();
-    printSentence();
-    printSentence();
+    LOG_INFO( "%s", buffer );
 }

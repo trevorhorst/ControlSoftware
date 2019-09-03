@@ -10,11 +10,20 @@ class Venus638FLPx
     struct Message {
 
         enum Id {
-            NONE                = 0x00
-            , SOFTWARE_VERSION  = 0x81
-            , SOFTWARE_CRC      = 0x82
-            , ACK               = 0x83
-            , NACK              = 0x84
+            NONE                        = 0x00
+            , QUERY_SOFTWARE_VERSION    = 0x02
+            , SOFTWARE_VERSION          = 0x81
+            , SOFTWARE_CRC              = 0x82
+            , ACK                       = 0x83
+            , NACK                      = 0x84
+        };
+
+        enum SoftwareVersion {
+            MESSAGE_ID          = 0x00
+            , SOFTWARE_TYPE     = 0x01
+            , KERNEL_VERSION    = 0x02
+            , ODM_VERSION       = 0x06
+            , REVISION          = 0x0A
         };
 
         uint8_t *mData;
@@ -30,19 +39,18 @@ class Venus638FLPx
 
         Message( uint8_t id, uint8_t *messageBody, uint16_t messageSize );
         ~Message();
+
+        const uint8_t *getData();
+        uint32_t getDataLength();
     };
 
 public:
     Venus638FLPx( Serial *serial );
 
-    void dumpSentences();
-    void printSentence();
+    int32_t sendMessage( Message &message, uint8_t *response, int32_t size );
 
-    int32_t formMessage( int8_t messageId
-                         , const int8_t *messageBody
-                         , const int16_t messageBodySize
-                         , int8_t *message
-                         , int16_t *messageSize );
+    void dumpVersion();
+    void printSentence();
 
 private:
 
