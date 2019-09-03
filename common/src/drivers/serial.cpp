@@ -24,6 +24,7 @@ Serial::Serial( const char* interface , Speed speed )
     : mDone( false )
     , mSpeed( B9600 )
     , fd( 0 )
+    , mFileDescriptor( 0 )
 {
     // Add an interface name
     if( interface == nullptr || interface[ 0 ] == '\0' ) {
@@ -114,19 +115,19 @@ int32_t Serial::openInterface()
     struct termios options;                                             // Structure with the device's options
 
     // Open the device interface
-    fd = open( mInterface, O_RDWR | O_NOCTTY | O_NDELAY );
-    if( fd == -1 ) {
+    mFileDescriptor = open( mInterface, O_RDWR | O_NOCTTY | O_NDELAY );
+    if( mFileDescriptor == -1 ) {
         error = -2;                                            // If the device is not open, return -1
-        printf( "%s: Interface failed to open - %s\n"
+        LOG_WARN( "%s: Interface failed to open - %s\n"
                 , mInterface, strerror( errno ) );
     } else {
 
         // Open the device in non blocking mode
-        // fcntl( fd, F_SETFL, FNDELAY );
+        fcntl( mFileDescriptor, F_SETFL, FNDELAY );
 
         // Set parameters
         // Get the current options of the port
-        tcgetattr( fd, &options );
+        tcgetattr( mFileDescriptor, &options );
         // Clear all the options
         bzero( &options, sizeof( options ) );
 
@@ -153,10 +154,11 @@ int32_t Serial::openInterface()
         options.c_cc[ VMIN ] = 1;           // At least on character before satisfy reading
 
         // Activate options
-        if( tcsetattr( fd, TCSANOW, &options ) != 0 ) {
-            printf( "%s: Failed to set options\n" );
+        if( tcsetattr( mFileDescriptor, TCSANOW, &options ) != 0 ) {
+            LOG_WARN( "%s: failed to set options - %s"
+                , mInterface, strerror( errno ) );
         } else {
-            printf( "%s: Ready\n", mInterface );
+            LOG_INFO( "%s: ready", mInterface );
         }
     }
 
@@ -169,15 +171,149 @@ int32_t Serial::openInterface()
  */
 void Serial::closeInterface()
 {
-    if( close( fd ) < 0 ) {
-        printf( "%s: Failed to close - %s\n"
+    if( close( mFileDescriptor ) < 0 ) {
+        LOG_WARN( "%s: failed to close - %s\n"
                 , mInterface, strerror( errno ) );
     } else {
-        printf( "%s: Closed - %s\n"
-                , mInterface, strerror( errno ) );
+        LOG_INFO( "%s: closed", mInterface );
     }
 }
 
+/**
+ * @brief Flushes the serial interface receiver
+ */
+void Serial::flushReceiver()
+{
+    if( tcflush( mFileDescriptor, TCIFLUSH ) < 0 ) {
+        LOG_WARN( "%s: failed to flush receiver - %s"
+            , mInterface, strerror( errno ) );
+    }
+}
+
+/**
+ * @brief Flushed the serial interface transmitter
+ * 
+ */
+void Serial::flushTransmitter()
+{
+    if( tcflush( mFileDescriptor, TCOFLUSH ) < 0 ) {
+        LOG_WARN( "%s: failed to flush transmitter - %s"
+            , mInterface, strerror( errno ) );
+    }
+}
+
+/**
+ * @brief Read a byte from the interface
+ * @param buffer Buffer to store data
+ * @return int32_t error code
+ */
+int32_t Serial::readByte( char *buffer )
+{
+    int32_t error = 0;
+
+    mMutex.lock();
+
+    if( read( mFileDescriptor, buffer, 1 ) != 1 ) {
+        error = -1;
+    }
+
+    mMutex.unlock();
+
+    return error;
+}
+
+int32_t Serial::readBytes( char *buffer, int32_t size )
+{
+    int32_t error = 0;
+
+    int32_t bytesRead = 0;
+
+    while( bytesRead < size ) {
+
+        FD_ZERO( &mFileDescriptorSet );
+        FD_SET( mFileDescriptor, &mFileDescriptorSet );
+
+        int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet
+            , nullptr, nullptr, nullptr );
+        if( sel == 1 ) {
+            readByte( &buffer[ bytesRead++ ] );
+        }
+    }
+
+    return error;
+}
+
+int32_t Serial::readPattern( 
+    const char *start, int32_t startSize
+    , const char *stop, int32_t stopSize
+    , char *buffer, int32_t bufferSize )
+{
+    int32_t error = 0;
+
+    int32_t bytesRead = 0;
+
+    bool startFound = false;
+    bool stopFound = false;
+    int32_t startIncr = 0;
+    int32_t stopIncr = 0;
+
+    while( !stopFound && ( bytesRead < bufferSize ) ) {
+
+        FD_ZERO( &mFileDescriptorSet );
+        FD_SET( mFileDescriptor, &mFileDescriptorSet );
+
+        int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet
+            , nullptr, nullptr, nullptr );
+        if( sel == 1 ) {
+
+            // Read a byte from the buffer
+            readByte( &buffer[ bytesRead ] );
+
+            if( startFound ) {
+                // The start has been found, look for the stop
+
+				if( buffer[ bytesRead ] == stop[ stopIncr ] ) {
+                    // Our current byte matches our stop byte, increment both
+					stopIncr++;
+					bytesRead++;
+                } else {
+                    //  Our current byte does not match our stop byte, reset
+                    // the increment
+                    stopIncr = 0;
+					bytesRead++;
+                }
+
+                if( stopIncr == stopSize ) {
+                    // We have matched all of our stop bytes
+                    buffer[ bytesRead ] = '\0';
+                    stopFound = true;
+                }
+            } else {
+                // The start byte hasn't been found, look for the start
+                
+				if( buffer[ bytesRead ] == start[ startIncr ] ) {
+                    // Our current byte matches our start byte, increment both
+					startIncr++;
+					bytesRead++;
+				} else {
+                    // Our current byte does not match our start byte, reset the
+                    // increment and the bytes read
+					startIncr = 0;
+					bytesRead = 0;
+				}
+
+				if( startIncr == startSize ) {
+                    // We have matched all of our start bytes
+					startFound = true;
+				}
+
+
+            }
+        }
+    }
+
+    return error;
+}
 
 int32_t Serial::readInterface()
 {

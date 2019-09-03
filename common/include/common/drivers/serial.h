@@ -33,6 +33,10 @@ This is a licence-free software, it can be used by anyone who try to build a bet
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+#include <mutex>
+
+#include "common/logger/log.h"
+
 #define INTERFACE_NAME_MAX_SIZE 64
 
 class Serial
@@ -59,6 +63,14 @@ public:
     void setDone() { mDone = true; }
     void closeInterface();
     int32_t openInterface();
+    int32_t readByte( char *buffer );
+    int32_t readBytes( char *buffer, int32_t size );
+    int32_t readPattern( const char *start, int32_t startSize, const char *stop
+        , int32_t stopSize, char *buffer, int32_t bufferSize );
+
+    void flushReceiver();
+    void flushTransmitter();
+
     int32_t readInterface();
     int32_t readChar( char *byte );
     int32_t readSegment( char *buffer, int32_t size );
@@ -99,6 +111,9 @@ private:
     int ReadStringNoTimeOut  (char *String,char FinalChar,unsigned int MaxNbBytes);
 
     int fd;
+    int32_t mFileDescriptor;
+
+    std::mutex mMutex;
 
 };
 

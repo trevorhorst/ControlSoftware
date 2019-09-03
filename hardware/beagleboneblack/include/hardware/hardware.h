@@ -58,7 +58,7 @@ private:
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
 
-    std::thread *mSerialMonitor;
+    // std::thread *mSerialMonitor;
 
 
 };

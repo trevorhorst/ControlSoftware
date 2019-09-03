@@ -19,7 +19,7 @@ Hardware::Hardware()
              , { AM335X::addr_gpio3_base, isSimulated() }
              }
     , mServer( mIndexHtml, mBundleJs )
-    , mSerialMonitor( nullptr )
+    // , mSerialMonitor( nullptr )
 {
     // Add the individual commands
     addCommand( &mCmdGpio );
@@ -31,11 +31,6 @@ Hardware::Hardware()
     // Set the command handler and start the server
     mServer.setCommandHandler( getCommandHandler() );
     mServer.listen();
-
-    // mSerialMonitor = new std::thread( &Serial::readInterface, &mGpsSerial );
-    // mGpsSerial.readInterface();
-    // mGpsSerial.Read( str, 1000, 2000 );
-    // printf( "String Read: '%s'\n", str );
 }
 
 /**
@@ -45,11 +40,11 @@ Hardware::~Hardware()
 {
     mGpsSerial.setDone();
 
-    if( mSerialMonitor ) {
-        mSerialMonitor->join();
-        delete mSerialMonitor;
-        mSerialMonitor = nullptr;
-    }
+    // if( mSerialMonitor ) {
+    //     mSerialMonitor->join();
+    //     delete mSerialMonitor;
+    //     mSerialMonitor = nullptr;
+    // }
 
     mServer.stop();
     Resources::unload( mIndexHtml );
