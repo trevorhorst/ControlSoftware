@@ -16,6 +16,8 @@ set( SOURCE
     src/command/command_led.cpp
     src/command/command_server.cpp
     src/command/command_system.cpp
+    src/command/command_heartbeat.cpp
+    src/command/command_venus638flpx.cpp
 
     # Console
     src/console/console.cpp
@@ -57,6 +59,7 @@ set( SOURCE
     # Miscellaneous
     src/common_types.cpp
     src/string.cpp
+    src/timer.cpp
     )
 
 set( HEADERS
@@ -75,6 +78,8 @@ set( HEADERS
     include/common/command/command_server.h
     include/common/command/command_system.h
     include/common/command/command_template.h
+    include/common/command/command_heartbeat.h
+    include/common/command/command_venus638flpx.h
 
     # Control
     include/common/control/control.h
@@ -122,6 +127,7 @@ set( HEADERS
     include/common/register.h
     include/common/singleton.h
     include/common/string.h
+    include/common/timer.h
     )
 
 add_library(

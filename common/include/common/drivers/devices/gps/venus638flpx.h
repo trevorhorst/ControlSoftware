@@ -5,13 +5,21 @@
 
 #include "common/drivers/serial.h"
 
+#include "common/control/control_template.h"
+
+#define READ_BUFFER_SIZE 1024
+
 class Venus638FLPx 
+        : public ControlTemplate< Venus638FLPx >
 {
     struct Message {
 
         enum Id {
             NONE                        = 0x00
             , QUERY_SOFTWARE_VERSION    = 0x02
+            , QUERY_SOFTWARE_CRC        = 0x03
+            , SET_FACTORY_DEFAULTS      = 0x04
+            , CONFIGURE_SERIAL_PORT     = 0x05
             , SOFTWARE_VERSION          = 0x81
             , SOFTWARE_CRC              = 0x82
             , ACK                       = 0x83
@@ -48,9 +56,13 @@ public:
     Venus638FLPx( Serial *serial );
 
     int32_t sendMessage( Message &message, uint8_t *response, int32_t size );
+    int32_t sendQuery( Message &message, uint8_t *response, int32_t size );
 
     void dumpVersion();
     void printSentence();
+
+    uint32_t getBaudRate();
+    int32_t setBaud( Serial::Speed baud );
 
 private:
 

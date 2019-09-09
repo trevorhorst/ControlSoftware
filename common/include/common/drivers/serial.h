@@ -64,6 +64,9 @@ public:
     void closeInterface();
     int32_t openInterface();
 
+    uint32_t getInterfaceSpeed();
+    int32_t setInterfaceSpeed( Speed speed );
+
     void flushReceiver();
     void flushTransmitter();
 
@@ -106,6 +109,7 @@ private:
     int fd;
     int32_t mFileDescriptor;
 
+    struct termios mOptions;
     std::mutex mMutex;
 
 };

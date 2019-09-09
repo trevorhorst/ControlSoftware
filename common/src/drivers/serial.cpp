@@ -73,7 +73,6 @@ Serial::~Serial()
 int32_t Serial::openInterface()
 {
     int32_t error = 0;
-    struct termios options;                                             // Structure with the device's options
 
     // Open the device interface
     mFileDescriptor = open( mInterface, O_RDWR | O_NOCTTY | O_NDELAY );
@@ -87,36 +86,36 @@ int32_t Serial::openInterface()
         fcntl( mFileDescriptor, F_SETFL, FNDELAY );
 
         // Set parameters
-        // Get the current options of the port
-        tcgetattr( mFileDescriptor, &options );
-        // Clear all the options
-        bzero( &options, sizeof( options ) );
+        // Get the current mOptions of the port
+        tcgetattr( mFileDescriptor, &mOptions );
+        // Clear all the mOptions
+        bzero( &mOptions, sizeof( mOptions ) );
 
         // Set the input baud rate
-        cfsetispeed( &options, mSpeed );
+        cfsetispeed( &mOptions, mSpeed );
         // Set the output baud rate
-        cfsetospeed( &options, mSpeed );
+        cfsetospeed( &mOptions, mSpeed );
 
         // Configure the device : 8 bits, no parity, no control
-        options.c_cflag |= ( CLOCAL | CREAD |  CS8 );
+        mOptions.c_cflag |= ( CLOCAL | CREAD |  CS8 );
         // No parity bit
-        options.c_cflag &= ~PARENB;
+        mOptions.c_cflag &= ~PARENB;
         // Only 1 stop bit
-        options.c_cflag &= ~CSTOPB;
+        mOptions.c_cflag &= ~CSTOPB;
         // No hardware flow control
-        // options.c_cflag &= ~CRTSCTS;
+        mOptions.c_cflag &= ~CRTSCTS;
 
-        // options.c_iflag |= ( IGNPAR | IGNBRK );
-        options.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON );
-        options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN );
-        options.c_oflag &= ~OPOST;
+        // mOptions.c_iflag |= ( IGNPAR | IGNBRK );
+        mOptions.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON );
+        mOptions.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN );
+        mOptions.c_oflag &= ~OPOST;
 
-        options.c_cc[ VTIME ] = 1;          // Timer unused
-        options.c_cc[ VMIN ] = 1;           // At least on character before satisfy reading
+        mOptions.c_cc[ VTIME ] = 1;          // Timer unused
+        mOptions.c_cc[ VMIN ] = 1;           // At least on character before satisfy reading
 
-        // Activate options
-        if( tcsetattr( mFileDescriptor, TCSANOW, &options ) != 0 ) {
-            LOG_WARN( "%s: failed to set options - %s"
+        // Activate mOptions
+        if( tcsetattr( mFileDescriptor, TCSANOW, &mOptions ) != 0 ) {
+            LOG_WARN( "%s: failed to set mOptions - %s"
                 , mInterface, strerror( errno ) );
         } else {
             LOG_INFO( "%s: ready", mInterface );
@@ -126,6 +125,51 @@ int32_t Serial::openInterface()
     return error;
 }
 
+uint32_t Serial::getInterfaceSpeed()
+{
+    termios options;
+    tcgetattr( mFileDescriptor, &options );
+    speed_t speed = cfgetospeed( &options );
+    switch( speed ) {
+        case    B110: speed = BAUD_110; break;
+        case    B300: speed = BAUD_300; break;
+        case    B600: speed = BAUD_600; break;
+        case   B1200: speed = BAUD_1200; break;
+        case   B2400: speed = BAUD_2400; break;
+        case   B4800: speed = BAUD_4800; break;
+        case   B9600: speed = BAUD_9600; break;
+        case  B19200: speed = BAUD_19200; break;
+        case  B38400: speed = BAUD_38400; break;
+        case  B57600: speed = BAUD_57600; break;
+        case B115200: speed = BAUD_115200; break;
+    }
+    return speed;
+}
+
+int32_t Serial::setInterfaceSpeed( Speed speed )
+{
+    int32_t error = 0;
+
+    // Configure the speed of the interface
+    switch( speed ) {
+        case BAUD_110    : mSpeed =   B110; break;
+        case BAUD_300    : mSpeed =   B300; break;
+        case BAUD_600    : mSpeed =   B600; break;
+        case BAUD_1200   : mSpeed =   B1200; break;
+        case BAUD_2400   : mSpeed =   B2400; break;
+        case BAUD_4800   : mSpeed =   B4800; break;
+        case BAUD_9600   : mSpeed =   B9600; break;
+        case BAUD_19200  : mSpeed =  B19200; break;
+        case BAUD_38400  : mSpeed =  B38400; break;
+        case BAUD_57600  : mSpeed =  B57600; break;
+        case BAUD_115200 : mSpeed = B115200; break;
+    }
+
+    closeInterface();
+    openInterface();
+
+    return error;
+}
 
 /**
  * @brief Closes the serial interface
@@ -239,7 +283,10 @@ int32_t Serial::readPattern(
     int32_t startIncr = 0;
     int32_t stopIncr = 0;
 
-    while( !stopFound && ( bytesRead < bufferSize ) ) {
+    TimeOut timer;
+    timer.InitTimer();
+
+    while( timer.ElapsedTime_ms() <= 50000 && !stopFound && ( bytesRead < bufferSize ) ) {
 
         FD_ZERO( &mFileDescriptorSet );
         FD_SET( mFileDescriptor, &mFileDescriptorSet );
@@ -251,6 +298,10 @@ int32_t Serial::readPattern(
 
             // Read a byte from the buffer
             readByte( &buffer[ bytesRead ] );
+            // printf( "%02x ", buffer[ bytesRead ] );
+            // if( buffer[ bytesRead ] == '\n' ) {
+            //     printf( "\n" );
+            // }
 
             if( startFound ) {
                 // The start has been found, look for the stop
@@ -273,7 +324,7 @@ int32_t Serial::readPattern(
                 }
             } else {
                 // The start byte hasn't been found, look for the start
-                
+
                 if( buffer[ bytesRead ] == start[ startIncr ] ) {
                     // Our current byte matches our start byte, increment both
                     startIncr++;
@@ -295,7 +346,7 @@ int32_t Serial::readPattern(
         }
     }
 
-    return error;
+    return ( error >= 0 ) ? bytesRead : error;
 }
 
 /**

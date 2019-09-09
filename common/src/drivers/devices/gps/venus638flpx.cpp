@@ -109,6 +109,10 @@ const char Venus638FLPx::gps_sentence_end_sequence[] = "\n";
 Venus638FLPx::Venus638FLPx( Serial *serial )
     : mSerial( serial )
 {
+    setBaud( Serial::Speed::BAUD_9600 );
+    // The device doesn't seem to acknowledge the following command if we don't
+    // sleep some
+    usleep( 25000 );
     dumpVersion();
 }
 
@@ -122,34 +126,120 @@ Venus638FLPx::Venus638FLPx( Serial *serial )
 int32_t Venus638FLPx::sendMessage( Message &message, uint8_t *response, int32_t size )
 {
     int32_t error = 0;
+
+    // Write the message to the device
     error = mSerial->writeBytes( message.getData(), message.getDataLength() );
 
-    // The first reply should be an ACK in response to our message
+    // Read the response to our command
     if( error >= 0 ) {
         error = mSerial->readPattern(
                     Message::start_sequence, Message::start_sequence_length
                     , Message::end_sequence, Message::end_sequence_length
                     , response, size );
-
     }
 
     int32_t messageIdOffset = Message::start_sequence_length 
         + Message::end_sequence_length;
     
+    // In the event the command was successful we will receive an ACK
     if( ( error >= 0 ) && ( response[ messageIdOffset ] == Message::Id::ACK ) ) {
-        // We received an ACK for our message, read again
-        error = mSerial->readPattern( 
+        LOG_INFO( "ACK Received" );
+        // We received an ACK, read again to get the verification of our command
+        error = mSerial->readPattern(
                     Message::start_sequence, Message::start_sequence_length
                     , Message::end_sequence, Message::end_sequence_length
                     , response, size );
     }
 
-    if( ( error >= 0 ) && ( response[ messageIdOffset ] == Message::Id::ACK ) ) {
-        // We received a response for our message, read one more time
-        error = mSerial->readPattern( 
+    return error;
+}
+
+/**
+ * @brief Send a message to the device
+ * @param message Message container
+ * @param response Buffer to store the response
+ * @param size Size of the response buffer
+ * @return int32_t error code
+ */
+int32_t Venus638FLPx::sendQuery( Message &message, uint8_t *response, int32_t size )
+{
+    int32_t error = 0;
+
+    // Write the message to the device
+    error = mSerial->writeBytes( message.getData(), message.getDataLength() );
+
+    // Read the response to our command
+    if( error >= 0 ) {
+        error = mSerial->readPattern(
                     Message::start_sequence, Message::start_sequence_length
                     , Message::end_sequence, Message::end_sequence_length
                     , response, size );
+    }
+
+    int32_t messageIdOffset = Message::start_sequence_length
+        + Message::end_sequence_length;
+
+    // In the event the command was successful we will receive an ACK
+    if( ( error >= 0 ) && ( response[ messageIdOffset ] == Message::Id::ACK ) ) {
+        // We received an ACK, read again to get the verification of our command
+        LOG_INFO( "ACK Received" );
+        error = mSerial->readPattern(
+                    Message::start_sequence, Message::start_sequence_length
+                    , Message::end_sequence, Message::end_sequence_length
+                    , response, size );
+    }
+
+    // The final response will contain the information we queried
+    if( ( error >= 0 ) && ( response[ messageIdOffset ] == Message::Id::ACK ) ) {
+        // We received a response for our message, read one more time
+        LOG_INFO( "ACK Received" );
+        error = mSerial->readPattern(
+                    Message::start_sequence, Message::start_sequence_length
+                    , Message::end_sequence, Message::end_sequence_length
+                    , response, size );
+    }
+
+    return error;
+}
+
+uint32_t Venus638FLPx::getBaudRate()
+{
+    return mSerial->getInterfaceSpeed();
+}
+
+/**
+ * @brief Sets the baud rate for the device
+ * @param baud Desired baud rate
+ * @return int32_t error code
+ */
+int32_t Venus638FLPx::setBaud( Serial::Speed baud )
+{
+    int32_t error = Error::Code::NONE;
+
+    // Determine the baud setting for the device
+    uint8_t baudToSet = 1;
+    switch( baud ) {
+        case Serial::Speed::BAUD_4800  : baudToSet = 0; break;
+        case Serial::Speed::BAUD_9600  : baudToSet = 1; break;
+        case Serial::Speed::BAUD_19200 : baudToSet = 2; break;
+        case Serial::Speed::BAUD_38400 : baudToSet = 3; break;
+        case Serial::Speed::BAUD_57600 : baudToSet = 4; break;
+        case Serial::Speed::BAUD_115200: baudToSet = 5; break;
+        default: error = Error::Code::PARAM_OUT_OF_RANGE;
+    }
+
+    uint8_t body[] = { 0x00, 0x00, 0x00 };
+    body[ 1 ] = baudToSet;
+
+    uint8_t buffer[ READ_BUFFER_SIZE ];
+    Message message( Message::Id::CONFIGURE_SERIAL_PORT, body, sizeof( body ) );
+
+    error = sendMessage( message, buffer, READ_BUFFER_SIZE );
+
+    if( error >= 0 ) {
+        mSerial->setInterfaceSpeed( baud );
+    } else {
+        LOG_ERROR( "failed to configure baud" );
     }
 
     return error;
@@ -163,10 +253,11 @@ void Venus638FLPx::dumpVersion()
     int32_t error = 0;
 
     uint8_t body = 0;
-    uint8_t buffer[ 128 ];
+    uint8_t buffer[ READ_BUFFER_SIZE ];
+
     Message message( Message::Id::QUERY_SOFTWARE_VERSION, &body, 1 );
 
-    error = sendMessage( message, buffer, 128 );
+    error = sendQuery( message, buffer, READ_BUFFER_SIZE );
 
     if( error >= 0 ) {
         int32_t idOffset = Message::start_sequence_length
@@ -182,7 +273,7 @@ void Venus638FLPx::dumpVersion()
         LOG_INFO( "      Revision: %02x.%02x.%02x"
             , revision[ 1 ], revision[ 2 ], revision[ 3 ] );
     } else {
-        LOG_ERROR( "unable to query device" );
+        LOG_ERROR( "failed to query version" );
     }
 }
 
@@ -191,13 +282,13 @@ void Venus638FLPx::dumpVersion()
  */
 void Venus638FLPx::printSentence()
 {
-    uint8_t buffer[ 256 ];
+    uint8_t buffer[ READ_BUFFER_SIZE ];
     mSerial->readPattern(
                 reinterpret_cast< const uint8_t* >( gps_sentence_start_sequence )
                 , strlen( gps_sentence_start_sequence )
                 , reinterpret_cast< const uint8_t* >( gps_sentence_end_sequence )
                 , strlen( gps_sentence_end_sequence )
-                ,  buffer, 256 );
-    buffer[ 255] = 0;
+                ,  buffer, READ_BUFFER_SIZE );
+    buffer[ 255 ] = 0;
     LOG_INFO( "%s", buffer );
 }
