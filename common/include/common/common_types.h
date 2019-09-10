@@ -62,6 +62,7 @@ void CharArrayCopy( char *dst, const char *src, size_t size );
 #define PARAM_CODE      "code"
 #define PARAM_COMMAND   "cmd"
 #define PARAM_DETAILS   "details"
+#define PARAM_ENABLE    "enable"
 #define PARAM_ERROR     "error"
 #define PARAM_PARAMS    "params"
 #define PARAM_QUIT      "quit"

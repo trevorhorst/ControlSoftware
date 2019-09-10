@@ -16,6 +16,8 @@ set( SOURCE
     src/command/command_led.cpp
     src/command/command_server.cpp
     src/command/command_system.cpp
+    src/command/command_heartbeat.cpp
+    src/command/command_venus638flpx.cpp
 
     # Console
     src/console/console.cpp
@@ -24,10 +26,12 @@ set( SOURCE
     src/control/control.cpp
 
     # Drivers
-    src/drivers/led.cpp
     src/drivers/am335x/gpio.cpp
     src/drivers/am335x/clock_module.cpp
     src/drivers/am335x/control_module.cpp
+    src/drivers/devices/gps/venus638flpx.cpp
+    src/drivers/led.cpp
+    src/drivers/serial.cpp
 
     # Error
     src/error/error.cpp
@@ -55,6 +59,7 @@ set( SOURCE
     # Miscellaneous
     src/common_types.cpp
     src/string.cpp
+    src/timer.cpp
     )
 
 set( HEADERS
@@ -73,16 +78,20 @@ set( HEADERS
     include/common/command/command_server.h
     include/common/command/command_system.h
     include/common/command/command_template.h
+    include/common/command/command_heartbeat.h
+    include/common/command/command_venus638flpx.h
 
     # Control
     include/common/control/control.h
     include/common/control/control_template.h
 
     # Drivers
-    include/common/drivers/led.h
     include/common/drivers/am335x/gpio.h
     include/common/drivers/am335x/clock_module.h
     include/common/drivers/am335x/control_module.h
+    include/common/drivers/devices/gps/venus638flpx.h
+    include/common/drivers/led.h
+    include/common/drivers/serial.h
 
     # Error
     include/common/error/error.h
@@ -118,6 +127,7 @@ set( HEADERS
     include/common/register.h
     include/common/singleton.h
     include/common/string.h
+    include/common/timer.h
     )
 
 add_library(

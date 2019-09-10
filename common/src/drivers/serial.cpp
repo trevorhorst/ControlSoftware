@@ -1,0 +1,408 @@
+/*!
+ \file    Serial.cpp
+ \brief   Class to manage the serial port
+ \author  Philippe Lucidarme (University of Angers) <Serial@googlegroups.com>
+ \version 1.2
+ \date    28 avril 2011
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+This is a licence-free software, it can be used by anyone who try to build a better world.
+ */
+
+#include "common/drivers/serial.h"
+
+/**
+ * @brief Constructor
+ */
+Serial::Serial( const char* interface , Speed speed )
+    : mDone( false )
+    , mFileDescriptor( 0 )
+    , mSpeed( B9600 )
+{
+    // Add an interface name
+    if( interface == nullptr || interface[ 0 ] == '\0' ) {
+        mInterface[ 0 ] = '\0';
+    } else {
+        size_t size = sizeof( mInterface );
+        strncpy( mInterface, interface, size );
+        mInterface[ size - 1 ] = '\0';
+    }
+
+    // Configure the speed of the interface
+    switch( speed ) {
+        case BAUD_110    : mSpeed =   B110; break;
+        case BAUD_300    : mSpeed =   B300; break;
+        case BAUD_600    : mSpeed =   B600; break;
+        case BAUD_1200   : mSpeed =   B1200; break;
+        case BAUD_2400   : mSpeed =   B2400; break;
+        case BAUD_4800   : mSpeed =   B4800; break;
+        case BAUD_9600   : mSpeed =   B9600; break;
+        case BAUD_19200  : mSpeed =  B19200; break;
+        case BAUD_38400  : mSpeed =  B38400; break;
+        case BAUD_57600  : mSpeed =  B57600; break;
+        case BAUD_115200 : mSpeed = B115200; break;
+        // default: mSpeed = B9600;
+    }
+
+    // Open the interface
+    openInterface();
+}
+
+
+/**
+ * @brief Destructor
+ */
+Serial::~Serial()
+{
+    closeInterface();
+}
+
+
+/**
+ * @brief Opens the serial port interface
+ * @return int32_t error code
+ */
+int32_t Serial::openInterface()
+{
+    int32_t error = 0;
+
+    // Open the device interface
+    mFileDescriptor = open( mInterface, O_RDWR | O_NOCTTY | O_NDELAY );
+    if( mFileDescriptor == -1 ) {
+        error = -2;                                            // If the device is not open, return -1
+        LOG_WARN( "%s: Interface failed to open - %s"
+                , mInterface, strerror( errno ) );
+    } else {
+
+        // Open the device in non blocking mode
+        fcntl( mFileDescriptor, F_SETFL, FNDELAY );
+
+        // Set parameters
+        // Get the current mOptions of the port
+        tcgetattr( mFileDescriptor, &mOptions );
+        // Clear all the mOptions
+        bzero( &mOptions, sizeof( mOptions ) );
+
+        // Set the input baud rate
+        cfsetispeed( &mOptions, mSpeed );
+        // Set the output baud rate
+        cfsetospeed( &mOptions, mSpeed );
+
+        // Configure the device : 8 bits, no parity, no control
+        mOptions.c_cflag |= ( CLOCAL | CREAD |  CS8 );
+        // No parity bit
+        mOptions.c_cflag &= ~PARENB;
+        // Only 1 stop bit
+        mOptions.c_cflag &= ~CSTOPB;
+        // No hardware flow control
+        mOptions.c_cflag &= ~CRTSCTS;
+
+        // mOptions.c_iflag |= ( IGNPAR | IGNBRK );
+        mOptions.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON );
+        mOptions.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN );
+        mOptions.c_oflag &= ~OPOST;
+
+        mOptions.c_cc[ VTIME ] = 1;          // Timeout unused
+        mOptions.c_cc[ VMIN ] = 1;           // At least on character before satisfy reading
+
+        // Activate mOptions
+        if( tcsetattr( mFileDescriptor, TCSANOW, &mOptions ) != 0 ) {
+            LOG_WARN( "%s: failed to set mOptions - %s"
+                , mInterface, strerror( errno ) );
+        } else {
+            LOG_INFO( "%s: ready", mInterface );
+        }
+    }
+
+    return error;
+}
+
+uint32_t Serial::getInterfaceSpeed()
+{
+    termios options;
+    tcgetattr( mFileDescriptor, &options );
+    speed_t speed = cfgetospeed( &options );
+    switch( speed ) {
+        case    B110: speed = BAUD_110; break;
+        case    B300: speed = BAUD_300; break;
+        case    B600: speed = BAUD_600; break;
+        case   B1200: speed = BAUD_1200; break;
+        case   B2400: speed = BAUD_2400; break;
+        case   B4800: speed = BAUD_4800; break;
+        case   B9600: speed = BAUD_9600; break;
+        case  B19200: speed = BAUD_19200; break;
+        case  B38400: speed = BAUD_38400; break;
+        case  B57600: speed = BAUD_57600; break;
+        case B115200: speed = BAUD_115200; break;
+    }
+    return speed;
+}
+
+int32_t Serial::setInterfaceSpeed( Speed speed )
+{
+    int32_t error = 0;
+
+    // Configure the speed of the interface
+    switch( speed ) {
+        case BAUD_110    : mSpeed =   B110; break;
+        case BAUD_300    : mSpeed =   B300; break;
+        case BAUD_600    : mSpeed =   B600; break;
+        case BAUD_1200   : mSpeed =   B1200; break;
+        case BAUD_2400   : mSpeed =   B2400; break;
+        case BAUD_4800   : mSpeed =   B4800; break;
+        case BAUD_9600   : mSpeed =   B9600; break;
+        case BAUD_19200  : mSpeed =  B19200; break;
+        case BAUD_38400  : mSpeed =  B38400; break;
+        case BAUD_57600  : mSpeed =  B57600; break;
+        case BAUD_115200 : mSpeed = B115200; break;
+    }
+
+    closeInterface();
+    openInterface();
+
+    return error;
+}
+
+/**
+ * @brief Closes the serial interface
+ */
+void Serial::closeInterface()
+{
+    if( close( mFileDescriptor ) < 0 ) {
+        LOG_WARN( "%s: failed to close - %s"
+                , mInterface, strerror( errno ) );
+    } else {
+        LOG_INFO( "%s: closed", mInterface );
+    }
+}
+
+/**
+ * @brief Flushes the serial interface receiver
+ */
+void Serial::flushReceiver()
+{
+    if( tcflush( mFileDescriptor, TCIFLUSH ) < 0 ) {
+        LOG_WARN( "%s: failed to flush receiver - %s"
+            , mInterface, strerror( errno ) );
+    }
+}
+
+/**
+ * @brief Flushed the serial interface transmitter
+ * 
+ */
+void Serial::flushTransmitter()
+{
+    if( tcflush( mFileDescriptor, TCOFLUSH ) < 0 ) {
+        LOG_WARN( "%s: failed to flush transmitter - %s"
+            , mInterface, strerror( errno ) );
+    }
+}
+
+/**
+ * @brief Determine the number of bytes available on the receiver
+ * @return int32_t bytes
+ */
+int32_t Serial::availableBytes()
+{
+    int32_t bytes = 0;
+    ioctl( mFileDescriptor, FIONREAD, &bytes );
+    return bytes;
+}
+
+/**
+ * @brief Read a byte from the interface
+ * @param buffer Buffer to store data
+ * @return int32_t error code
+ */
+int32_t Serial::readByte( uint8_t *buffer )
+{
+    int32_t error = 0;
+
+    mMutex.lock();
+
+    if( read( mFileDescriptor, buffer, 1 ) != 1 ) {
+        error = -1;
+    }
+
+    mMutex.unlock();
+
+    return error;
+}
+
+int32_t Serial::readBytes( uint8_t *buffer, int32_t size )
+{
+    int32_t error = 0;
+
+    int32_t bytesRead = 0;
+
+    while( bytesRead < size ) {
+
+        FD_ZERO( &mFileDescriptorSet );
+        FD_SET( mFileDescriptor, &mFileDescriptorSet );
+
+        int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet
+            , nullptr, nullptr, nullptr );
+        if( sel == 1 ) {
+            readByte( &buffer[ bytesRead++ ] );
+        }
+    }
+
+    return error;
+}
+
+/**
+ * @brief Reads a specified pattern from the interface
+ * @param start Start sequence
+ * @param startSize Size of the start sequence
+ * @param stop Stop sequence
+ * @param stopSize Size of the stop sequence
+ * @param buffer Buffer to store data
+ * @param bufferSize Size of the storage buffer
+ * @return int32_t error code
+ */
+int32_t Serial::readPattern( 
+    const uint8_t *start, int32_t startSize
+    , const uint8_t *stop, int32_t stopSize
+    , uint8_t *buffer, int32_t bufferSize )
+{
+    int32_t error = 0;
+
+    bool startFound = false;
+    bool stopFound = false;
+    int32_t startIncr = 0;
+    int32_t stopIncr = 0;
+    int32_t bytesRead = 0;
+
+    Timeout timer;
+    timer.init();
+
+    while( timer.elapsedTime() <= 5000 && !stopFound && ( bytesRead < bufferSize ) ) {
+
+        FD_ZERO( &mFileDescriptorSet );
+        FD_SET( mFileDescriptor, &mFileDescriptorSet );
+
+        int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet
+            , nullptr, nullptr, nullptr );
+
+        if( sel == 1 ) {
+            // Read a byte from the buffer
+            readByte( &buffer[ bytesRead ] );
+
+            if( !startFound ) {
+                // The start byte hasn't been found, look for the start
+                if( buffer[ bytesRead ] == start[ startIncr ] ) {
+                    // Our current byte matches our start byte, increment both
+                    startIncr++;
+                    bytesRead++;
+                } else {
+                    // Our current byte does not match our start byte, reset the
+                    // increment and the bytes read
+                    startIncr = 0;
+                    bytesRead = 0;
+                }
+
+                if( startIncr == startSize ) {
+                    // We have matched all of our start bytes
+                    startFound = true;
+                }
+
+            } else {
+                // The start has been found, look for the stop
+                if( buffer[ bytesRead ] == stop[ stopIncr ] ) {
+                    // Our current byte matches our stop byte, increment both
+                    stopIncr++;
+                    bytesRead++;
+                } else {
+                    // Our current byte does not match our stop byte, reset
+                    // the increment
+                    stopIncr = 0;
+                    bytesRead++;
+                }
+
+                if( stopIncr == stopSize ) {
+                    // We have matched all of our stop bytes
+                    buffer[ bytesRead ] = '\0';
+                    stopFound = true;
+                }
+
+            }
+        }
+    }
+
+    return ( error >= 0 ) ? bytesRead : error;
+}
+
+/**
+ * @brief Write bytes to the serial interface
+ * @param buffer Buffer to write
+ * @param size Size of the buffer to write
+ * @return int32_t error code
+ */
+int32_t Serial::writeBytes( const uint8_t *buffer, uint32_t size )
+{
+    int32_t error = 0;
+
+    if( mFileDescriptor <= 0 ) {
+        error = -1;
+    } else {
+        ssize_t bytesWritten = write( mFileDescriptor, buffer, size );
+        if( bytesWritten != size ) {
+            LOG_WARN( "%s: only wrote %d bytes, expected %d", bytesWritten, size );
+            error = -1;
+        }
+    }
+
+    return error;
+}
+
+/**
+ * @brief Constructor
+ */
+Timeout::Timeout()
+    : mPreviousTime{ 0, 0 }
+{
+
+}
+
+/**
+ * @brief Destructor
+ */
+void Timeout::init()
+{
+    // Initialize the timer. It writes the current time of the day in the
+    gettimeofday( &mPreviousTime, nullptr );
+}
+
+/**
+ * @brief Returns the time elapsed since initialization.  It write the current
+ * time of the day in the structure CurrentTime. Then it returns the difference
+ * between CurrentTime and PreviousTime.
+ * @return The number of microseconds elapsed since the functions InitTimeout was called.
+ */
+unsigned long int Timeout::elapsedTime()
+{
+    struct timeval currentTime;
+    long sec = 0;
+    long usec = 0;
+    // Get the current time
+    gettimeofday( &currentTime, nullptr );
+    // Compute the number of elapsed time since the last call
+    sec = currentTime.tv_sec - mPreviousTime.tv_sec;
+    usec = currentTime.tv_usec - mPreviousTime.tv_usec;
+    // If the previous usec is higher than the current one
+    if( usec < 0 ) {
+        // Recompute the microseconds
+        usec = 1000000 - mPreviousTime.tv_usec + currentTime.tv_usec;
+        // Subtract one second
+        sec--;
+    }
+    return static_cast< unsigned long >( sec * 1000 + usec / 1000 );
+}
+

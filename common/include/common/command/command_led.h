@@ -8,7 +8,6 @@
 #define COMMAND_QLED    "qled"
 
 #define PARAM_ID        "id"
-#define PARAM_ENABLE    "enable"
 
 class CommandLed
         : public CommandTemplate< Led >
