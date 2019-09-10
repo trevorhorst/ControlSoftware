@@ -284,8 +284,8 @@ void Venus638FLPx::printSentence()
 {
     uint8_t buffer[ READ_BUFFER_SIZE ];
     mSerial->readPattern(
-                reinterpret_cast< const uint8_t* >( gps_sentence_start_sequence )
-                , strlen( gps_sentence_start_sequence )
+                reinterpret_cast< const uint8_t* >( gprmc_sequence )
+                , strlen( gprmc_sequence )
                 , reinterpret_cast< const uint8_t* >( gps_sentence_end_sequence )
                 , strlen( gps_sentence_end_sequence )
                 ,  buffer, READ_BUFFER_SIZE );

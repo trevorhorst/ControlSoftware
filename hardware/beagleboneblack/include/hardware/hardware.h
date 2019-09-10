@@ -9,12 +9,15 @@
 #include "common/hardware/hardware_base.h"
 #include "common/singleton.h"
 #include "common/system/system.h"
+#include "common/timer.h"
 
 #include "common/command/command_datetime.h"
 #include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
 #include "common/command/command_server.h"
 #include "common/command/command_system.h"
+#include "common/command/command_heartbeat.h"
+#include "common/command/command_venus638flpx.h"
 
 #include "common/drivers/am335x/control_module.h"
 #include "common/drivers/am335x/clock_module.h"
@@ -51,16 +54,18 @@ private:
     Led mLed[ LED_HEADERS ];
     Http::Server mServer;
     System mSystem;
+    Timer mHeartbeatTimer;
 
     CommandDateTime mCmdDateTime;
     CommandGpio mCmdGpio;
+    CommandHeartbeat mCmdHeartbeat;
     CommandLed mCmdLed;
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
+    CommandVenus638FLPx mCmdGps;
 
-    // std::thread *mSerialMonitor;
 
-
+    void heartbeat();
 };
 
 #endif // HARDWARE_BEAGLEBONEBLACK_H

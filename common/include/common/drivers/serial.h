@@ -18,7 +18,7 @@ This is a licence-free software, it can be used by anyone who try to build a bet
 #ifndef SERIALIB_H
 #define SERIALIB_H
 
-// Used for TimeOut operations
+// Used for Timeout operations
 #include <sys/time.h>
 
 // Include for Linux
@@ -81,46 +81,29 @@ public:
 
     int32_t writeBytes( const uint8_t *buffer, uint32_t size );
 
-////////////////////////////////////////////////////////////////////////////////
-// Old Methods 
-////////////////////////////////////////////////////////////////////////////////
-
-    // Read a char (with timeout)
-    char ReadChar( char *pByte, const unsigned int TimeOut_ms = 0 );
-    // Read a string (with timeout)
-    int ReadString( char *String
-                    , char FinalChar
-                    , unsigned int MaxNbBytes
-                    , const unsigned int TimeOut_ms = 0);
-    // Read an array of byte (with timeout)
-    int Read( void *Buffer,unsigned int MaxNbBytes, const unsigned int TimeOut_ms = 0 );
-
 private:
 
     bool mDone;
 
     char mInterface[ INTERFACE_NAME_MAX_SIZE ];
 
-    speed_t mSpeed;
-    fd_set mFileDescriptorSet;
-    // Read a string (no timeout)
-    int ReadStringNoTimeOut  (char *String,char FinalChar,unsigned int MaxNbBytes);
-
-    int fd;
     int32_t mFileDescriptor;
+    fd_set mFileDescriptorSet;
+    uint32_t mSpeed;
 
-    struct termios mOptions;
+
+    termios mOptions;
     std::mutex mMutex;
 
 };
 
-class TimeOut
+class Timeout
 {
 public:
-    TimeOut();
+    Timeout();
 
-    void InitTimer();
-    unsigned long int   ElapsedTime_ms();
+    void init();
+    unsigned long int elapsedTime();
 
 private:    
     struct timeval mPreviousTime;

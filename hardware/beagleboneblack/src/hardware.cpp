@@ -19,18 +19,22 @@ Hardware::Hardware()
              , { AM335X::addr_gpio3_base, isSimulated() }
              }
     , mServer( mIndexHtml, mBundleJs )
-    // , mSerialMonitor( nullptr )
+    , mHeartbeatTimer( 1000, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
 {
     // Add the individual commands
     addCommand( &mCmdGpio );
+    addCommand( &mCmdHeartbeat );
     addCommand( &mCmdSystem );
     addCommand( &mCmdDateTime );
     addCommand( &mCmdServer );
     addCommand( &mCmdLed );
+    addCommand( &mCmdGps );
 
     // Set the command handler and start the server
     mServer.setCommandHandler( getCommandHandler() );
     mServer.listen();
+
+    mHeartbeatTimer.start();
 }
 
 /**
@@ -38,15 +42,21 @@ Hardware::Hardware()
  */
 Hardware::~Hardware()
 {
+    // Destruct things in the reverse order
+    mHeartbeatTimer.stop();
     mGpsSerial.setDone();
-
-    // if( mSerialMonitor ) {
-    //     mSerialMonitor->join();
-    //     delete mSerialMonitor;
-    //     mSerialMonitor = nullptr;
-    // }
 
     mServer.stop();
     Resources::unload( mIndexHtml );
     Resources::unload( mBundleJs );
+}
+
+/**
+ * @brief Heartbeat for the hardware, update pertinant hardware information from
+ * this method
+ */
+void Hardware::heartbeat()
+{
+    // LOG_INFO( "Calling heartbeat" );
+    mGps.printSentence();
 }

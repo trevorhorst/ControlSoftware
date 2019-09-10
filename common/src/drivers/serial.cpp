@@ -22,9 +22,8 @@ This is a licence-free software, it can be used by anyone who try to build a bet
  */
 Serial::Serial( const char* interface , Speed speed )
     : mDone( false )
-    , mSpeed( B9600 )
-    , fd( 0 )
     , mFileDescriptor( 0 )
+    , mSpeed( B9600 )
 {
     // Add an interface name
     if( interface == nullptr || interface[ 0 ] == '\0' ) {
@@ -69,7 +68,6 @@ Serial::~Serial()
  * @brief Opens the serial port interface
  * @return int32_t error code
  */
-
 int32_t Serial::openInterface()
 {
     int32_t error = 0;
@@ -110,7 +108,7 @@ int32_t Serial::openInterface()
         mOptions.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN );
         mOptions.c_oflag &= ~OPOST;
 
-        mOptions.c_cc[ VTIME ] = 1;          // Timer unused
+        mOptions.c_cc[ VTIME ] = 1;          // Timeout unused
         mOptions.c_cc[ VMIN ] = 1;           // At least on character before satisfy reading
 
         // Activate mOptions
@@ -276,17 +274,16 @@ int32_t Serial::readPattern(
 {
     int32_t error = 0;
 
-    int32_t bytesRead = 0;
-
     bool startFound = false;
     bool stopFound = false;
     int32_t startIncr = 0;
     int32_t stopIncr = 0;
+    int32_t bytesRead = 0;
 
-    TimeOut timer;
-    timer.InitTimer();
+    Timeout timer;
+    timer.init();
 
-    while( timer.ElapsedTime_ms() <= 50000 && !stopFound && ( bytesRead < bufferSize ) ) {
+    while( timer.elapsedTime() <= 5000 && !stopFound && ( bytesRead < bufferSize ) ) {
 
         FD_ZERO( &mFileDescriptorSet );
         FD_SET( mFileDescriptor, &mFileDescriptorSet );
@@ -295,36 +292,11 @@ int32_t Serial::readPattern(
             , nullptr, nullptr, nullptr );
 
         if( sel == 1 ) {
-
             // Read a byte from the buffer
             readByte( &buffer[ bytesRead ] );
-            // printf( "%02x ", buffer[ bytesRead ] );
-            // if( buffer[ bytesRead ] == '\n' ) {
-            //     printf( "\n" );
-            // }
 
-            if( startFound ) {
-                // The start has been found, look for the stop
-
-                if( buffer[ bytesRead ] == stop[ stopIncr ] ) {
-                    // Our current byte matches our stop byte, increment both
-                    stopIncr++;
-                    bytesRead++;
-                } else {
-                    // Our current byte does not match our stop byte, reset
-                    // the increment
-                    stopIncr = 0;
-                    bytesRead++;
-                }
-
-                if( stopIncr == stopSize ) {
-                    // We have matched all of our stop bytes
-                    buffer[ bytesRead ] = '\0';
-                    stopFound = true;
-                }
-            } else {
+            if( !startFound ) {
                 // The start byte hasn't been found, look for the start
-
                 if( buffer[ bytesRead ] == start[ startIncr ] ) {
                     // Our current byte matches our start byte, increment both
                     startIncr++;
@@ -341,6 +313,24 @@ int32_t Serial::readPattern(
                     startFound = true;
                 }
 
+            } else {
+                // The start has been found, look for the stop
+                if( buffer[ bytesRead ] == stop[ stopIncr ] ) {
+                    // Our current byte matches our stop byte, increment both
+                    stopIncr++;
+                    bytesRead++;
+                } else {
+                    // Our current byte does not match our stop byte, reset
+                    // the increment
+                    stopIncr = 0;
+                    bytesRead++;
+                }
+
+                if( stopIncr == stopSize ) {
+                    // We have matched all of our stop bytes
+                    buffer[ bytesRead ] = '\0';
+                    stopFound = true;
+                }
 
             }
         }
@@ -372,151 +362,11 @@ int32_t Serial::writeBytes( const uint8_t *buffer, uint32_t size )
     return error;
 }
 
-// _____________________________________
-// ::: Read/Write operation on bytes :::
-
-/*!
-     \brief Wait for a byte from the serial device and return the data read
-     \param pByte : data read on the serial device
-     \param TimeOut_ms : delay of timeout before giving up the reading
-            If set to zero, timeout is disable (Optional)
-     \return 1 success
-     \return 0 Timeout reached
-     \return -1 error while setting the Timeout
-     \return -2 error while reading the byte
-  */
-char Serial::ReadChar(char *pByte,unsigned int TimeOut_ms)
-{
-#ifdef __linux__
-    TimeOut         Timer;                                              // Timer used for timeout
-    Timer.InitTimer();                                                  // Initialise the timer
-    while (Timer.ElapsedTime_ms()<TimeOut_ms || TimeOut_ms==0)          // While Timeout is not reached
-    {
-        switch (read(fd,pByte,1)) {                                     // Try to read a byte on the device
-        case 1  : return 1;                                             // Read successfull
-        case -1 : return -2;                                            // Error while reading
-        }
-    }
-    return 0;
-#endif
-}
-
-
-
-/*!
-     \brief Read a string from the serial device (without TimeOut)
-     \param String : string read on the serial device
-     \param FinalChar : final char of the string
-     \param MaxNbBytes : maximum allowed number of bytes read
-     \return >0 success, return the number of bytes read
-     \return -1 error while setting the Timeout
-     \return -2 error while reading the byte
-     \return -3 MaxNbBytes is reached
-  */
-int Serial::ReadStringNoTimeOut(char *String,char FinalChar,unsigned int MaxNbBytes)
-{
-    unsigned int    NbBytes=0;                                          // Number of bytes read
-    char            ret;                                                // Returned value from Read
-    while (NbBytes<MaxNbBytes)                                          // While the buffer is not full
-    {                                                                   // Read a byte with the restant time
-        ret=ReadChar(&String[NbBytes]);
-        if (ret==1)                                                     // If a byte has been read
-        {
-            if (String[NbBytes]==FinalChar)                             // Check if it is the final char
-            {
-                String  [++NbBytes]=0;                                  // Yes : add the end character 0
-                return NbBytes;                                         // Return the number of bytes read
-            }
-            NbBytes++;                                                  // If not, just increase the number of bytes read
-        }
-        if (ret<0) return ret;                                          // Error while reading : return the error number
-    }
-    return -3;                                                          // Buffer is full : return -3
-}
-
-/*!
-     \brief Read a string from the serial device (with timeout)
-     \param String : string read on the serial device
-     \param FinalChar : final char of the string
-     \param MaxNbBytes : maximum allowed number of bytes read
-     \param TimeOut_ms : delay of timeout before giving up the reading (optional)
-     \return  >0 success, return the number of bytes read
-     \return  0 timeout is reached
-     \return -1 error while setting the Timeout
-     \return -2 error while reading the byte
-     \return -3 MaxNbBytes is reached
-  */
-int Serial::ReadString(char *String,char FinalChar,unsigned int MaxNbBytes,unsigned int TimeOut_ms)
-{
-    if (TimeOut_ms==0)
-        return ReadStringNoTimeOut(String,FinalChar,MaxNbBytes);
-
-    unsigned int    NbBytes=0;                                          // Number of bytes read
-    char            ret;                                                // Returned value from Read
-    TimeOut         Timer;                                              // Timer used for timeout
-    long int        TimeOutParam;
-    Timer.InitTimer();                                                  // Initialize the timer
-
-    while (NbBytes<MaxNbBytes)                                          // While the buffer is not full
-    {                                                                   // Read a byte with the restant time
-        TimeOutParam=TimeOut_ms-Timer.ElapsedTime_ms();                 // Compute the TimeOut for the call of ReadChar
-        if (TimeOutParam>0)                                             // If the parameter is higher than zero
-        {
-            ret=ReadChar(&String[NbBytes],TimeOutParam);                // Wait for a byte on the serial link            
-            if (ret==1)                                                 // If a byte has been read
-            {
-
-                if (String[NbBytes]==FinalChar)                         // Check if it is the final char
-                {
-                    String  [++NbBytes]=0;                              // Yes : add the end character 0
-                    return NbBytes;                                     // Return the number of bytes read
-                }
-                NbBytes++;                                              // If not, just increase the number of bytes read
-            }
-            if (ret<0) return ret;                                      // Error while reading : return the error number
-        }
-        if (Timer.ElapsedTime_ms()>TimeOut_ms) {                        // Timeout is reached
-            printf( "timeout\n" );
-            String[NbBytes]=0;                                          // Add the end caracter
-            return 0;                                                   // Return 0
-        }
-    }
-    return -3;                                                          // Buffer is full : return -3
-}
-
-/*!
-     \brief Read an array of bytes from the serial device (with timeout)
-     \param Buffer : array of bytes read from the serial device
-     \param MaxNbBytes : maximum allowed number of bytes read
-     \param TimeOut_ms : delay of timeout before giving up the reading
-     \return 1 success, return the number of bytes read
-     \return 0 Timeout reached
-     \return -1 error while setting the Timeout
-     \return -2 error while reading the byte
-  */
-int Serial::Read (void *Buffer,unsigned int MaxNbBytes,unsigned int TimeOut_ms)
-{
-    TimeOut          Timer;                                             // Timer used for timeout
-    Timer.InitTimer();                                                  // Initialise the timer
-    unsigned int     NbByteRead=0;
-    while (Timer.ElapsedTime_ms()<TimeOut_ms || TimeOut_ms==0)          // While Timeout is not reached
-    {
-        unsigned char* Ptr=(unsigned char*)Buffer+NbByteRead;           // Compute the position of the current byte
-        int Ret=read(fd,(void*)Ptr,MaxNbBytes-NbByteRead);              // Try to read a byte on the device
-        if (Ret==-1) return -2;                                         // Error while reading
-        if (Ret>0) {                                                    // One or several byte(s) has been read on the device
-            NbByteRead+=Ret;                                            // Increase the number of read bytes
-            if (NbByteRead>=MaxNbBytes)                                 // Success : bytes has been read
-                return 1;
-        }
-    }
-    return 0;                                                           // Timeout reached, return 0
-}
-
 /**
  * @brief Constructor
  */
-TimeOut::TimeOut()
+Timeout::Timeout()
+    : mPreviousTime{ 0, 0 }
 {
 
 }
@@ -524,20 +374,19 @@ TimeOut::TimeOut()
 /**
  * @brief Destructor
  */
-void TimeOut::InitTimer()
+void Timeout::init()
 {
     // Initialize the timer. It writes the current time of the day in the
-    // structure PreviousTime.
     gettimeofday( &mPreviousTime, nullptr );
 }
 
-/*!
-    \brief      Returns the time elapsed since initialization.  It write the current time of the day in the structure CurrentTime.
-                Then it returns the difference between CurrentTime and PreviousTime.
-    \return     The number of microseconds elapsed since the functions InitTimer was called.
-  */
-//Return the elapsed time since initialization
-unsigned long int TimeOut::ElapsedTime_ms()
+/**
+ * @brief Returns the time elapsed since initialization.  It write the current
+ * time of the day in the structure CurrentTime. Then it returns the difference
+ * between CurrentTime and PreviousTime.
+ * @return The number of microseconds elapsed since the functions InitTimeout was called.
+ */
+unsigned long int Timeout::elapsedTime()
 {
     struct timeval currentTime;
     long sec = 0;
@@ -550,7 +399,7 @@ unsigned long int TimeOut::ElapsedTime_ms()
     // If the previous usec is higher than the current one
     if( usec < 0 ) {
         // Recompute the microseconds
-        usec = 1000000 - mPreviousTime.tv_usec + currentTime.tv_usec;   // Recompute the microseonds
+        usec = 1000000 - mPreviousTime.tv_usec + currentTime.tv_usec;
         // Subtract one second
         sec--;
     }
