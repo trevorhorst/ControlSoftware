@@ -3,15 +3,19 @@
 
 #include <stdint.h>
 
+#include "common/drivers/devices/gps/gps.h"
 #include "common/drivers/serial.h"
 
 #include "common/control/control_template.h"
 
 #define READ_BUFFER_SIZE 1024
 
+namespace Gps {
+
 class Venus638FLPx 
         : public ControlTemplate< Venus638FLPx >
 {
+
     struct Message {
 
         enum Id {
@@ -53,27 +57,25 @@ class Venus638FLPx
     };
 
 public:
+
     Venus638FLPx( Serial *serial );
 
-    int32_t sendMessage( Message &message, uint8_t *response, int32_t size );
-    int32_t sendQuery( Message &message, uint8_t *response, int32_t size );
-
     void dumpVersion();
-    void printSentence();
+
+    int32_t sendMessage( Message &message, uint8_t *response, uint32_t size );
+    int32_t sendQuery( Message &message, uint8_t *response, uint32_t size );
+
+    int32_t getSentence( Nmea::Sentence sentence, uint8_t *buffer, uint32_t size );
 
     uint32_t getBaudRate();
     int32_t setBaud( Serial::Speed baud );
 
 private:
 
+
     static const char start_sequence[];
     static const char end_sequence[];
 
-    static const char gpgga_sequence[];
-    static const char gpgsa_sequence[];
-    static const char gpgsv_sequence[];
-    static const char gprmc_sequence[];
-    static const char gpvtg_sequence[];
     static const char gps_sentence_start_sequence[];
     static const char gps_sentence_end_sequence[];
 
@@ -85,5 +87,7 @@ private:
 
     Serial *mSerial;
 };
+
+}
 
 #endif // VENUS638FLPX_H

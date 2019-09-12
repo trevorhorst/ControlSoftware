@@ -7,6 +7,8 @@
 
 #include "common/drivers/devices/gps/venus638flpx.h"
 
+namespace Gps {
+
 const uint8_t Venus638FLPx::Message::start_sequence[] = { 0xA0, 0xA1 };
 const uint8_t Venus638FLPx::Message::end_sequence[] = { 0x0D, 0x0A };
 
@@ -95,11 +97,6 @@ uint32_t Venus638FLPx::Message::getDataLength()
     return mDataLength;
 }
 
-const char Venus638FLPx::gpgga_sequence[] = "$GPGGA";
-const char Venus638FLPx::gpgsa_sequence[] = "$GPGSA";
-const char Venus638FLPx::gpgsv_sequence[] = "$GPGSV";
-const char Venus638FLPx::gprmc_sequence[] = "$GPRMC";
-const char Venus638FLPx::gpvtg_sequence[] = "$GPVTG";
 const char Venus638FLPx::gps_sentence_start_sequence[] = "$";
 const char Venus638FLPx::gps_sentence_end_sequence[] = "\n";
 
@@ -109,7 +106,7 @@ const char Venus638FLPx::gps_sentence_end_sequence[] = "\n";
 Venus638FLPx::Venus638FLPx( Serial *serial )
     : mSerial( serial )
 {
-    setBaud( Serial::Speed::BAUD_9600 );
+    // setBaud( Serial::Speed::BAUD_9600 );
     // The device doesn't seem to acknowledge the following command if we don't
     // sleep some
     usleep( 25000 );
@@ -123,7 +120,8 @@ Venus638FLPx::Venus638FLPx( Serial *serial )
  * @param size Size of the response buffer
  * @return int32_t error code
  */
-int32_t Venus638FLPx::sendMessage( Message &message, uint8_t *response, int32_t size )
+int32_t Venus638FLPx::sendMessage(
+        Message &message, uint8_t *response, uint32_t size )
 {
     int32_t error = 0;
 
@@ -161,7 +159,8 @@ int32_t Venus638FLPx::sendMessage( Message &message, uint8_t *response, int32_t 
  * @param size Size of the response buffer
  * @return int32_t error code
  */
-int32_t Venus638FLPx::sendQuery( Message &message, uint8_t *response, int32_t size )
+int32_t Venus638FLPx::sendQuery(
+        Message &message, uint8_t *response, uint32_t size )
 {
     int32_t error = 0;
 
@@ -234,10 +233,13 @@ int32_t Venus638FLPx::setBaud( Serial::Speed baud )
     uint8_t buffer[ READ_BUFFER_SIZE ];
     Message message( Message::Id::CONFIGURE_SERIAL_PORT, body, sizeof( body ) );
 
+    // Configure the device first
     error = sendMessage( message, buffer, READ_BUFFER_SIZE );
 
     if( error >= 0 ) {
+        // If the device is configured properly then configure the interface
         mSerial->setInterfaceSpeed( baud );
+        mSerial->applySettings();
     } else {
         LOG_ERROR( "failed to configure baud" );
     }
@@ -280,15 +282,20 @@ void Venus638FLPx::dumpVersion()
 /**
  * @brief Prints the first GPS sentence found from the device
  */
-void Venus638FLPx::printSentence()
+int32_t Venus638FLPx::getSentence(
+        Nmea::Sentence sentence, uint8_t *buffer, uint32_t size )
 {
-    uint8_t buffer[ READ_BUFFER_SIZE ];
-    mSerial->readPattern(
-                reinterpret_cast< const uint8_t* >( gprmc_sequence )
-                , strlen( gprmc_sequence )
+    int32_t error = 0;
+    const char *sequence = Nmea::sentence[ sentence ].name;
+
+    error = mSerial->readPattern(
+                reinterpret_cast< const uint8_t* >( sequence )
+                , static_cast< uint32_t >( strlen( sequence ) )
                 , reinterpret_cast< const uint8_t* >( gps_sentence_end_sequence )
                 , strlen( gps_sentence_end_sequence )
-                ,  buffer, READ_BUFFER_SIZE );
-    buffer[ 255 ] = 0;
-    LOG_INFO( "%s", buffer );
+                ,  buffer, size );
+
+    return error;
+}
+
 }

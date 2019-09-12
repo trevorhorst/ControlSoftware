@@ -46,7 +46,7 @@ private:
 
 
     Serial mGpsSerial;
-    Venus638FLPx mGps;
+    Gps::Venus638FLPx mGps;
     AM335X::ControlModule mControlModule;
     AM335X::ClockModule mClockModule;
     AM335X::Gpio mGpio[ NUM_GPIO_HEADERS ];
@@ -62,8 +62,7 @@ private:
     CommandLed mCmdLed;
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
-    CommandVenus638FLPx mCmdGps;
-
+    // CommandVenus638FLPx mCmdGps;
 
     void heartbeat();
 };

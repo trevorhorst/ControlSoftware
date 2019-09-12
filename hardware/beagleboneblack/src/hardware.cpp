@@ -28,7 +28,7 @@ Hardware::Hardware()
     addCommand( &mCmdDateTime );
     addCommand( &mCmdServer );
     addCommand( &mCmdLed );
-    addCommand( &mCmdGps );
+    // addCommand( &mCmdGps );
 
     // Set the command handler and start the server
     mServer.setCommandHandler( getCommandHandler() );
@@ -44,7 +44,6 @@ Hardware::~Hardware()
 {
     // Destruct things in the reverse order
     mHeartbeatTimer.stop();
-    mGpsSerial.setDone();
 
     mServer.stop();
     Resources::unload( mIndexHtml );
@@ -58,5 +57,6 @@ Hardware::~Hardware()
 void Hardware::heartbeat()
 {
     // LOG_INFO( "Calling heartbeat" );
-    mGps.printSentence();
+    // Periodically flush the serial buffer to keep data flowing
+    // mGpsSerial.flushReceiver();
 }

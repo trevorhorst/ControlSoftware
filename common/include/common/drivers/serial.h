@@ -41,6 +41,13 @@ This is a licence-free software, it can be used by anyone who try to build a bet
 
 class Serial
 {
+    struct Settings {
+        uint32_t mask;
+        speed_t speed;
+    };
+
+    static const uint32_t set_speed;
+
 public:
 
     enum Speed {
@@ -60,24 +67,27 @@ public:
     Serial( const char *interface, Speed speed );
     ~Serial();
 
-    void setDone() { mDone = true; }
     void closeInterface();
     int32_t openInterface();
 
     uint32_t getInterfaceSpeed();
     int32_t setInterfaceSpeed( Speed speed );
 
+    int32_t applySettings();
+
     void flushReceiver();
     void flushTransmitter();
+
+    bool isInterfaceOpen();
 
     int32_t availableBytes();
 
     int32_t readByte( uint8_t *buffer );
     int32_t readBytes( uint8_t *buffer, int32_t size );
     int32_t readPattern(
-            const uint8_t *start, int32_t startSize
-            , const uint8_t *stop, int32_t stopSize
-            , uint8_t *buffer, int32_t bufferSize );
+            const uint8_t *start, uint32_t startSize
+            , const uint8_t *stop, uint32_t stopSize
+            , uint8_t *buffer, uint32_t bufferSize );
 
     int32_t writeBytes( const uint8_t *buffer, uint32_t size );
 
@@ -88,9 +98,11 @@ private:
     char mInterface[ INTERFACE_NAME_MAX_SIZE ];
 
     int32_t mFileDescriptor;
+
+    Settings mSettings;
+
     fd_set mFileDescriptorSet;
     uint32_t mSpeed;
-
 
     termios mOptions;
     std::mutex mMutex;
