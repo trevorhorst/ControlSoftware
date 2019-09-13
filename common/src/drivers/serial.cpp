@@ -22,8 +22,9 @@ const uint32_t Serial::set_speed = 1 << 0;
 /**
  * @brief Constructor
  */
-Serial::Serial( const char* interface , Speed speed )
-    : mFileDescriptor( -1 )
+Serial::Serial( const char* interface , Speed speed, bool simulated )
+    : mSimulated( simulated )
+    , mFileDescriptor( -1 )
     , mSpeed( B0 )
 {
     // Add an interface name
@@ -59,6 +60,11 @@ int32_t Serial::openInterface()
 {
     int32_t error = 0;
 
+    if( isInterfaceOpen() ) {
+        // Close the interface if it is already open
+        closeInterface();
+    }
+
     // Open the device interface
     mFileDescriptor = open( mInterface, O_RDWR | O_NOCTTY | O_NDELAY );
     if( mFileDescriptor == -1 ) {
@@ -75,21 +81,27 @@ int32_t Serial::openInterface()
 uint32_t Serial::getInterfaceSpeed()
 {
     termios options;
-    tcgetattr( mFileDescriptor, &options );
-    speed_t speed = cfgetospeed( &options );
-    switch( speed ) {
-        case    B110: speed = BAUD_110; break;
-        case    B300: speed = BAUD_300; break;
-        case    B600: speed = BAUD_600; break;
-        case   B1200: speed = BAUD_1200; break;
-        case   B2400: speed = BAUD_2400; break;
-        case   B4800: speed = BAUD_4800; break;
-        case   B9600: speed = BAUD_9600; break;
-        case  B19200: speed = BAUD_19200; break;
-        case  B38400: speed = BAUD_38400; break;
-        case  B57600: speed = BAUD_57600; break;
-        case B115200: speed = BAUD_115200; break;
+
+    speed_t speed = B0;
+
+    if( isInterfaceOpen() ) {
+        tcgetattr( mFileDescriptor, &options );
+        speed = cfgetospeed( &options );
+        switch( speed ) {
+            case    B110: speed = BAUD_110; break;
+            case    B300: speed = BAUD_300; break;
+            case    B600: speed = BAUD_600; break;
+            case   B1200: speed = BAUD_1200; break;
+            case   B2400: speed = BAUD_2400; break;
+            case   B4800: speed = BAUD_4800; break;
+            case   B9600: speed = BAUD_9600; break;
+            case  B19200: speed = BAUD_19200; break;
+            case  B38400: speed = BAUD_38400; break;
+            case  B57600: speed = BAUD_57600; break;
+            case B115200: speed = BAUD_115200; break;
+        }
     }
+
     return speed;
 }
 

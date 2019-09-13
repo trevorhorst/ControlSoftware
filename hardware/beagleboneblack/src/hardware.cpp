@@ -9,7 +9,7 @@ Hardware::Hardware()
     : HardwareBase()
     , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
     , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
-    , mGpsSerial( str_gps_device, Serial::Speed::BAUD_9600 )
+    , mGpsSerial( str_gps_device, Serial::Speed::BAUD_9600, isSimulated() )
     , mGps( &mGpsSerial )
     , mControlModule( AM335X::addr_control_module, isSimulated() )
     , mClockModule( AM335X::addr_clock_module, isSimulated() )
@@ -28,7 +28,7 @@ Hardware::Hardware()
     addCommand( &mCmdDateTime );
     addCommand( &mCmdServer );
     addCommand( &mCmdLed );
-    // addCommand( &mCmdGps );
+    addCommand( &mCmdGps );
 
     // Set the command handler and start the server
     mServer.setCommandHandler( getCommandHandler() );

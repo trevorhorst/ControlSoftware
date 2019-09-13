@@ -62,7 +62,7 @@ private:
     CommandLed mCmdLed;
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
-    // CommandVenus638FLPx mCmdGps;
+    CommandVenus638FLPx mCmdGps;
 
     void heartbeat();
 };

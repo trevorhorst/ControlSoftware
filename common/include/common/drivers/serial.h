@@ -64,7 +64,7 @@ public:
         , BAUD_115200 = 115200
     };
 
-    Serial( const char *interface, Speed speed );
+    Serial( const char *interface, Speed speed, bool simulated );
     ~Serial();
 
     void closeInterface();
@@ -93,7 +93,7 @@ public:
 
 private:
 
-    bool mDone;
+    bool mSimulated;
 
     char mInterface[ INTERFACE_NAME_MAX_SIZE ];
 
