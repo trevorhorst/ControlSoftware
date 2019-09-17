@@ -278,8 +278,9 @@ int32_t Serial::readPattern(
         FD_ZERO( &mFileDescriptorSet );
         FD_SET( mFileDescriptor, &mFileDescriptorSet );
 
+        timeval timeout = { 0, 10000 };
         int32_t sel = select( FD_SETSIZE, &mFileDescriptorSet
-            , nullptr, nullptr, nullptr );
+            , nullptr, nullptr, &timeout );
 
         if( sel == 1 ) {
             // Read a byte from the buffer

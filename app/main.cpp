@@ -55,6 +55,8 @@ int main( int argc, char *argv[] )
     // Create the console
     Console *console = &Console::getInstance();
 
+    /// @todo Need a more robust way to create hardware so that we can configure
+    /// more options at runtime
     // Create the hardware
     Hardware::setSimulated( simulated );
     Hardware *hw = &Hardware::getInstance();

@@ -1,6 +1,6 @@
 #include "hardware/hardware.h"
 
-const char *Hardware::str_gps_device = "/dev/ttyS1";
+const char *Hardware::str_gps_device = "/dev/ttyO1";
 
 /**
  * @brief Constructor
