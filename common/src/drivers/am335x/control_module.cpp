@@ -25,9 +25,9 @@ ControlModule::~ControlModule()
  */
 void ControlModule::dumpRevision()
 {
-    printf( "CONTROL_MODULE REVISION REGISTER:\n" );
-    printf( "   MAJOR: %08X\n", mRegister.map()->revision.mMajor() );
-    printf( "   MINOR: %08X\n", mRegister.map()->revision.mMajor() );
+    LOG_INFO( "CONTROL_MODULE REVISION REGISTER:" );
+    LOG_INFO( "   MAJOR: %08X", mRegister.map()->revision.mMajor() );
+    LOG_INFO( "   MINOR: %08X", mRegister.map()->revision.mMajor() );
 }
 
 /**
@@ -42,7 +42,7 @@ void ControlModule::dumpPins()
     volatile uint32_t *end   = &mRegister.map()->conf_usb1_drvvbus + 1;
 
     for( volatile uint32_t *pin = start; pin != end; pin++ ) {
-        printf( "%3d (0x%08X): resistor( %8s | %8s ) mode( %d ) receiver( %8s ) slew( %s )\n"
+        LOG_INFO( "%3d (0x%08X): resistor( %8s | %8s ) mode( %d ) receiver( %8s ) slew( %s )"
                 , (int) (pin - start), *pin
                 , CONTROL_MODULE_CONF_MODULE_PIN_TYPESEL( *pin ) ? "pullup" : "pulldown"
                 , CONTROL_MODULE_CONF_MODULE_PIN_TYPESEL( *pin ) ? "disabled" : "enabled"

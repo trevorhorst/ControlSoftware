@@ -4,8 +4,10 @@
 #include <string.h>
 #include <vector>
 #include <functional>
+
 #include "common/cjson/cJSON.h"
 #include "common/control/control.h"
+#include "common/logger/log.h"
 
 #include "common/common_types.h"
 

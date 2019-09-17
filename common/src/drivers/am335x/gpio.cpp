@@ -18,9 +18,9 @@ Gpio::Gpio( uint32_t address, bool simulated )
     : ControlTemplate< Gpio >()
     , mRegister( address, simulated )
 {
-    printf( "GPIO Revision %d.%d\n", mRegister.map()->revision.mMajor()
-            , mRegister.map()->revision.mMinor() );
-    printf( "%s: gpio size %lu\n", __FUNCTION__, sizeof( RegisterMap ) );
+    LOG_INFO( "gpio%d: revision %d.%d", getId()
+              , mRegister.map()->revision.mMajor()
+              , mRegister.map()->revision.mMinor() );
 }
 
 /**

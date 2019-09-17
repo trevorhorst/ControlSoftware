@@ -175,7 +175,7 @@ public:
                     if( r == Error::Code::NONE ) {
                         // Parameter handled successfully
                         char *str = cJSON_Print( param );
-                        printf( "'%s' set to %s\n", param->string, str );
+                        LOG_DEBUG( "'%s' set to %s\n", param->string, str );
                         free( str );
                     } else {
                         // Failed to mutate parameter

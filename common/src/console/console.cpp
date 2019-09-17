@@ -37,7 +37,7 @@ Console::~Console()
  */
 void Console::run()
 {
-    printf( "Build Time: %s %s\n", __DATE__, __TIME__ );
+    LOG_INFO( "Build Time: %s %s", __DATE__, __TIME__ );
 
     // Retrieve the current terminal attributes
     struct termios term;
@@ -81,7 +81,7 @@ void Console::run()
         /// @note select() and pselect() allow a program to monitor multiple file
         /// descriptors, waiting until one or more of the file descriptors become
         /// "ready" for some class of I/O operation (e.g., input possible).
-        if( select( FD_SETSIZE, &fds, NULL, NULL, &tv ) < 0 ) {
+        if( select( FD_SETSIZE, &fds, nullptr, nullptr, &tv ) < 0 ) {
             perror("select");
             break;
         }
@@ -112,7 +112,7 @@ void Console::run()
 
     rl_callback_handler_remove();
 
-    printf("\nExitting...\n");
+    LOG_INFO("Exitting...");
 }
 
 void Console::quit()
@@ -252,7 +252,7 @@ void Console::evaluate( std::vector<std::string> input )
             auto t = it;
             it++;
             if( it == input.end() ) {
-                printf( "Parameter mismatch\n" );
+                LOG_INFO( "parameter mismatch\n" );
                 break;
             } else {
                 // Parse the parameter
@@ -269,7 +269,7 @@ void Console::evaluate( std::vector<std::string> input )
     char *msgStr = cJSON_PrintUnformatted( msg );
 
     if( getInstance().isVerbose() ) {
-        printf( "%s\n", msgStr );
+        LOG_DEBUG( "%s", msgStr );
     }
 
     mClient.send( msgStr );

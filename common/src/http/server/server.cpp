@@ -272,7 +272,7 @@ bool Server::listen()
             | MHD_USE_PEDANTIC_CHECKS;
 
     if( mSecure ) {
-        printf( "Server is secure\n" );
+        LOG_INFO( "server is secure" );
         flags |= MHD_USE_SSL;
     }
 
@@ -322,10 +322,10 @@ bool Server::listen()
                 );
 
     if( mServerDaemon == nullptr ) {
-        printf( "Server daemon failed to start\n" );
+        LOG_WARN( "server daemon failed to start\n" );
     } else {
-        printf( "Server daemon started successfully\n" );
-        printf( "Listening on port %d\n", mPort );
+        LOG_INFO( "server daemon started successfully" );
+        LOG_INFO( "listening on port %d", mPort );
         success = true;
     }
     return success;
@@ -337,7 +337,7 @@ bool Server::listen()
 void Server::stop()
 {
     if( mServerDaemon != nullptr ) {
-        printf( "Stopping Server...\n" );
+        LOG_INFO( "stopping server...\n" );
         MHD_stop_daemon( mServerDaemon );
         mServerDaemon = nullptr;
     }

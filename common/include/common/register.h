@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "common/logger/log.h"
+
 // Creates a bitfield of given size and index
 #define BITFIELD( INDEX, SIZE ) \
     ( ( ( 1UL << ( SIZE ) ) - 1UL) << ( INDEX ) )
@@ -124,8 +126,8 @@ public:
                            , static_cast< mode_t >( 0600 ) );
 
             if( fileDescriptor < 0 ) {
-                printf( "Cannot open %s.\n", memory_device );
-                printf( "Error %d: %s\n", errno, strerror( errno ) );
+                LOG_ERROR( ":%s: cannot open device - %s.\n"
+                        , memory_device, strerror( errno ) );
                 err = errno;
             } else {
 
@@ -144,8 +146,8 @@ public:
 
                 if( mem == MAP_FAILED ) {
                     // Memory map failed
-                    printf( "mmap failed. addr: %p\n", addr );
-                    printf( "Error %d: %s\n", errno, strerror( errno ) );
+                    LOG_ERROR( "%s: mmap failed, addr( %p ) - %s"
+                               , memory_device, addr, strerror( errno ) );
                     err = errno;
                 } else {
                     // Memory map succeeded, cast the pointer
