@@ -29,8 +29,10 @@ set( SOURCE
     src/drivers/am335x/gpio.cpp
     src/drivers/am335x/clock_module.cpp
     src/drivers/am335x/control_module.cpp
+    src/drivers/devices/displays/ssd1306.cpp
     src/drivers/devices/gps/gps.cpp
     src/drivers/devices/gps/venus638flpx.cpp
+    src/drivers/i2c.cpp
     src/drivers/led.cpp
     src/drivers/serial.cpp
 
@@ -90,8 +92,10 @@ set( HEADERS
     include/common/drivers/am335x/gpio.h
     include/common/drivers/am335x/clock_module.h
     include/common/drivers/am335x/control_module.h
+    include/common/drivers/devices/displays/ssd1306.h
     include/common/drivers/devices/gps/gps.h
     include/common/drivers/devices/gps/venus638flpx.h
+    include/common/drivers/i2c.h
     include/common/drivers/led.h
     include/common/drivers/serial.h
 

@@ -22,13 +22,16 @@
 #include "common/drivers/am335x/control_module.h"
 #include "common/drivers/am335x/clock_module.h"
 #include "common/drivers/am335x/gpio.h"
+#include "common/drivers/devices/displays/ssd1306.h"
 #include "common/drivers/devices/gps/venus638flpx.h"
 #include "common/drivers/serial.h"
+#include "common/drivers/i2c.h"
 
 #include "hardware/resources/resources.h"
 
 #define NUM_GPIO_HEADERS 4
 #define LED_HEADERS 4
+#define NUM_I2C_BUSES 1
 
 class Hardware
         : public HardwareBase
@@ -36,6 +39,8 @@ class Hardware
 {
     friend class Singleton< Hardware >;
     static const char *str_gps_device;
+    static const char *str_dev_i2c0;
+    static const uint8_t ssd1306_address;
 public:
 private:
     Hardware();
@@ -46,6 +51,8 @@ private:
 
 
     Serial mGpsSerial;
+    I2C mI2C[ NUM_I2C_BUSES ];
+    SSD1306 mDisplay;
     Gps::Venus638FLPx mGps;
     AM335X::ControlModule mControlModule;
     AM335X::ClockModule mClockModule;
