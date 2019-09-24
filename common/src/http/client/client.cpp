@@ -4,10 +4,12 @@
 #include "common/cjson/cJSON.h"
 #include "common/http/client/client.h"
 
+namespace Http {
+
 /**
  * @brief Constructor
  */
-HttpClient::Data::Data()
+Client::Data::Data()
     : mData( nullptr )
     , mSize( 0 )
 {
@@ -16,18 +18,16 @@ HttpClient::Data::Data()
 /**
  * @brief Destructor
  */
-HttpClient::Data::~Data()
+Client::Data::~Data()
 {
-    if( mData ) {
-        delete[] mData;
-    }
+    clear();
 }
 
 /**
  * @brief Read what has been written to the data block
  * @return Pointer to the data block
  */
-const char *HttpClient::Data::read()
+const char *Client::Data::read()
 {
     return mData;
 }
@@ -37,7 +37,7 @@ const char *HttpClient::Data::read()
  * @param data Data to write
  * @param size Size of the data to write
  */
-void HttpClient::Data::write( const char *data, size_t size )
+void Client::Data::write( const char *data, size_t size )
 {
     // Increase the size of our data
     mSize += size;
@@ -60,11 +60,23 @@ void HttpClient::Data::write( const char *data, size_t size )
 }
 
 /**
+ * @brief Clears the data
+ */
+void Client::Data::clear()
+{
+    if( mData ) {
+        mSize = 0;
+        delete[] mData;
+        mData = nullptr;
+    }
+}
+
+/**
  * @brief Constructor
  * @param address Address to
  * @param port
  */
-HttpClient::HttpClient( const char *address , uint16_t port )
+Client::Client( const char *address , uint16_t port )
     : mCurl( nullptr )
     , mPort( port )
     , mResponse( nullptr )
@@ -90,7 +102,7 @@ HttpClient::HttpClient( const char *address , uint16_t port )
 /**
  * @brief Destructor
  */
-HttpClient::~HttpClient()
+Client::~Client()
 {
     curl_easy_cleanup( mCurl );
     curl_global_cleanup();
@@ -104,7 +116,7 @@ HttpClient::~HttpClient()
  * @param d Pointer to the existing data
  * @return
  */
-size_t HttpClient::receive(
+size_t Client::receive(
         void *ptr, size_t size, size_t nmemb, struct Data *d )
 {
     d->write( static_cast< char* >( ptr ), size * nmemb );
@@ -115,7 +127,7 @@ size_t HttpClient::receive(
  * @brief Sends a message
  * @param str Message to send
  */
-void HttpClient::send( const char *str )
+void Client::send( const char *str )
 {
     // Create the headers
     struct curl_slist *headers = nullptr;
@@ -128,8 +140,13 @@ void HttpClient::send( const char *str )
     curl_easy_setopt( mCurl,  CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
     curl_easy_setopt( mCurl,    CURLOPT_POSTFIELDS, str );
     curl_easy_setopt( mCurl,      CURLOPT_NOSIGNAL, 0 );
-    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, HttpClient::receive );
+    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::receive );
     curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mData );
+
+    // Set up for cookie usage
+    curl_easy_setopt( mCurl, CURLOPT_COOKIESESSION, true );
+    curl_easy_setopt( mCurl,     CURLOPT_COOKIEJAR, "cs-cookie" );
+    curl_easy_setopt( mCurl,    CURLOPT_COOKIEFILE, "/tmp" );
 
     // Perform the cURL
     CURLcode res = curl_easy_perform( mCurl );
@@ -143,6 +160,10 @@ void HttpClient::send( const char *str )
         printf( "%s\n", mData.read() );
     }
 
+    mData.clear();
+
     // Free the headers
     curl_slist_free_all( headers );
+}
+
 }

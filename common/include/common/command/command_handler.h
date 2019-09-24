@@ -13,7 +13,8 @@ class CommandContainer
 {
 public:
     CommandContainer( Command::Type type, Command *cmdObj );
-    cJSON *call( cJSON *params );
+    const char *getUsage();
+    bool call( cJSON *params, cJSON *response );
 private:
     Command::Type mType;
     Command *mCmdObj;
@@ -32,8 +33,9 @@ public:
     CommandHandler();
     ~CommandHandler();
 
-    cJSON *handle( const char *cmdStr );
+    bool handle( const char *cmdStr, cJSON *response );
     void addCommand( Command *cmd );
+    const char *getCommandUsage( const char *cmd );
     CommandMap *getCommandMap();
 private:
     CommandMap mCommandMap;

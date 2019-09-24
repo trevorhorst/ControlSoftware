@@ -1,5 +1,8 @@
 #include "common/system/system.h"
 
+/**
+ * @brief Constructor
+ */
 System::System()
 {
 }

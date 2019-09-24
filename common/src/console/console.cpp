@@ -12,6 +12,8 @@
 #define CONSOLE_MAX_TOKENS  10
 #define CONSOLE_MAX_TOKEN_SIZE 64
 
+Http::Client Console::mClient;
+
 /**
  * @brief Constructor
  */
@@ -25,10 +27,6 @@ Console::Console()
  */
 Console::~Console()
 {
-    CommandMap::const_iterator it;
-    for( it = mCommandMap.begin(); it != mCommandMap.end(); it++ ) {
-        delete it->second;
-    }
 }
 
 #define MAX_HISTORY_LINES 1000
@@ -39,7 +37,7 @@ Console::~Console()
  */
 void Console::run()
 {
-    printf( "Build Time: %s %s\n", __DATE__, __TIME__ );
+    LOG_INFO( "Build Time: %s %s", __DATE__, __TIME__ );
 
     // Retrieve the current terminal attributes
     struct termios term;
@@ -83,7 +81,7 @@ void Console::run()
         /// @note select() and pselect() allow a program to monitor multiple file
         /// descriptors, waiting until one or more of the file descriptors become
         /// "ready" for some class of I/O operation (e.g., input possible).
-        if( select( FD_SETSIZE, &fds, NULL, NULL, &tv ) < 0 ) {
+        if( select( FD_SETSIZE, &fds, nullptr, nullptr, &tv ) < 0 ) {
             perror("select");
             break;
         }
@@ -114,7 +112,7 @@ void Console::run()
 
     rl_callback_handler_remove();
 
-    printf("\nExitting...\n");
+    LOG_INFO("Exitting...");
 }
 
 void Console::quit()
@@ -192,6 +190,7 @@ void Console::evaluate( char *input )
                 it++;
                 if( it == tokenized.end() ) {
                     printf( "Parameter mismatch\n" );
+                    break;
                 } else {
                     // Parse the parameter
                     cJSON *param = cJSON_Parse( (*it).c_str() );
@@ -210,8 +209,7 @@ void Console::evaluate( char *input )
             printf( "%s\n", msgStr );
         }
 
-        HttpClient client;
-        client.send( msgStr );
+        mClient.send( msgStr );
         cJSON_free( msgStr );
 
         // Clean up the message, this should delete all the components
@@ -220,7 +218,11 @@ void Console::evaluate( char *input )
     }
 
     if( input ) {
-        add_history( input );
+        // Actual input exists
+        if( input[ 0 ] != '\0' ) {
+            // The input is more than just an empty string
+            add_history( input );
+        }
         free( input );
     }
 }
@@ -250,7 +252,7 @@ void Console::evaluate( std::vector<std::string> input )
             auto t = it;
             it++;
             if( it == input.end() ) {
-                printf( "Parameter mismatch\n" );
+                LOG_INFO( "parameter mismatch\n" );
                 break;
             } else {
                 // Parse the parameter
@@ -267,71 +269,12 @@ void Console::evaluate( std::vector<std::string> input )
     char *msgStr = cJSON_PrintUnformatted( msg );
 
     if( getInstance().isVerbose() ) {
-        printf( "%s\n", msgStr );
+        LOG_DEBUG( "%s", msgStr );
     }
 
-    HttpClient client;
-    client.send( msgStr );
+    mClient.send( msgStr );
     cJSON_free( msgStr );
 
     // Clean up the message, this should delete all the components
     cJSON_Delete( msg );
-
-    /*
-    CommandMap::const_iterator it = mCommandMap.find( input.at( 0 ).c_str() );
-    if( it == mCommandMap.end() ) {_invoke_impl<void, void (Console::*)(), Console*>(std::__invoke_memfun_deref, void (Console::*&&)(), Console*&&) (in /media/Storage/Projects/ControlSoftware/build/app/controld)
-
-        // A matching command was not found
-        if( input.at( 0 ) == "quit" ) {
-            getInstance().quit();
-        }
-        return;
-    }
-
-    cJSON *params = cJSON_CreateObject();
-    CommandContainer *cmd = it->second;
-
-    for( size_t s = 1; s < input.size(); s += 2 ) {
-        std::string key = input.at( s );
-        if( key.length() == 0 ) {
-            printf( "Key is empty\n " );
-            return;
-        }
-
-        if( input.at( s ) == "help"
-                || s + 1 >= input.size() ) {
-            // Improper use of the command or asking for help
-            printf( "%s\n", cmd->mCmdObj->usage() );
-            return;
-        }
-
-        cJSON_AddItemToObject( params
-                               , key.c_str()
-                               , cJSON_Parse( input.at( s + 1 ).c_str() ) );
-
-    }
-
-    cJSON *rsp = cmd->call( params );
-    char *rspText = cJSON_Print( rsp );
-    printf( "%s\n", rspText );
-    free( rspText );
-
-    cJSON_Delete( rsp );
-    cJSON_Delete( params );
-    */
-}
-
-void Console::addCommand( Command *cmd )
-{
-    if( cmd->isAccessible() ) {
-        // The command is accessible
-        mCommandMap[ cmd->getAccessorName() ]
-                = new CommandContainer( Command::Type::ACCESSOR, cmd );
-    }
-
-    if( cmd->isMutable() ) {
-        // The command is mutable
-        mCommandMap[ cmd->getMutatorName() ]
-                = new CommandContainer( Command::Type::MUTATOR, cmd );
-    }
 }

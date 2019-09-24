@@ -1,20 +1,30 @@
-import React from 'react'
+import React from 'react';
+
+import IndexPageComponent from './control/navigationtool.js';
 
 class Main extends React.Component {
 
     constructor( props ) {
         super( props );
+
+        this.state = {
+        }
     }
 
     componentWillMount() {
-        // injectTapEventPlugin();
+    }
+
+    componentDidMount() {
+    }
+
+    componentWillUnmount() {
     }
 
     render() {
+        let comp = this
+
         return (
-            <div>
-                Hello World!
-            </div>
+            <IndexPageComponent />
         );
     }
 }

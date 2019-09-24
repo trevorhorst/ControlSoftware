@@ -5,7 +5,7 @@ CommandDateTime::CommandDateTime()
 {
     mAccessorMap[ PARAM_DATETIME ]
             = PARAMETER_CALLBACK( &CommandDateTime::getDateTime );
-};
+}
 
 uint32_t CommandDateTime::getDateTime( cJSON *response )
 {

@@ -14,13 +14,6 @@ struct CharArrayCompare
     }
 };
 
-// template <class _Tp>
-// struct my_equal_to : public std::binary_function<_Tp, _Tp, bool>
-// {
-//     bool operator()(const _Tp& __x, const _Tp& __y) const
-//     { return strcmp( __x, __y ) == 0; }
-// };
-
 /**
  * @brief The CharArrayHash struct
  */
@@ -47,6 +40,20 @@ struct CharArrayHash
 template< typename C >
 using CharHashMap = std::unordered_map< const char*, C, CharArrayHash, CharArrayCompare >;
 
+void CharArrayCopy( char *dst, const char *src, size_t size );
+
+// namespace Common
+// {
+//
+// struct CharArrayCompare;
+// struct CharArrayHash;
+// template< typename C > using CharHashMap
+//     = std::unordered_map< const char*, C, CharArrayHash, CharArrayCompare >;
+//
+// void CharArrayCopy( char *dst, const char *src, size_t size );
+//
+// }
+
 #define COMMAND_CONSOLE     "console"
 #define COMMAND_TUNER       "tuner"
 #define COMMAND_QTUNER      "qtuner"
@@ -55,6 +62,7 @@ using CharHashMap = std::unordered_map< const char*, C, CharArrayHash, CharArray
 #define PARAM_CODE      "code"
 #define PARAM_COMMAND   "cmd"
 #define PARAM_DETAILS   "details"
+#define PARAM_ENABLE    "enable"
 #define PARAM_ERROR     "error"
 #define PARAM_PARAMS    "params"
 #define PARAM_QUIT      "quit"

@@ -9,14 +9,16 @@
 
 #define PARAM_ACTIVE    "active"
 #define PARAM_PORT      "port"
+#define PARAM_SECURE    "secure"
 
 class CommandServer
-        : public CommandTemplate< HttpServer >
+        : public CommandTemplate< Http::Server >
 {
 public:
     CommandServer();
     virtual uint32_t getPort( cJSON *response );
     virtual uint32_t getActive( cJSON *response );
+    virtual uint32_t getSecure( cJSON *response );
 };
 
 #endif // COMMAND_SERVER_H

@@ -1,3 +1,11 @@
+/**
+ * @file control_template.h
+ * @author Trevor Horst
+ * @brief The control template class allows us to keep track of all the available
+ * control objects for a particular class automatically. Any time a new object
+ * is created it will be pushed back into the list
+ */
+
 #ifndef CONTROL_TEMPLATE_H
 #define CONTROL_TEMPLATE_H
 
@@ -17,7 +25,14 @@ public:
         : Control()
         , mId( mCount++ )
     {
+        // Add the control object to the list of control objects
         mControlObjects.push_back( static_cast< T* >( this ) );
+    }
+
+    ~ControlTemplate()
+    {
+        // for( auto it = mControlObjects.begin(); it != mControlObjects.end(); it++ ) {
+        // }
     }
 
     /**

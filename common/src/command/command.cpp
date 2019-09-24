@@ -8,6 +8,8 @@
                "         param: Parameter to be changed (see ICD)\n" \
                "         val:   New value to set parameter (see ICD)\n"
 
+const char *Command::error_control_unavailable = "Control is unavailable";
+
 /**
  * @brief Command Constructor
  * @param name Command name
@@ -17,18 +19,22 @@ Command::Command( const char *mutator, const char *accessor )
     , mMutable( false )
 {
     // Add an accessor
-    if( accessor == nullptr || accessor[ 0 ] == '\0' ) {
+    if( accessor == nullptr && accessor[ 0 ] == '\0' ) {
         strncpy( mAccessor, "\0", 1 );
+        mAccessible = false;
     } else {
         strncpy( mAccessor, accessor, sizeof( mAccessor ) );
+        mAccessor[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
         mAccessible = true;
     }
 
     // Add a mutator
-    if( mutator == nullptr || mutator[ 0 ] == '\0' ) {
+    if( mutator == nullptr && mutator[ 0 ] == '\0' ) {
         strncpy( mMutator, "\0", 1 );
+        mMutable = false;
     } else {
         strncpy( mMutator, mutator, sizeof( mMutator ) );
+        mMutator[ COMMAND_NAME_MAX_SIZE - 1 ] = '\0';
         mMutable = true;
     }
 
@@ -45,43 +51,60 @@ Command::~Command()
 }
 
 /**
- * @brief Handles any parameters that are required by the command
+ * @brief Handles any parameters that are required by the command. This modifies
+ * the parameter list
  * @param params List of parameters
- * @param response Response object to fill out
+ * @param response Response object to populate
  * @return Boolean indicating success of the operation
  */
-bool Command::handleRequiredParameters( cJSON*params, cJSON *response )
+uint32_t Command::handleRequiredParameters( cJSON *params, const char *&details )
 {
-    // printf( "%s\n", __FUNCTION__ );
     uint32_t r = Error::Code::NONE;
+    const char *param = nullptr;
     cJSON *p = nullptr;
 
-    for( ParameterMap::const_iterator it = mRequiredMap.begin()
-         ; it != mRequiredMap.end() && r == Error::Code::NONE; it++ ) {
+    for( auto it = mRequiredMap.begin()
+         ; it != mRequiredMap.end() && r == Error::Code::NONE
+         ; it++ ) {
 
         // Detach the required parameter
-        const char *param = it->first;
+        param = it->first;
         p = cJSON_DetachItemFromObject( params, param );
 
         if( p == nullptr ) {
             // Parameter missing
             r = Error::Code::PARAM_MISSING;
         } else {
-            // Parameter found
+            // Parameter found, perform a callback
             r = it->second( p );
-        }
-
-        if( r != Error::Code::NONE ) {
-            // Need to handle the error before we delete the parameter
-            setError( r, param, response );
         }
 
         // Delete all the parameters we detach
         if( p ) { cJSON_Delete( p ); }
     }
 
+    if( r != Error::Code::NONE ) {
+        details = param;
+    }
+
     // Required parameters handled successfully
-    return ( r == Error::Code::NONE );
+    return r;
+}
+
+
+/**
+ * @brief Handles any optional parameters. This may modify how the command is
+ * handled and therefore the programmer is respoonsible for overriding this with
+ * actual functionality.
+ * @param params List of parameters
+ * @param response Response object to populate
+ * @return Boolean indicating success of the operation
+ */
+uint32_t Command::handleOptionalParameters( cJSON *params, cJSON *response )
+{
+    (void)params;
+    (void)response;
+    return true;
 }
 
 /**

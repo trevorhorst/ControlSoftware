@@ -5,7 +5,9 @@
 
 #include "common/http/http.h"
 
-class HttpClient
+namespace Http {
+
+class Client
 {
 public:
 
@@ -14,14 +16,15 @@ public:
         ~Data();
         const char* read();
         void write( const char *data, size_t size );
+        void clear();
     private:
         char *mData;
         size_t mSize;
     };
 
-    HttpClient( const char *address = HTTP_LOCALHOST
+    Client( const char *address = HTTP_LOCALHOST
             , uint16_t port = HTTP_DEFAULT_PORT );
-    ~HttpClient();
+    ~Client();
 
     void send( const char *str );
     static size_t receive( void *ptr, size_t size, size_t nmemb, Data *data );
@@ -35,5 +38,7 @@ private:
     char *mResponse;
     uint16_t mResponseSize;
 };
+
+}
 
 #endif // HTTP_CLIENT_H

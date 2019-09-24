@@ -7,15 +7,15 @@ enable_language( C ASM )
 set( SOURCE
     ${SOURCE}
     src/resources/index.html.s
-    src/resources/main.js.s
-    src/hardware_beagleboneblack.cpp
+    src/resources/bundle.js.s
+    src/hardware.cpp
     )
 
 # List of header files
 set( HEADERS
     ${HEADERS}
-    include/beagleboneblack/hardware_beagleboneblack.h
-    include/beagleboneblack/resources/resources.h
+    include/hardware/hardware.h
+    include/hardware/resources/resources.h
     )
 
 add_library(

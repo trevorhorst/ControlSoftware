@@ -4,8 +4,10 @@
 #include <string.h>
 #include <vector>
 #include <functional>
+
 #include "common/cjson/cJSON.h"
 #include "common/control/control.h"
+#include "common/logger/log.h"
 
 #include "common/common_types.h"
 
@@ -44,8 +46,9 @@ public:
     const char *getAccessorName();
 
     virtual const char *usage();
-    virtual cJSON *access( cJSON* params ) = 0;
-    virtual cJSON *mutate( cJSON* params ) = 0;
+    virtual bool call( cJSON *params, cJSON *response, Type ) = 0;
+    virtual bool access( cJSON* params, cJSON *response ) = 0;
+    virtual bool mutate( cJSON* params, cJSON *response ) = 0;
 
     virtual uint32_t setVerbose( cJSON *val ) = 0;
     virtual uint32_t getVerbose( cJSON *response ) = 0;
@@ -53,20 +56,27 @@ public:
     void setError( uint32_t code, const char* details, cJSON *response );
 
 protected:
+
     std::vector< Control* > mCtrlObjList;
-    virtual bool handleRequiredParameters( cJSON *params, cJSON *response );
+
+    virtual uint32_t handleRequiredParameters( cJSON *params, const char *&details );
+    virtual uint32_t handleOptionalParameters( cJSON *params, cJSON *response );
 
     ParameterMap mRequiredMap;
+    ParameterMap mOptionalMap;
     ParameterMap mAccessorMap;
     ParameterMap mMutatorMap;
 
+    static const char *error_control_unavailable;
+
 private:
+    bool mAccessible;
+    bool mMutable;
+
     char mUsage[ COMMAND_USAGE_MAX_SIZE ];
     char mAccessor[ COMMAND_NAME_MAX_SIZE ];
     char mMutator[ COMMAND_NAME_MAX_SIZE ];
 
-    bool mAccessible;
-    bool mMutable;
 };
 
 #endif // COMMAND_H
