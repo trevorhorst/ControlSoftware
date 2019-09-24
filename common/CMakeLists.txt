@@ -54,6 +54,7 @@ set( SOURCE
 
     # Resources
     src/resources/resources.cpp
+    src/resources/font/glcd.cpp
 
     # System
     src/system/datetime.cpp
@@ -120,6 +121,7 @@ set( HEADERS
 
     # Resources
     include/common/resources/resources.h
+    include/common/resources/font/glcd.h
 
     # System
     include/common/system/datetime.h

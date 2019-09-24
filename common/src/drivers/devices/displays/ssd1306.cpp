@@ -1,5 +1,6 @@
 #include "common/drivers/devices/displays/ssd1306.h"
 
+const char *SSD1306::hello_world = "hello world";
 const uint32_t SSD1306::height = 8;
 const uint32_t SSD1306::width = 128;
 const uint8_t SSD1306::control_address = 0x3C;
@@ -76,9 +77,9 @@ SSD1306::SSD1306( I2C *bus, uint8_t control )
     , mControlAddress( control )
     , mScreenBuffer( nullptr )
 {
-    LOG_INFO( "SSD1306 Control Addr: %02X", control );
     initialize();
-    memcpy( mScreenBuffer, hi_logo, sizeof( hi_logo ) );
+    //memcpy( mScreenBuffer, hi_logo, sizeof( hi_logo ) );
+    writeText( hello_world, 0, 0 );
     writeScreen();
 }
 
@@ -88,6 +89,9 @@ SSD1306::~SSD1306()
     clearScreen();
 }
 
+/**
+ * @brief Initialize the display
+ */
 void SSD1306::initialize()
 {
     bool retval = false;
@@ -98,10 +102,10 @@ void SSD1306::initialize()
     mScreenBuffer = new uint8_t[ width * height ]; // Create a block of memory for the screen buffer
     memset( mScreenBuffer, 0, ( width * height ) );
 
-    retval &= writeCommand( 1, 0xAE );             // Display off
-    retval &= writeCommand( 2, 0xD5, 0x80 );       // set display clock division
-    retval &= writeCommand( 2, 0xA8, 0x3F );       // set multiplex
-    retval &= writeCommand( 2, 0xD3, 0x00 );       // set display offset
+    retval &= writeCommand( 1, Command::DISPLAY_OFF );             // Display off
+    retval &= writeCommand( 2, Command::CLOCK_DIVIDE_OSCILLATOR_FREQUENCY, 0x80 );       // set display clock division
+    retval &= writeCommand( 2, Command::MULTIPLEX_RATIO, 0x3F );       // set multiplex
+    retval &= writeCommand( 2, Command::DISPLAY_OFFSET, 0x00 );       // set display offset
     retval &= writeCommand( 1, 0x40 );             // set start line #0
     retval &= writeCommand( 2, 0x8D, 0x14 );       // set charge pump
     retval &= writeCommand( 2, 0x20, 0x00 );       // Memory mode
@@ -119,15 +123,19 @@ void SSD1306::initialize()
     retval &= writeCommand( 1, 0xAF );             // Display ON
     retval &= writeCommand( 3, 0x21, 0x00, 0x7F ); // Set column address; start 0, end 127
     retval &= writeCommand( 3, 0x22, 0x00, 0x07 ); // Set row address; start 0, end 7
-    retval &= writeCommand( 1, 0xAF );             // Display ON
+    retval &= writeCommand( 1, Command::DISPLAY_ON );             // Display ON
 
     writeCommand (3, 0x21, 0x00, 0x7F); // Set column address; start 0, end 127
     writeCommand (3, 0x22, 0x00, 0x07); // Set row address; start 0, end 7
 
     clearScreen();
-
 }
 
+/**
+ * @brief Writes a command
+ * @param numBytes
+ * @return
+ */
 int32_t SSD1306::writeCommand( int32_t numBytes, ... )
 {
     va_list arguments;
@@ -147,6 +155,45 @@ int32_t SSD1306::writeCommand( int32_t numBytes, ... )
     data = 0;
 
     return retVal;
+}
+
+int32_t SSD1306::writeCommand( Command command, const uint8_t *buffer, uint32_t size )
+{
+    int32_t error = 0;
+
+    uint8_t *bytes = new uint8_t[ size + 1 ];
+    bytes[ 0 ] = command;
+    memcpy( &bytes[ 1 ], buffer, size );
+
+    mI2CBus->writeBytes( bytes, size + 1 );
+
+    delete[] bytes;
+    bytes = nullptr;
+
+    return error;
+}
+
+int32_t SSD1306::writeText( const char *text, int8_t row, int8_t col )
+{
+    int8_t uchI, uchJ;
+    int16_t uiIndex;     // Indexes in the screen buffer
+
+    uiIndex = (row * width) + col;             // Set absolute start position in buffer
+
+    if ((row >= height ) || (col >= width))     // If asked for something out of range, abandon
+       return false;
+
+    for (uchI = 0; uchI < strlen( text ); uchI++)  // Loop through each character in string
+    {
+       for (uchJ = 0; uchJ < 5; uchJ++)             // Loop through each 7bit segment of the character
+       {
+          mScreenBuffer[uiIndex] = glcd::font[(text[uchI]*5)+uchJ]; // Trial and error!
+          uiIndex ++;                              // Move to next buffer position
+       }
+       mScreenBuffer[uiIndex] = 0x00;                  // This puts a space between the characters on screen
+       uiIndex++;
+    }
+    return true;
 }
 
 bool SSD1306::writeScreen()
@@ -172,6 +219,9 @@ bool SSD1306::writeScreen()
     return fOK;
 }
 
+/**
+ * @brief Clears the screen buffer
+ */
 void SSD1306::clearBuffer()
 {
     if( mScreenBuffer ) {
@@ -179,6 +229,9 @@ void SSD1306::clearBuffer()
     }
 }
 
+/**
+ * @brief Clears the display screen
+ */
 void SSD1306::clearScreen()
 {
     // Clear internal buffer
