@@ -90,12 +90,10 @@ public:
         if( r == Error::Code::NONE ) {
             if( mOptionalParameter[ 0 ] == '\0' ) {
                 // Do nothing
-                    printf( "Do Nothing 1\n");
             } else {
                 cJSON *p = cJSON_DetachItemFromObject( params, mOptionalParameter );
                 if( p == nullptr ) {
                     // Do nothing
-                    printf( "Do Nothing 2\n");
                 } else {
                     r = mOptional( p );
                     accessorMap = &mOptionalAccessorMap;
