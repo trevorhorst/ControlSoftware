@@ -58,7 +58,6 @@ protected:
     std::vector< Control* > mCtrlObjList;
 
     virtual uint32_t handleRequiredParameters( cJSON *params, const char *&details );
-    virtual uint32_t handleOptionalParameters( cJSON *params, const char *&details );
 
     ParameterMap mRequiredMap;
     ParameterMap mAccessorMap;

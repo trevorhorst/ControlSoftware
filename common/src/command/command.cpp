@@ -14,6 +14,13 @@ const char *Command::error_control_unavailable = "Control is unavailable";
  * @brief Command Constructor
  * @param name Command name
  */
+/**
+ * @brief Command constructor
+ * @param mutator Command mutator name
+ * @param accessor Command accessor name
+ * @param optional Optional parameter name - allows alternate execution provided
+ *  an optional parameter in the command
+ */
 Command::Command( const char *mutator, const char *accessor, const char *optional )
     : mOptional( nullptr )
     , mAccessible( false )
@@ -97,47 +104,6 @@ uint32_t Command::handleRequiredParameters( cJSON *params, const char *&details 
     }
 
     // Required parameters handled successfully
-    return r;
-}
-
-
-/**
- * @brief Handles any optional parameters. This may modify how the command is
- * handled and therefore the programmer is respoonsible for overriding this with
- * actual functionality.
- * @param params List of parameters
- * @param response Response object to populate
- * @return Boolean indicating success of the operation
- */
-uint32_t Command::handleOptionalParameters( cJSON *params, const char *&details )
-{
-    (void)params;
-    (void)details;
-    uint32_t r = Error::Code::NONE;
-
-    // const char *param = nullptr;
-    // cJSON *p = nullptr;
-    // for( auto it = mOptionalMap.begin()
-    //      ; it != mOptionalMap.end() && r == Error::Code::NONE
-    //      ; it++ ) {
-
-    //     // Detach the optional parameter
-    //     param = it->first;
-    //     p = cJSON_DetachItemFromObject( params, param );
-
-    //     if( p != nullptr ) {
-    //         r = it->second( p );
-    //     }
-
-    //     // Delete all the parameters we detach
-    //     if( p ) { cJSON_Delete( p ); }
-
-    // }
-
-    // if( r != Error::Code::NONE ) {
-    //     details = param;
-    // }
-
     return r;
 }
 

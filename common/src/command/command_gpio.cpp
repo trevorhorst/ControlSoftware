@@ -6,10 +6,6 @@ CommandGpio::CommandGpio( const char *mutator, const char *accessor )
     , mBank( 0 )
 {
     mRequiredMap[ PARAM_BANK ] = PARAMETER_CALLBACK( &CommandGpio::setBank );
-    // mRequiredMap[ PARAM_PIN ] = PARAMETER_CALLBACK( &CommandGpio::setPin );
-
-    // mMutatorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::setOutput );
-    // mMutatorMap[ PARAM_DIR ] = PARAMETER_CALLBACK( &CommandGpio::setDirection );
 
     mAccessorMap[ PARAM_BANK ] = PARAMETER_CALLBACK( &CommandGpio::getBank );
     mAccessorMap[ PARAM_OUTPUT ] = PARAMETER_CALLBACK( &CommandGpio::getBankOutput );
