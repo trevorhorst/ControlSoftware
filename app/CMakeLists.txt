@@ -5,7 +5,7 @@ project(controld)
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(
     ${PROJECT_NAME}
-    beagleboneblack
+    ${CONTROL_PROJECT}
     common
     pthread
     readline

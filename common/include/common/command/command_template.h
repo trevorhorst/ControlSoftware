@@ -14,8 +14,8 @@ public:
      * @param mutator Mutator name
      * @param accessor Accessor name
      */
-    CommandTemplate( const char *mutator, const char *accessor )
-        : Command( mutator, accessor )
+    CommandTemplate( const char *mutator, const char *accessor, const char *optional = nullptr )
+        : Command( mutator, accessor, optional )
         , mControlObject( nullptr )
     {
         mMutatorMap[ PARAM_VERBOSE ] = PARAMETER_CALLBACK(
@@ -86,6 +86,21 @@ public:
             }
         }
 
+        ParameterMap *accessorMap = &mAccessorMap;
+        if( r == Error::Code::NONE ) {
+            if( mOptionalParameter[ 0 ] == '\0' ) {
+                // Do nothing
+            } else {
+                cJSON *p = cJSON_DetachItemFromObject( params, mOptionalParameter );
+                if( p == nullptr ) {
+                    // Do nothing
+                } else {
+                    r = mOptional( p );
+                    accessorMap = &mOptionalAccessorMap;
+                }
+            }
+        }
+
         if( r == Error::Code::NONE ) {
             if( mControlObject == nullptr ) {
                 // The control object is invalid
@@ -96,8 +111,8 @@ public:
 
         cJSON* result = cJSON_CreateObject();
         if( r == Error::Code::NONE ) {
-            for( auto it = mAccessorMap.begin()
-                 ; it != mAccessorMap.end() && r == Error::Code::NONE
+            for( auto it = accessorMap->begin()
+                 ; it != accessorMap->end() && r == Error::Code::NONE
                  ; it++ ) {
 
                 ParameterCallback cb = it->second;
@@ -149,6 +164,21 @@ public:
             }
         }
 
+        ParameterMap *mutatorMap = &mMutatorMap;
+        if( r == Error::Code::NONE ) {
+            if( mOptionalParameter[ 0 ] == '\0' ) {
+                // Do nothing
+            } else {
+                cJSON *p = cJSON_DetachItemFromObject( params, mOptionalParameter );
+                if( p == nullptr ) {
+                    // Do nothing
+                } else {
+                    r = mOptional( p );
+                    mutatorMap = &mOptionalMutatorMap;
+                }
+            }
+        }
+
         if( r == Error::Code::NONE ) {
             if( mControlObject == nullptr ) {
                 // The control object isn't valid
@@ -163,8 +193,8 @@ public:
                  ; r == Error::Code::NONE && param != nullptr
                  ; param = param->next ) {
 
-                auto it = mMutatorMap.find( param->string );
-                if( it == mMutatorMap.end() ) {
+                auto it = mutatorMap->find( param->string );
+                if( it == mutatorMap->end() ) {
                     // No callback was found
                     r = Error::Code::PARAM_INVALID;
 

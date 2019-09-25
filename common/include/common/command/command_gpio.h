@@ -31,6 +31,9 @@ public:
     virtual uint32_t getInput( cJSON *response );
     virtual uint32_t getDirection( cJSON *response );
 
+    virtual uint32_t getBankOutput( cJSON *response );
+    virtual uint32_t getBankInput( cJSON *response );
+
 protected:
     uint32_t mPin;
     uint32_t mBank;

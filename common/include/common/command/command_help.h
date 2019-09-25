@@ -9,6 +9,8 @@
 #define PARAM_COMMAND_  "command"
 #define PARAM_COMMANDS  "commands"
 
+#define PARAM_USAGE "usage"
+
 class CommandHelp
         : public CommandTemplate< CommandHandler >
 {
