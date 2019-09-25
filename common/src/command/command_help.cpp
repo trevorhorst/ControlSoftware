@@ -3,10 +3,7 @@
 CommandHelp::CommandHelp()
     : CommandTemplate< CommandHandler > ( COMMAND_EMPTY, COMMAND_HELP )
 {
-    mRequiredMap[ PARAM_COMMAND_ ] = PARAMETER_CALLBACK( &CommandHelp::setCommand );
-
-    // mAccessorMap[ PARAM_COMMANDS ] = PARAMETER_CALLBACK( &CommandHelp::getCommandMap );
-    mAccessorMap[ PARAM_COMMANDS ] = PARAMETER_CALLBACK( &CommandHelp::getCommandUsage );
+    mAccessorMap[ PARAM_COMMANDS ] = PARAMETER_CALLBACK( &CommandHelp::getCommandMap );
 }
 
 uint32_t CommandHelp::getCommandMap( cJSON *response )
