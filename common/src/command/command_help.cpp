@@ -1,9 +1,12 @@
 #include "common/command/command_help.h"
 
 CommandHelp::CommandHelp()
-    : CommandTemplate< CommandHandler > ( COMMAND_EMPTY, COMMAND_HELP )
+    : CommandTemplate< CommandHandler > ( COMMAND_EMPTY, COMMAND_HELP, PARAM_COMMAND )
 {
     mAccessorMap[ PARAM_COMMANDS ] = PARAMETER_CALLBACK( &CommandHelp::getCommandMap );
+
+    mOptional = PARAMETER_CALLBACK( &CommandHelp::setCommand );
+    mOptionalAccessorMap[ PARAM_USAGE ] = PARAMETER_CALLBACK( &CommandHelp::getCommandUsage );
 }
 
 uint32_t CommandHelp::getCommandMap( cJSON *response )
