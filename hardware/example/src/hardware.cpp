@@ -1,5 +1,7 @@
 #include "hardware/hardware.h"
 
+const uint32_t Hardware::heartbeat_delay_1000_ms = 1000;
+
 /**
  * @brief Constructor
  */
@@ -8,9 +10,10 @@ Hardware::Hardware()
     , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
     , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
     , mServer( mIndexHtml, mBundleJs )
-    , mHeartbeatTimer( 1000, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
+    , mHeartbeatTimer( heartbeat_delay_1000_ms, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
 {
     // Add the individual commands
+    addCommand( &mCmdHelp );
     addCommand( &mCmdHeartbeat );
     addCommand( &mCmdSystem );
     addCommand( &mCmdDateTime );
@@ -20,7 +23,7 @@ Hardware::Hardware()
     mServer.setCommandHandler( getCommandHandler() );
     mServer.listen();
 
-    mHeartbeatTimer.start();
+    // mHeartbeatTimer.start();
 }
 
 /**

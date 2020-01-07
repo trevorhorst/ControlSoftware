@@ -22,20 +22,20 @@
 #include "common/control/control_template.h"
 #include "common/http/client/client.h"
 
-#define CONSOLE_HISTORY_FILE            "control.history"
-#define CONSOLE_HISTORY_FILE_LOCATION   "/tmp"
-
 class Console
         : public ControlTemplate< Console >
         , public Singleton< Console >
 {
     friend class Singleton< Console >;
 
+    static const char *history_file;
+    static const char *history_file_location;
+
+    static Http::Client client;
+
 public:
     void run();
     void quit();
-    void evaluate( std::vector< std::string > input );
-    static void processInput( char *input );
     static void evaluate( char *input );
     std::vector< std::string > tokenize( char *input, const char *delimiter = " " );
 
@@ -43,7 +43,6 @@ private:
     Console();
     ~Console();
 
-    static Http::Client mClient;
 
     bool mDone;
 };

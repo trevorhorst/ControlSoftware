@@ -11,6 +11,7 @@
 #include "common/system/system.h"
 #include "common/timer.h"
 
+#include "common/command/command_help.h"
 #include "common/command/command_datetime.h"
 #include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
@@ -32,6 +33,8 @@ class Hardware
         , public Singleton< Hardware >
 {
     friend class Singleton< Hardware >;
+
+    static const uint32_t heartbeat_delay_1000_ms;
 public:
 private:
     Hardware();
@@ -45,6 +48,7 @@ private:
     System mSystem;
     Timer mHeartbeatTimer;
 
+    CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;
     CommandHeartbeat mCmdHeartbeat;
     CommandServer mCmdServer;

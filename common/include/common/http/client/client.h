@@ -4,10 +4,12 @@
 #include <curl/curl.h>
 
 #include "common/http/http.h"
+#include "common/transport/client.h"
 
 namespace Http {
 
 class Client
+        : public Transport::Client
 {
 public:
 

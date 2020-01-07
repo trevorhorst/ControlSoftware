@@ -4,7 +4,6 @@
 #include "common/option_parser.h"
 #include "common/console/console.h"
 #include "common/command/command_console.h"
-#include "common/command/command_help.h"
 
 #include "hardware/hardware.h"
 
@@ -63,9 +62,6 @@ int main( int argc, char *argv[] )
 
     CommandConsole cmdConsole;
     hw->addCommand( &cmdConsole );
-
-    CommandHelp help;
-    hw->addCommand( &help );
 
     std::thread *app = new std::thread( &Console::run, console );
 

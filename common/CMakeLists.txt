@@ -57,6 +57,9 @@ set( SOURCE
     src/system/datetime.cpp
     src/system/system.cpp
 
+    # Transport
+    src/transport/client.cpp
+
     # Miscellaneous
     src/common_types.cpp
     src/string.cpp
@@ -120,6 +123,9 @@ set( HEADERS
     # System
     include/common/system/datetime.h
     include/common/system/system.h
+
+    # Transport
+    include/common/transport/client.h
 
     # Console
     include/common/console/console.h
