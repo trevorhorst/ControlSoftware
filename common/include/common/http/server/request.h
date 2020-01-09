@@ -20,7 +20,7 @@ class Request
 {
 public:
 
-    using HeaderMap = CharHashMap< const char* >;
+    using HeaderMap = Types::CharHashMap< const char* >;
 
     explicit Request( MHD_Connection *connection );
     ~Request();

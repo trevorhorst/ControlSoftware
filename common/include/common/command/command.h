@@ -29,7 +29,7 @@ class Command
 {
 public:
     using ParameterCallback     = std::function< uint32_t (cJSON*) >;
-    using ParameterMap          = CharHashMap< ParameterCallback >;
+    using ParameterMap          = Types::CharHashMap< ParameterCallback >;
 
     enum Type {
         MUTATOR = 0
