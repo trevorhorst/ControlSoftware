@@ -1,15 +1,5 @@
 #include "common/common_types.h"
 
-void CharArrayCopy( char *dst, const char *src, size_t size )
-{
-    if( src == nullptr || src[ 0 ] == '\0' ) {
-        strncpy( dst, "\0", 1 );
-    } else {
-        strncpy( dst, src, size );
-        dst[ size - 1 ] = '\0';
-    }
-}
-
 namespace Types {
 
 /**

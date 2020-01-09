@@ -22,10 +22,6 @@
 #define PARAM_TYPE      "type"
 #define PARAM_VERBOSE   "verbose"
 
-
-void CharArrayCopy( char *dst, const char *src, size_t size );
-
-
 namespace Types {
 
 struct CharArrayComparator

@@ -11,10 +11,6 @@
 const char *Command::error_control_unavailable = "Control is unavailable";
 
 /**
- * @brief Command Constructor
- * @param name Command name
- */
-/**
  * @brief Command constructor
  * @param mutator Command mutator name
  * @param accessor Command accessor name
