@@ -11,12 +11,10 @@ CommandHelp::CommandHelp()
 
 uint32_t CommandHelp::getCommandMap( cJSON *response )
 {
-    /// @todo There is a memory leak in this method
-
     uint32_t r = Error::Code::NONE;
     // Create an array object
     cJSON *array = cJSON_CreateArray();
-    array = cJSON_AddArrayToObject( response, PARAM_COMMANDS );
+    cJSON_AddItemToObject( response, PARAM_COMMANDS, array );
     // Iterate through the map for the available commands
     CommandMap *map = mControlObject->getCommandMap();
     for( CommandMap::const_iterator it = map->begin(); it != map->end(); it++ ) {
