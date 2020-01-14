@@ -21,10 +21,11 @@ bool CharArrayComparator::operator()( const char *a, const char *b ) const
 u_long CharArrayHash::operator()( const char *str ) const
 {
     u_long hash = 5381;
-    int c;
+    int c = 0;
 
     while( ( c = *str++ ) ) {
-        hash = ( ( hash << 5 ) + hash ) + c; /* hash * 33 + c */
+        /* hash * 33 + c */
+        hash = ( ( hash << 5 ) + hash ) + static_cast< u_long >( c );
     }
 
     return hash;
