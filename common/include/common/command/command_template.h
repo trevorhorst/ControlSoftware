@@ -97,6 +97,7 @@ public:
                 } else {
                     r = mOptional( p );
                     accessorMap = &mOptionalAccessorMap;
+                    cJSON_Delete( p );
                 }
             }
         }
@@ -175,6 +176,7 @@ public:
                 } else {
                     r = mOptional( p );
                     mutatorMap = &mOptionalMutatorMap;
+                    cJSON_Delete( p );
                 }
             }
         }
