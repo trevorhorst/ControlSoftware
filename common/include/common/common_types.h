@@ -22,6 +22,10 @@
 #define PARAM_TYPE      "type"
 #define PARAM_VERBOSE   "verbose"
 
+// Creates a bitfield of given size and index
+#define COMMON_BITFIELD( INDEX, SIZE ) \
+    ( ( ( 1U << ( SIZE ) ) - 1U) << ( INDEX ) )
+
 namespace Types {
 
 struct CharArrayComparator

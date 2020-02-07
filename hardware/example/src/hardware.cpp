@@ -10,7 +10,9 @@ Hardware::Hardware()
     , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
     , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
     , mServer( mIndexHtml, mBundleJs )
-    , mHeartbeatTimer( heartbeat_delay_1000_ms, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
+    , mHeartbeatTimer( heartbeat_delay_1000_ms
+                       , Timer::Type::INTERVAL
+                       , std::bind( &Hardware::heartbeat, this ) )
 {
     // Add the individual commands
     addCommand( &mCmdHelp );
@@ -18,12 +20,13 @@ Hardware::Hardware()
     addCommand( &mCmdSystem );
     addCommand( &mCmdDateTime );
     addCommand( &mCmdServer );
+    addCommand( &mCmdSmtp );
 
     // Set the command handler and start the server
     mServer.setCommandHandler( getCommandHandler() );
     mServer.listen();
 
-    // mHeartbeatTimer.start();
+    mHeartbeatTimer.start();
 }
 
 /**

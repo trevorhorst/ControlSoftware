@@ -215,6 +215,10 @@ public:
                     }
                 }
             }
+
+            if( r == Error::Code::NONE ) {
+                mControlObject->applySettings();
+            }
         }
 
         bool success = false;

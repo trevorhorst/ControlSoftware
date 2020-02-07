@@ -8,6 +8,7 @@
 #include "common/drivers/led.h"
 #include "common/hardware/hardware_base.h"
 #include "common/singleton.h"
+#include "common/smtp/client/client.h"
 #include "common/system/system.h"
 #include "common/timer.h"
 
@@ -16,6 +17,7 @@
 #include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
 #include "common/command/command_server.h"
+#include "common/command/command_smtp.h"
 #include "common/command/command_system.h"
 #include "common/command/command_heartbeat.h"
 #include "common/command/command_venus638flpx.h"
@@ -47,12 +49,14 @@ private:
     Http::Server mServer;
     System mSystem;
     Timer mHeartbeatTimer;
+    Smtp::Client mSmtpClient;
 
     CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;
     CommandHeartbeat mCmdHeartbeat;
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
+    CommandSmtp mCmdSmtp;
 
     void heartbeat();
 };
