@@ -50,11 +50,6 @@ Client::Client()
     , mRecipients( nullptr )
 {
     mCurl = curl_easy_init();
-    setServer( SMTP_GMAIL_SERVER );
-    setReadFunction( &Client::newReadFunction );
-    addTo( TO_ADDR );
-    setSubject( "SMTP" );
-    applySettings();
 }
 
 /**
@@ -433,7 +428,6 @@ uint32_t Client::applyReadFunction(ReadFunction *readFunction)
 uint32_t Client::applySettings()
 {
     uint32_t error = Error::Code::NONE;
-    printf( "Apply settings\n" );
 
     if( mCurl ) {
         if( ( error == Error::Code::NONE ) && mSettings.mask & set_server ) {

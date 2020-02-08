@@ -3,14 +3,14 @@
 CommandSmtp::CommandSmtp()
     : CommandTemplate< Smtp::Client >( COMMAND_SMTP, COMMAND_QSMTP )
 {
-    mMutatorMap[ PARAM_USERNAME ] = PARAMETER_CALLBACK( &CommandSmtp::setUsername );
-    mMutatorMap[ PARAM_PASSWORD ] = PARAMETER_CALLBACK( &CommandSmtp::setPassword );
-    mMutatorMap[ PARAM_SEND ]     = PARAMETER_CALLBACK( &CommandSmtp::setSend );
-    mMutatorMap[ PARAM_SERVER ]   = PARAMETER_CALLBACK( &CommandSmtp::setServer );
+    mMutatorMap[ PARAM_USERNAME ]   = PARAMETER_CALLBACK( &CommandSmtp::setUsername );
+    mMutatorMap[ PARAM_PASSWORD ]   = PARAMETER_CALLBACK( &CommandSmtp::setPassword );
+    mMutatorMap[ PARAM_SEND ]       = PARAMETER_CALLBACK( &CommandSmtp::setSend );
+    mMutatorMap[ PARAM_SERVER ]     = PARAMETER_CALLBACK( &CommandSmtp::setServer );
     mMutatorMap[ PARAM_TO ]         = PARAMETER_CALLBACK( &CommandSmtp::setTo );
     mMutatorMap[ PARAM_CC ]         = PARAMETER_CALLBACK( &CommandSmtp::setCc );
 
-    mAccessorMap[ PARAM_SERVER ]  = PARAMETER_CALLBACK( &CommandSmtp::getServer );
+    mAccessorMap[ PARAM_SERVER ]     = PARAMETER_CALLBACK( &CommandSmtp::getServer );
     mAccessorMap[ PARAM_RECIPIENTS ] = PARAMETER_CALLBACK( &CommandSmtp::getRecipients );
 }
 

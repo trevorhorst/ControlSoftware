@@ -88,6 +88,8 @@ public:
 
     uint32_t applySettings() override;
 
+    static ReadFunction newReadFunction;
+
 private:
     CURL *mCurl;
 
@@ -97,7 +99,6 @@ private:
     curl_slist *mRecipients;
 
     static ReadFunction readFunction;
-    static ReadFunction newReadFunction;
 };
 
 }
