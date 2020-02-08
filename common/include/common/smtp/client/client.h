@@ -62,11 +62,14 @@ public:
     void close();
 
     std::string getServer();
+    const curl_slist *getRecipientsList() const;
 
     uint32_t send( const std::string &message );
 
     uint32_t addTo( const std::string recipient );
     uint32_t addCarbonCopy( const std::string recipient );
+
+    uint32_t clearRecipients();
 
     uint32_t setServer( const std::string &server );
     uint32_t setUsername( const std::string &username );
@@ -90,6 +93,8 @@ private:
 
     Payload mPayload;
     Settings mSettings;
+
+    curl_slist *mRecipients;
 
     static ReadFunction readFunction;
     static ReadFunction newReadFunction;

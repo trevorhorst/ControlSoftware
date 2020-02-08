@@ -47,12 +47,12 @@ const uint32_t Client::set_read_function = COMMON_BITFIELD( set_counter++, 1 );
  */
 Client::Client()
     : mCurl( nullptr )
+    , mRecipients( nullptr )
 {
     mCurl = curl_easy_init();
     setServer( SMTP_GMAIL_SERVER );
     setReadFunction( &Client::newReadFunction );
     addTo( TO_ADDR );
-    addCarbonCopy( CC_ADDR );
     setSubject( "SMTP" );
     applySettings();
 }
@@ -70,6 +70,7 @@ Client::~Client()
  */
 void Client::close()
 {
+    clearRecipients();
     curl_easy_cleanup( mCurl );
     mCurl = nullptr;
 }
@@ -83,6 +84,11 @@ std::string Client::getServer()
     const char *url = nullptr;
     curl_easy_getinfo( mCurl, CURLINFO_EFFECTIVE_URL, &url );
     return url;
+}
+
+const curl_slist *Client::getRecipientsList() const
+{
+    return mRecipients;
 }
 
 /**
@@ -115,6 +121,16 @@ uint32_t Client::addCarbonCopy( const std::string recipient )
     } else {
         mSettings.carbonCopyList.push_back( recipient );
         mSettings.mask |= set_recipients;
+    }
+    return error;
+}
+
+uint32_t Client::clearRecipients()
+{
+    uint32_t error = Error::Code::NONE;
+    if( mRecipients ) {
+        curl_slist_free_all( mRecipients );
+        mRecipients = nullptr;
     }
     return error;
 }
@@ -194,10 +210,7 @@ uint32_t Client::setReadFunction(ReadFunction *readFunction)
 uint32_t Client::send( const std::string &message )
 {
     CURLcode res = CURLE_OK;
-    struct curl_slist *recipients = nullptr;
-    struct UploadStatus upload_ctx;
 
-    upload_ctx.linesRead = 0;
     mPayload.sent = 0;
     applyDate();
     mPayload.message = message;
@@ -217,8 +230,6 @@ uint32_t Client::send( const std::string &message )
             fprintf( stderr, "curl_easy_perform() failed: %s\n",
                     curl_easy_strerror(res));
         }
-
-        curl_slist_free_all(recipients);
     }
 
     mPayload.sent = 0;
@@ -370,23 +381,21 @@ uint32_t Client::applyRecipients( const std::vector< std::string > &toList
 {
     uint32_t error = Error::Code::NONE;
 
-    struct curl_slist *recipients = nullptr;
-
     mPayload.to = "To:";
     for( auto i = toList.begin(); i != toList.end(); i++ ) {
-        recipients = curl_slist_append( recipients, (*i).c_str() );
-        mPayload.to.append( " " ).append(  *i );
+        mRecipients = curl_slist_append( mRecipients, (*i).c_str() );
+        mPayload.to.append( " <" ).append(  *i ).append( ">" );
     }
     mPayload.to.append( " \r\n" );
 
     mPayload.cc = "Cc:";
     for( auto i = ccList.begin(); i != ccList.end(); i++ ) {
-        recipients = curl_slist_append( recipients, (*i).c_str() );
-        mPayload.cc.append( " " ).append( *i );
+        mRecipients = curl_slist_append( mRecipients, (*i).c_str() );
+        mPayload.cc.append( " <" ).append( *i ).append( ">" );
     }
     mPayload.cc.append( " \r\n" );
 
-    curl_easy_setopt( mCurl, CURLOPT_MAIL_RCPT, recipients );
+    curl_easy_setopt( mCurl, CURLOPT_MAIL_RCPT, mRecipients );
 
     return error;
 }
