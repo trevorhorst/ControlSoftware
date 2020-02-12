@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(common)
 
-set( SOURCE
-    ${SOURCE}
+set(
+    SOURCE ${SOURCE}
+
     # cJSON Library
     src/cjson/cJSON.c
 
@@ -152,9 +153,11 @@ add_library(
     ${HEADERS}
     )
 
+# Specifies include directories to use when compiling a given target
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
     )
 
 install(TARGETS ${PROJECT_NAME}

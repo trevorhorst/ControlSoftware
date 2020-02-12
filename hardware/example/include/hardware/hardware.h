@@ -1,5 +1,5 @@
-#ifndef HARDWARE_BEAGLEBONEBLACK_H
-#define HARDWARE_BEAGLEBONEBLACK_H
+#ifndef HARDWARE_EXAMPLE_H
+#define HARDWARE_EXAMPLE_H
 
 #include <string.h>
 #include <stdio.h>
@@ -61,4 +61,4 @@ private:
     void heartbeat();
 };
 
-#endif // HARDWARE_BEAGLEBONEBLACK_H
+#endif // HARDWARE_EXAMPLE_H

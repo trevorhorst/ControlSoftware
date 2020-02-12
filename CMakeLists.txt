@@ -38,4 +38,10 @@ add_subdirectory(remote)
 add_subdirectory(common)
 add_subdirectory(hardware/${CONTROL_PROJECT})
 
+if( USE_SMTP )
+        message("Using SMTP library")
+        add_subdirectory(smtp)
+        set( ENABLED_LIBRARIES ${ENABLED_LIBRARIES} smtp )
+endif()
+
 # install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CONTROL_BIN_DIR})

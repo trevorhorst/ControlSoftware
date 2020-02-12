@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(
     ${PROJECT_NAME}
     ${CONTROL_PROJECT}
+    ${ENABLED_LIBRARIES}
     common
     pthread
     readline
