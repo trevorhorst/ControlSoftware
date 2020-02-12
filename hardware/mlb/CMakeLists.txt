@@ -50,7 +50,7 @@ target_link_libraries(
 
 # Specifies include directories to use when compiling a given target
 target_include_directories(
-    ${PROJECT_NAME} PRIVATE
+    ${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/resources>
     $<INSTALL_INTERFACE:include>

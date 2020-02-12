@@ -17,7 +17,6 @@
 #include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
 #include "common/command/command_server.h"
-#include "common/command/command_smtp.h"
 #include "common/command/command_system.h"
 #include "common/command/command_heartbeat.h"
 #include "common/command/command_venus638flpx.h"
@@ -27,6 +26,9 @@
 #include "common/drivers/am335x/gpio.h"
 #include "common/drivers/devices/gps/venus638flpx.h"
 #include "common/drivers/serial.h"
+
+#include "smtp/client.h"
+#include "smtp/command.h"
 
 #include "hardware/resources/resources.h"
 

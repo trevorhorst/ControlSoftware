@@ -153,6 +153,13 @@ add_library(
     ${HEADERS}
     )
 
+target_link_libraries(
+    ${PROJECT_NAME}
+    PRIVATE
+        readline
+        microhttpd
+        curl)
+
 # Specifies include directories to use when compiling a given target
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
