@@ -1,6 +1,8 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include "common/error/error.h"
+
 namespace Transport {
 
 class Client

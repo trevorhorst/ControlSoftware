@@ -9,8 +9,8 @@ namespace Http {
 /**
  * @brief Constructor
  */
-Client::Data::Data()
-    : mData( nullptr )
+Client::DataString::DataString()
+    : mDataString( nullptr )
     , mSize( 0 )
 {
 }
@@ -18,7 +18,7 @@ Client::Data::Data()
 /**
  * @brief Destructor
  */
-Client::Data::~Data()
+Client::DataString::~DataString()
 {
     clear();
 }
@@ -27,31 +27,31 @@ Client::Data::~Data()
  * @brief Read what has been written to the data block
  * @return Pointer to the data block
  */
-const char *Client::Data::read()
+const char *Client::DataString::read()
 {
-    return mData;
+    return mDataString;
 }
 
 /**
  * @brief Writes to our data block
- * @param data Data to write
+ * @param data DataString to write
  * @param size Size of the data to write
  */
-void Client::Data::write( const char *data, size_t size )
+void Client::DataString::write( const char *data, size_t size )
 {
     // Increase the size of our data
     mSize += size;
     // Save off a pointer to the old data
-    char *t = mData;
+    char *t = mDataString;
     // Create a new block of memory
-    mData = new char[ mSize + 1 ];
+    mDataString = new char[ mSize + 1 ];
     // Copy the old data to the new block
-    memcpy( static_cast< void* >( mData ), t, mSize - size );
+    memcpy( static_cast< void* >( mDataString ), t, mSize - size );
     // Copy the new data to the end of the new block
-    char *n = &mData[ mSize - size ];
+    char *n = &mDataString[ mSize - size ];
     memcpy( static_cast< void* >( n ), data, size );
     // Append the null character
-    mData[ mSize ] = '\0';
+    mDataString[ mSize ] = '\0';
 
     if( t ) {
         // Delete the pointer to the old data block
@@ -62,12 +62,12 @@ void Client::Data::write( const char *data, size_t size )
 /**
  * @brief Clears the data
  */
-void Client::Data::clear()
+void Client::DataString::clear()
 {
-    if( mData ) {
+    if( mDataString ) {
         mSize = 0;
-        delete[] mData;
-        mData = nullptr;
+        delete[] mDataString;
+        mDataString = nullptr;
     }
 }
 
@@ -117,7 +117,7 @@ Client::~Client()
  * @return
  */
 size_t Client::receive(
-        void *ptr, size_t size, size_t nmemb, struct Data *d )
+        void *ptr, size_t size, size_t nmemb, struct DataString *d )
 {
     d->write( static_cast< char* >( ptr ), size * nmemb );
     return size * nmemb;
@@ -141,7 +141,7 @@ void Client::send( const char *str )
     curl_easy_setopt( mCurl,    CURLOPT_POSTFIELDS, str );
     curl_easy_setopt( mCurl,      CURLOPT_NOSIGNAL, 0 );
     curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::receive );
-    curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mData );
+    curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mDataString );
 
     // Set up for cookie usage
     curl_easy_setopt( mCurl, CURLOPT_COOKIESESSION, true );
@@ -157,10 +157,10 @@ void Client::send( const char *str )
                       curl_easy_strerror( res ) );
     } else {
         // Handle the response
-        printf( "%s\n", mData.read() );
+        printf( "%s\n", mDataString.read() );
     }
 
-    mData.clear();
+    mDataString.clear();
 
     // Free the headers
     curl_slist_free_all( headers );

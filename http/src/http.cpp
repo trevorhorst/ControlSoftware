@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "common/http/http.h"
+#include "http/http.h"
 
-namespace Http
+namespace NewHttp
 {
 const char *localhost     = "localhost";
 

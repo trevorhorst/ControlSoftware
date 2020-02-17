@@ -12,7 +12,7 @@
 #define HTTP_DEFAULT_PORT 8080
 #define HTTP_URL_SIZE_MAX 256
 
-namespace Http
+namespace NewHttp
 {
 
 extern const char *localhost;

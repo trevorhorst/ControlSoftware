@@ -13,14 +13,14 @@ class Client
 {
 public:
 
-    struct Data {
-        Data();
-        ~Data();
+    struct DataString {
+        DataString();
+        ~DataString();
         const char* read();
         void write( const char *data, size_t size );
         void clear();
     private:
-        char *mData;
+        char *mDataString;
         size_t mSize;
     };
 
@@ -29,11 +29,11 @@ public:
     ~Client();
 
     void send( const char *str );
-    static size_t receive( void *ptr, size_t size, size_t nmemb, Data *data );
+    static size_t receive( void *ptr, size_t size, size_t nmemb, DataString *data );
 private:
 
     CURL *mCurl;
-    Data mData;
+    DataString mDataString;
     char mUrl[ HTTP_URL_SIZE_MAX ];
     uint16_t mPort;
 

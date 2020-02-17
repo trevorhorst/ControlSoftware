@@ -30,6 +30,8 @@
 #include "smtp/client.h"
 #include "smtp/command.h"
 
+#include "http/client.h"
+
 #include "hardware/resources/resources.h"
 
 class Hardware
@@ -40,6 +42,13 @@ class Hardware
 
     static const uint32_t heartbeat_delay_1000_ms;
 
+    static const char *mlb_api_host;
+    static const char *mlb_api_path;
+    static const char *endpoint_transaction_all;
+    static const char *endpoint_wsfb_news_injury;
+
+    static const char *mlb_api;
+    static const char *mlb_api_date;
     static const char *smtp_gmail_server;
     static const char *email_list[256];
 public:
@@ -55,6 +64,7 @@ private:
     System mSystem;
     Timer mHeartbeatTimer;
     Smtp::Client mSmtpClient;
+    NewHttp::Client mHttpClient;
 
     CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;
@@ -62,6 +72,10 @@ private:
     CommandServer mCmdServer;
     CommandSystem mCmdSystem;
     CommandSmtp mCmdSmtp;
+
+    uint32_t getDate( char *buffer, size_t size );
+
+    uint32_t queryApi();
 
     void heartbeat();
 };
