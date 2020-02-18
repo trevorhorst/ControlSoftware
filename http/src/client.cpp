@@ -84,21 +84,6 @@ Client::Client( const char *address , uint16_t port )
     , mResponse( nullptr )
     , mResponseSize( 0 )
 {
-    // curl_global_init( CURL_GLOBAL_ALL );
-    // mCurl = curl_easy_init();
-    // if( address == nullptr || address[ 0 ] == '\0' ) {
-    //     snprintf( mUrl
-    //               , HTTP_URL_SIZE_MAX
-    //               , HTTP_URL_TEMPLATE
-    //               , HTTP_LOCALHOST
-    //               , port );
-    // } else {
-    //     snprintf( mUrl
-    //               , HTTP_URL_SIZE_MAX
-    //               , HTTP_URL_TEMPLATE
-    //               , address
-    //               , port );
-    // }
     mCurl = curl_easy_init();
 
     // Default cURL settings
@@ -202,6 +187,10 @@ size_t Client::writeFunction(
     return size * nmemb;
 }
 
+/**
+ * @brief Performs a GET request
+ * @return Response string
+ */
 std::string Client::get()
 {
     std::string response_string;
