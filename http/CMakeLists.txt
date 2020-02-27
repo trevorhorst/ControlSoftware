@@ -7,11 +7,19 @@ project(
 set( HEADERS ${HEADERS}
     include/http/http.h
     include/http/client.h
+    include/http/server/router.h
+    include/http/server/server.h
+    include/http/server/request.h
+    include/http/server/response.h
     )
 
 set( SOURCE ${SOURCE}
     src/http.cpp
     src/client.cpp
+    src/server/router.cpp
+    src/server/server.cpp
+    src/server/request.cpp
+    src/server/response.cpp
     )
 
 add_library(
