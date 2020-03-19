@@ -1,3 +1,10 @@
+/** ****************************************************************************
+ * @file response.h
+ * @author Trevor Horst
+ * @copyright
+ * @brief HTTP Response class declarations
+ * ****************************************************************************/
+
 #ifndef HTTP_RESPONSE_H
 #define HTTP_RESPONSE_H
 
@@ -15,6 +22,8 @@ class Response
     Response( MHD_Connection *mhdConnection );
 
     void send();
+
+    NewHttp::Status getStatus() const;
 
 private:
     MHD_Connection* mMhdConnection;

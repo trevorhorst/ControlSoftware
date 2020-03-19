@@ -1,7 +1,7 @@
 /** ****************************************************************************
   * @file       console.h
   * @author     Trevor Horst
-  * @copyright  G3 Technologies, Inc. 2018
+  * @copyright
   * @brief      Console class declarations
   * ***************************************************************************/
 #ifndef CONSOLE_H

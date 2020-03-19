@@ -1,7 +1,19 @@
+/** ****************************************************************************
+ * @file response.cpp
+ * @author Trevor Horst
+ * @copyright
+ * @brief Response class definitions
+ *
+ * Provides a response interface to interactions with the HTTP server
+ * ****************************************************************************/
 #include "http/server/response.h"
 
 namespace NewHttp {
 
+/**
+ * @brief Constructor
+ * @param mhdConnection Pointer to the microhttp daemon
+ */
 Response::Response( MHD_Connection *mhdConnection )
     : mMhdConnection( mhdConnection )
     , mStatus( Status::OK )
@@ -11,6 +23,15 @@ Response::Response( MHD_Connection *mhdConnection )
     , mSent( false )
 {
 
+}
+
+/**
+ * @brief Retrieves response status
+ * @return Response status
+ */
+NewHttp::Status Response::getStatus() const
+{
+    return mStatus;
 }
 
 void Response::send()
