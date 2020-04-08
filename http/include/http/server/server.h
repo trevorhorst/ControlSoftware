@@ -1,5 +1,5 @@
-#ifndef HTTP_SERVER_H
-#define HTTP_SERVER_H
+#ifndef NEWHTTP_SERVER_H
+#define NEWHTTP_SERVER_H
 
 #include <microhttpd.h>
 

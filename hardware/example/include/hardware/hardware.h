@@ -36,6 +36,7 @@ class Hardware
 {
     friend class Singleton< Hardware >;
 
+    static const char *smtp_gmail_server;
     static const uint32_t heartbeat_delay_1000_ms;
 public:
 private:

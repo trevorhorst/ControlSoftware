@@ -8,7 +8,6 @@
 #include "common/drivers/led.h"
 #include "common/hardware/hardware_base.h"
 #include "common/singleton.h"
-#include "common/smtp/client/client.h"
 #include "common/system/system.h"
 #include "common/timer.h"
 
@@ -31,6 +30,7 @@
 #include "smtp/command.h"
 
 #include "http/client.h"
+// #include "http/server/server.h"
 
 #include "hardware/resources/resources.h"
 
@@ -65,6 +65,7 @@ private:
     Timer mHeartbeatTimer;
     Smtp::Client mSmtpClient;
     NewHttp::Client mHttpClient;
+    // NewHttp::Server mNewHttpServer;
 
     CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;

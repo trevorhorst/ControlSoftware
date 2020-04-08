@@ -6,6 +6,7 @@
 #include "common/common_types.h"
 
 #include "http/http.h"
+#include "http/server/response.h"
 
 namespace NewHttp
 {
@@ -36,8 +37,10 @@ public:
 
     FILE* mFp;
     MHD_PostProcessor *mPostProcessor;
+
 private:
     MHD_Connection *mConnection;
+    Response *mResponse;
     HeaderMap mHeaders;
     const char *mMethod;
     const char *mPath;

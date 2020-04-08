@@ -32,7 +32,7 @@ Hardware::Hardware()
 {
     // Configure the SMTP client
     mSmtpClient.setServer( smtp_gmail_server );
-    mSmtpClient.setReadFunction( &Smtp::Client::newReadFunction );
+    mSmtpClient.setReadFunction( &Smtp::Client::readFunction );
     mSmtpClient.setSubject( "MLB Transactions" );
     mSmtpClient.applySettings();
 
@@ -117,5 +117,5 @@ uint32_t Hardware::queryApi()
         }
     }
     cJSON_Delete( parsed );
-
+    return 0;
 }

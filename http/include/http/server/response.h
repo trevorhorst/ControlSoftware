@@ -11,6 +11,7 @@
 #include <microhttpd.h>
 #include <unordered_map>
 #include <string>
+#include <regex>
 
 #include "http/http.h"
 
@@ -24,6 +25,10 @@ class Response
     void send();
 
     NewHttp::Status getStatus() const;
+
+    void setStatus( Status status );
+    void setHeader( const std::string &name, const std::string &value );
+    void setHeaders( const std::unordered_map< std::string, std::string > &headers );
 
 private:
     MHD_Connection* mMhdConnection;
