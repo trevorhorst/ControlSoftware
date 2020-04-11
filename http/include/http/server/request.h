@@ -14,7 +14,8 @@ namespace NewHttp
 class Request
 {
 public:
-    using HeaderMap = Types::CharHashMap< const char* >;
+    // using HeaderMap = Types::CharHashMap< const char* >;
+    using HeaderMap = std::unordered_map< std::string, std::string >;
 
     explicit Request( MHD_Connection *connection );
     ~Request();
@@ -26,14 +27,20 @@ public:
                       , const char *responseType
                       , int statusCode );
 
-    void setMethod( const char *method );
-    void setPath( const char *path );
+    uint64_t parseBody( const char *data, uint64_t length );
 
     const char *getMethod();
     const char *getPath();
-
-    Body *getBody();
     HeaderMap *getHeaders();
+    Body *getBody();
+
+    void setMethod( const char *method );
+    void setPath( const char *path );
+    void setHttpVersion( HttpVersion version );
+    void setQuery( const std::unordered_map< std::string, std::string > query );
+    void setHeader( const std::string name, const std::string value );
+    void setHeaders( const HeaderMap &headers );
+    void setResponse( Response *response );
 
     FILE* mFp;
     MHD_PostProcessor *mPostProcessor;
@@ -42,8 +49,10 @@ private:
     MHD_Connection *mConnection;
     Response *mResponse;
     HeaderMap mHeaders;
+    std::unordered_map< std::string, std::string > mQuery;
     const char *mMethod;
     const char *mPath;
+    HttpVersion mVersion;
     Body mBody;
     char* mData;
     uint32_t mDataSize;

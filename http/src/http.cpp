@@ -8,6 +8,34 @@ const char *localhost     = "localhost";
 
 const uint16_t default_port     = 8080;
 
+const char *method_strings[] = {
+    "GET"
+    , "POST"
+    , "PUT"
+    , "PATCH"
+    , "DELETE"
+    , nullptr
+};
+
+Method stringToMethod( const char *method )
+{
+    Method methodId = Method::UNKNOWNMETHOD;
+    for( int i = 0; method_strings[i] != nullptr; i++ ) {
+        if( strcmp( method_strings[ i ], method ) == 0 ) {
+            methodId = static_cast< Method >( i );
+        }
+    }
+    return methodId;
+}
+
+const char *methodToString( Method method )
+{
+    int m = method;
+    if( m >= 0 && m < 6 ) {
+        return method_strings[ m ];
+    }
+    return nullptr;
+}
 
 /**
  * @brief Body Constructor

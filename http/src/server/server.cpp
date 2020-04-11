@@ -2,7 +2,7 @@
 
 namespace NewHttp {
 
-static uint32_t answerToConnection(
+static int32_t answerToConnection(
         void *cls
         , MHD_Connection *connection
         , const char *url, const char *method
@@ -16,15 +16,52 @@ static uint32_t answerToConnection(
     Request *request = static_cast< Request* >( *conCls );
 
     if( request == nullptr ) {
-
+        server->onRequest( connection, method, url, version, conCls );
     } else if( *uploadDataSize > 0 ) {
-
+        server->onRequestBody( request, uploadData, uploadDataSize );
     } else {
-
+        error = server->onRequestDone( request );
     }
 
     return error;
 }
+
+/**
+ * @brief Handles clean up of the request after a response has been sent
+ * @param cls
+ * @param connection
+ * @param request
+ * @param rtc
+ */
+static void onResponseSent(
+        void *cls
+        , MHD_Connection *connection
+        , void **request
+        , MHD_RequestTerminationCode *rtc)
+{
+    // printf( "Finished Request\n" );
+    // Unused
+    (void)cls;
+    (void)connection;
+    (void)rtc;
+
+    Request *r = static_cast< Request* >( *request );
+
+    if( r->mPostProcessor != nullptr ) {
+        MHD_destroy_post_processor( r->mPostProcessor );
+    }
+
+    if( r->mFp ) {
+        fclose( r->mFp );
+    }
+
+    // Delete the data contained within the request
+    // delete[] r->mData;
+
+    // Delete the request
+    delete r;
+}
+
 const uint32_t Server::body_buffer_size = 512;
 
 /**
@@ -44,10 +81,11 @@ int Server::iterateHeaderValues(
     // Unused
     (void)kind;
 
-    // Cast the existing headers map
-    Request *request = static_cast< Request* >( cls );
+    std::unordered_map< std::string, std::string > *hash =
+            static_cast< std::unordered_map< std::string, std::string >* >( cls );
+
     // Insert the new header
-    request->appendHeader( key, value );
+    (*hash)[ key ] = value;
 
     return MHD_YES;
 }
@@ -154,8 +192,8 @@ bool Server::listen(uint32_t port)
                 , port
                 , nullptr
                 , nullptr
-                , nullptr, nullptr
-                , MHD_OPTION_NOTIFY_COMPLETED, nullptr, nullptr
+                , &answerToConnection, this
+                , MHD_OPTION_NOTIFY_COMPLETED, &onResponseSent, this
                 , MHD_OPTION_END
                 );
 
@@ -177,11 +215,13 @@ uint32_t Server::onRequest(
         , const char *httpVersion
         , void **requestPtr)
 {
+    LOG_INFO( "New request received" );
     Request *request = new Request( mhdConnection );
+    std::unordered_map< std::string, std::string > query;
+    std::unordered_map< std::string, std::string > headers;
 
-    /// @todo I think this line is broken, look into it later
-    // MHD_get_connection_values( mhdConnection, MHD_GET_ARGUMENT_KIND, &iterateHeaderValues, request );
-    MHD_get_connection_values( mhdConnection, MHD_HEADER_KIND, &iterateHeaderValues, request );
+    MHD_get_connection_values( mhdConnection, MHD_GET_ARGUMENT_KIND, &iterateHeaderValues, &query );
+    MHD_get_connection_values( mhdConnection, MHD_HEADER_KIND, &iterateHeaderValues, &headers );
 
     request->mPostProcessor = MHD_create_post_processor(
                 mhdConnection
@@ -192,6 +232,10 @@ uint32_t Server::onRequest(
     // Fill out the rest of the request
     request->setMethod( method );
     request->setPath( path );
+    request->setQuery( query );
+    // request->setHttpVersion();
+    request->setHeaders( headers );
+    request->setResponse( new Response( mhdConnection ) );
 
     *requestPtr = request;
 
@@ -214,6 +258,8 @@ uint32_t Server::onRequestDone( Request *request )
 void Server::process( Request *request )
 {
     (void)request;
+    // const char data[6] = "hello";
+    // request->sendResponse( data, 6 );
 }
 
 bool Server::isListening()

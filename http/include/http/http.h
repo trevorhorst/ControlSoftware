@@ -1,5 +1,5 @@
-#ifndef HTTP_H
-#define HTTP_H
+#ifndef NEWHTTP_H
+#define NEWHTTP_H
 
 #include <iostream>
 #include <fstream>
@@ -15,12 +15,19 @@
 namespace NewHttp
 {
 
-enum Method {
+enum Method : int32_t {
     GET         = 0
     , POST      = 1
     , PUT       = 2
     , PATCH     = 3
     , DELETE    = 4
+    , UNKNOWNMETHOD = -1
+};
+
+enum HttpVersion {
+    UNKNOWNVERSION  = -1
+    , HTTP_1_0      = 0x0100
+    , HTTP_1_1      = 0x0101
 };
 
 enum Status {
@@ -70,6 +77,11 @@ enum Status {
 extern const char *localhost;
 
 extern const uint16_t default_port;
+
+extern const char *method_strings[];
+
+Method stringToMethod( const char *method );
+const char *methodToString( Method method );
 
 class Body {
 public:

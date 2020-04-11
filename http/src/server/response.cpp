@@ -42,6 +42,11 @@ Response::Response( MHD_Connection *mhdConnection )
 
 }
 
+bool Response::isSent()
+{
+    return mSent;
+}
+
 /**
  * @brief Retrieves response status
  * @return Response status
@@ -66,6 +71,14 @@ void Response::setHeaders( const std::unordered_map<std::string, std::string> &h
     mHeaders.clear();
     for( auto it = headers.begin(); it != headers.end(); it++ ) {
         setHeader( (*it).first, (*it).second );
+    }
+}
+
+void Response::send( const char *data, size_t size )
+{
+    if( !isSent() ) {
+        mBody.append( data, size );
+        send();
     }
 }
 
@@ -97,10 +110,7 @@ void Response::send()
         MHD_destroy_response(response);
 
         mSent = true;
-
-        // emit sent();
     }
-
 }
 
 }

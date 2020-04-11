@@ -15,16 +15,19 @@
 
 #include "http/http.h"
 
-
 namespace NewHttp {
 
 class Response
 {
+public:
     Response( MHD_Connection *mhdConnection );
 
+    void send( const char *data, size_t size );
     void send();
 
-    NewHttp::Status getStatus() const;
+    bool isSent();
+
+    Status getStatus() const;
 
     void setStatus( Status status );
     void setHeader( const std::string &name, const std::string &value );
@@ -32,7 +35,7 @@ class Response
 
 private:
     MHD_Connection* mMhdConnection;
-    NewHttp::Status mStatus;
+    Status mStatus;
     std::unordered_map< std::string, std::string > mHeaders;
     // QStringHash headers;
     // QByteArray body;

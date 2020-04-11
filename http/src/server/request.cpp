@@ -6,16 +6,31 @@ namespace NewHttp
 const uint32_t Request::header_key_size_max   = 128;
 const uint32_t Request::header_value_size_max = 1024;
 
+int32_t bodyIterator( void* dRequestPtr,
+                      MHD_ValueKind valueKind,
+                      const char* key,
+                      const char* filename,
+                      const char* contentType,
+                      const char* transfer_encoding,
+                      const char* data,
+                      uint64_t dataOffset,
+                      size_t dataSize)
+{
+    Request *request = static_cast< Request* >( dRequestPtr );
+}
+
+
 /**
  * @brief Constructor
  * @param connection Connections associated with the request
  */
 Request::Request( MHD_Connection *connection )
-  : mConnection( connection )
+  : mFp( nullptr )
   , mPostProcessor( nullptr )
-  , mFp( nullptr )
+  , mConnection( connection )
   , mMethod( nullptr )
   , mPath( nullptr )
+  , mVersion( HttpVersion::UNKNOWNVERSION )
   , mData( nullptr )
   , mDataSize( 0 )
 {
@@ -79,6 +94,13 @@ int Request::sendResponse( const char *responseData, const char *responseType
     return ret;
 }
 
+uint64_t Request::parseBody( const char *data, uint64_t length )
+{
+    if( mPostProcessor == nullptr ) {
+        // mPostProcessor = MHD_create_post_processor( mConnection, 65536)
+    }
+}
+
 /**
  * @brief Sets the method type of the request
  * @param method Desired method type
@@ -95,6 +117,34 @@ void Request::setMethod( const char *method )
 void Request::setPath( const char *path )
 {
     mPath = path;
+}
+
+void Request::setHttpVersion( HttpVersion version )
+{
+    mVersion = version;
+}
+
+void Request::setQuery(const std::unordered_map<std::string, std::string> query)
+{
+    mQuery = query;
+}
+
+void Request::setHeader( const std::string name, const std::string value )
+{
+    mHeaders[ name ] = value;
+}
+
+void Request::setHeaders( const HeaderMap &headers )
+{
+    mHeaders.clear();
+    for( auto it = headers.begin(); it != headers.end(); it++ ) {
+        setHeader( it->first, it->second );
+    }
+}
+
+void Request::setResponse( Response *response )
+{
+    mResponse = response;
 }
 
 /**
@@ -128,7 +178,7 @@ Body *Request::getBody()
  * @brief Retrieves the headers of the request
  * @return Pointer to the header map of the request
  */
-Request::HeaderMap *Request::getHeaders()
+std::unordered_map< std::string, std::string > *Request::getHeaders()
 {
     return &mHeaders;
 }
