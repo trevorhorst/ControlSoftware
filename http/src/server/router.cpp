@@ -2,6 +2,36 @@
 
 namespace NewHttp {
 
+static std::vector< NewHttp::Method > stringToHttpVerbs(const std::string &method)
+{
+    std::string str( method );
+    std::string token;
+    std::vector< Method > tokenized;
+    size_t last = 0;
+    size_t next = 0;
+
+    // Split the input into segments by the delimeter
+    while( ( next = str.find( ",", last ) ) != std::string::npos ) {
+        if( next - last != 0 ) {
+            // There is data in the string
+            token = str.substr( last, next - last );
+            tokenized.push_back( stringToMethod( token.c_str() ) );
+        } else {
+            // If the next and last values are the same, the string is empty
+            // and we can ignore it
+        }
+        last = next + 1;
+    }
+
+
+    if( !str.substr( last ).empty() ) {
+        // Need to place the the final substring in the list, unless it's empty
+        tokenized.push_back( stringToMethod( str.substr( last ).c_str() ) );
+    }
+
+    return tokenized;
+}
+
 /**
  * @brief Route constructor
  */
@@ -27,6 +57,18 @@ const std::vector< NewHttp::Method > &Route::getVerbs() const
 uint32_t Route::setVerbs( const std::vector<NewHttp::Method> &verbs )
 {
     mVerbs = verbs;
+    return 0;
+}
+
+/**
+ * @brief Set the local HTTP verbs
+ * @param verbs Desired verbs to set
+ * @return
+ */
+uint32_t Route::setVerbs( NewHttp::Method verb )
+{
+    mVerbs.clear();
+    mVerbs.push_back( verb );
     return 0;
 }
 
@@ -90,7 +132,7 @@ bool Route::match(
         , Method verb
         , std::unordered_map<std::string, std::string> *paramsPtr
         , bool *pathOkPtr
-        , bool *methodOkPtr )
+        , bool *methodOkPtr ) const
 {
     std::unordered_map< std::string, std::string > params;
     bool pathOk = false;
@@ -123,6 +165,7 @@ void Router::addRoute(
         , const std::string action )
 {
     Route route;
+    route.setVerbs( stringToHttpVerbs( method ) );
     route.setPath( path );
     // route.setAction( action );
 
@@ -139,6 +182,8 @@ void Router::processRequest( Request *request )
         std::unordered_map< std::string, std::string > params;
         bool pathOk;
         bool methodOk;
+
+        route.match(request->getPath(), request->getMethod(), &params, &pathOk, &methodOk);
     }
 }
 

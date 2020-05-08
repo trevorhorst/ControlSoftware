@@ -164,9 +164,9 @@ void Request::setResponse( Response *response )
  * @brief Retrieves the method type of the request
  * @return Character array representation of the method type
  */
-const char *Request::getMethod()
+Method Request::getMethod()
 {
-    return mMethod;
+    return stringToMethod(mMethod);
 }
 
 /**

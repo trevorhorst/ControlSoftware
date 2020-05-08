@@ -29,7 +29,7 @@ public:
 
     uint64_t parseBody( const char *data, uint64_t length );
 
-    const char *getMethod();
+    Method getMethod();
     const char *getPath();
     HeaderMap *getHeaders();
     Body *getBody();

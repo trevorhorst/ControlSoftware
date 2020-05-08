@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <functional>
 
 #include "http/http.h"
 #include "http/server/request.h"
@@ -17,6 +18,7 @@ public:
     Route();
     const std::vector< NewHttp::Method > &getVerbs() const;
     uint32_t setVerbs( const std::vector< NewHttp::Method > &verbs );
+    uint32_t setVerbs( NewHttp::Method verb );
     uint32_t setAction( const std::string &action );
     uint32_t setPath( const std::string &path );
 
@@ -24,7 +26,7 @@ public:
                 , Method verb
                 , std::unordered_map< std::string, std::string > *paramsPtr
                 , bool *pathOkPtr
-                , bool *methodOkPtr );
+                , bool *methodOkPtr ) const;
 
 private:
     std::vector< NewHttp::Method > mVerbs;
@@ -36,6 +38,7 @@ private:
 
 class Router
 {
+    using ParameterCallback = std::function< uint32_t (Request*) >;
 
 public:
 
