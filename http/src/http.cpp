@@ -37,6 +37,17 @@ const char *methodToString( Method method )
     return nullptr;
 }
 
+HttpVersion stringToHttpVersion( const char *version )
+{
+    HttpVersion httpVersion = HttpVersion::UNKNOWNVERSION;
+    if( strcmp( "HTTP/1.0", version ) == 0 ) {
+        httpVersion = HttpVersion::HTTP_1_0;
+    } else if( strcmp( "HTTP/1.1", version ) ) {
+        httpVersion = HttpVersion::HTTP_1_1;
+    }
+    return httpVersion;
+}
+
 /**
  * @brief Body Constructor
  */

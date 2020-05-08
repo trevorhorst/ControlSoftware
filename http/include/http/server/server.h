@@ -51,6 +51,6 @@ private:
     MHD_Daemon *mServerDaemon;
 };
 
-};
+}
 
 #endif // HTTP_SERVER_H

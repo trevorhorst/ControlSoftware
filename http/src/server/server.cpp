@@ -233,7 +233,7 @@ uint32_t Server::onRequest(
     request->setMethod( method );
     request->setPath( path );
     request->setQuery( query );
-    // request->setHttpVersion();
+    request->setHttpVersion( stringToHttpVersion( httpVersion ) );
     request->setHeaders( headers );
     request->setResponse( new Response( mhdConnection ) );
 

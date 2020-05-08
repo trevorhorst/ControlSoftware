@@ -83,6 +83,8 @@ extern const char *method_strings[];
 Method stringToMethod( const char *method );
 const char *methodToString( Method method );
 
+HttpVersion stringToHttpVersion( const char *version );
+
 class Body {
 public:
     Body();
