@@ -16,7 +16,17 @@ int32_t bodyIterator( void* dRequestPtr,
                       uint64_t dataOffset,
                       size_t dataSize)
 {
+    (void)valueKind;
+    (void)key;
+    (void)filename;
+    (void)contentType;
+    (void)transfer_encoding;
+    (void)data;
+    (void)dataOffset;
+    (void)dataSize;
     Request *request = static_cast< Request* >( dRequestPtr );
+    (void)request;
+    return 0;
 }
 
 
@@ -96,9 +106,12 @@ int Request::sendResponse( const char *responseData, const char *responseType
 
 uint64_t Request::parseBody( const char *data, uint64_t length )
 {
+    (void)data;
+    (void)length;
     if( mPostProcessor == nullptr ) {
         // mPostProcessor = MHD_create_post_processor( mConnection, 65536)
     }
+    return 0;
 }
 
 /**
