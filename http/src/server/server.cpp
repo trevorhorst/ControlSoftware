@@ -15,11 +15,16 @@ static int32_t answerToConnection(
     Server *server = static_cast< Server* >( cls );
     Request *request = static_cast< Request* >( *conCls );
 
+    LOG_INFO( "Updload data size: %d\n", *uploadDataSize );
+
     if( request == nullptr ) {
+        // Handles a new request
         server->onRequest( connection, method, url, version, conCls );
     } else if( *uploadDataSize > 0 ) {
+        // Handles an existing connection
         server->onRequestBody( request, uploadData, uploadDataSize );
     } else {
+        // Handles a finished request
         error = server->onRequestDone( request );
     }
 
@@ -229,6 +234,10 @@ uint32_t Server::onRequest(
                 , iteratePost
                 , static_cast< void* >( request ) );
 
+    if( request->mPostProcessor == nullptr ) {
+        LOG_INFO( "PostProcessor is NULL\n" );
+    }
+
     // Fill out the rest of the request
     request->setMethod( method );
     request->setPath( path );
@@ -244,6 +253,7 @@ uint32_t Server::onRequest(
 
 uint32_t Server::onRequestBody( Request* request, const char* body, size_t* length )
 {
+    LOG_INFO( "Request body\n" );
     request->appendData( body, *length );
     *length = 0;
     return  MHD_YES;
@@ -251,6 +261,7 @@ uint32_t Server::onRequestBody( Request* request, const char* body, size_t* leng
 
 uint32_t Server::onRequestDone( Request *request )
 {
+    LOG_INFO( "Request done\n" );
     process( request );
     return MHD_YES;
 }
@@ -258,8 +269,17 @@ uint32_t Server::onRequestDone( Request *request )
 void Server::process( Request *request )
 {
     (void)request;
+    if( mRouter != nullptr ) {
+        LOG_INFO("Process request\n");
+        mRouter->processRequest( request );
+    }
     // const char data[6] = "hello";
     // request->sendResponse( data, 6 );
+}
+
+void Server::addRouter(Router *router)
+{
+    mRouter = router;
 }
 
 bool Server::isListening()

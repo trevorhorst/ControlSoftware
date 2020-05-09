@@ -30,6 +30,8 @@
 #include "smtp/command.h"
 
 #include "http/client.h"
+#include "http/server/router.h"
+#include "http/server/server.h"
 
 #include "hardware/resources/resources.h"
 
@@ -64,6 +66,9 @@ private:
     Timer mHeartbeatTimer;
     Smtp::Client mSmtpClient;
     NewHttp::Client mHttpClient;
+
+    NewHttp::Router mNewRouter;
+    NewHttp::Server mNewServer;
 
     CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;

@@ -9,6 +9,8 @@
 #include "http/http.h"
 #include "http/server/request.h"
 
+#define ROUTE_STRINGIZE( ARG ) #ARG
+
 namespace NewHttp
 {
 

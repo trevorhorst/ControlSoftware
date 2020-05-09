@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <string>
 
+#include "common/logger/log.h"
+
 #define HTTP_URL_TEMPLATE   "http://%s:%d"
 #define HTTP_LOCALHOST      "localhost"
 

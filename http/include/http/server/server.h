@@ -6,6 +6,7 @@
 #include "common/control/control_template.h"
 
 #include "http/server/request.h"
+#include "http/server/router.h"
 
 namespace NewHttp {
 
@@ -44,11 +45,13 @@ public:
     uint32_t onRequestDone( Request* request);
 
     void process( Request *request );
+    void addRouter( Router *router );
 
     bool isListening();
 
 private:
     MHD_Daemon *mServerDaemon;
+    Router *mRouter;
 };
 
 }

@@ -134,6 +134,7 @@ bool Route::match(
         , bool *pathOkPtr
         , bool *methodOkPtr ) const
 {
+    LOG_INFO( "Here\n" );
     std::unordered_map< std::string, std::string > params;
     bool pathOk = false;
     bool methodOk = false;
@@ -167,13 +168,14 @@ void Router::addRoute(
     Route route;
     route.setVerbs( stringToHttpVerbs( method ) );
     route.setPath( path );
-    // route.setAction( action );
+    route.setAction( action );
 
     mRoutes.push_back( route );
 }
 
 void Router::processRequest( Request *request )
 {
+    LOG_INFO( "Here\n" );
     bool found      = false;
     bool processed  = false;
 

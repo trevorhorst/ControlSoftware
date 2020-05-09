@@ -49,6 +49,10 @@ Hardware::Hardware()
     mServer.setCommandHandler( getCommandHandler() );
     mServer.listen();
 
+    mNewRouter.addRoute( "GET", "/hello", ROUTE_STRINGIZE( heartbeat() ) );
+    mNewServer.addRouter( &mNewRouter );
+    mNewServer.listen( 19091 );
+
     queryApi();
 
     mHeartbeatTimer.start();
