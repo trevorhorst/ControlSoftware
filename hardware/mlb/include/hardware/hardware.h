@@ -15,7 +15,6 @@
 #include "common/command/command_datetime.h"
 #include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
-#include "common/command/command_server.h"
 #include "common/command/command_system.h"
 #include "common/command/command_heartbeat.h"
 #include "common/command/command_venus638flpx.h"
@@ -33,6 +32,7 @@
 
 #include "http/client.h"
 #include "http/server/server.h"
+#include "http/command.h"
 
 #include "hardware/resources/resources.h"
 

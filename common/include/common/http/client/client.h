@@ -19,6 +19,7 @@ public:
         const char* read();
         void write( const char *data, size_t size );
         void clear();
+
     private:
         char *mDataString;
         size_t mSize;
