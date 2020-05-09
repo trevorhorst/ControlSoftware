@@ -31,9 +31,9 @@ Hardware::Hardware()
                        , std::bind( &Hardware::heartbeat, this ) )
 {
     // Configure the SMTP client
-    mSmtpClient.addTo( "trevorhorst1212@gmail.com" );
-    mSmtpClient.setUsername( "trevorhorst1212@gmail.com" );
-    mSmtpClient.setPassword( "5360LkBTer3!!A" );
+    // mSmtpClient.setUsername( "Put username here" );
+    // mSmtpClient.setPassword( "Put password here" );
+    // mSmtpClient.addTo( "Add recipient here" );
     mSmtpClient.setServer( smtp_gmail_server );
     mSmtpClient.setReadFunction( &Smtp::Client::readFunction );
     mSmtpClient.setSubject( "MLB Transactions" );
