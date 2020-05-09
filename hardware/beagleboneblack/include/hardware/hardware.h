@@ -14,7 +14,6 @@
 #include "common/command/command_datetime.h"
 #include "common/command/command_gpio.h"
 #include "common/command/command_led.h"
-#include "common/command/command_server.h"
 #include "common/command/command_system.h"
 #include "common/command/command_heartbeat.h"
 #include "common/command/command_venus638flpx.h"
@@ -24,6 +23,8 @@
 #include "common/drivers/am335x/gpio.h"
 #include "common/drivers/devices/gps/venus638flpx.h"
 #include "common/drivers/serial.h"
+
+#include "http/command.h"
 
 #include "hardware/resources/resources.h"
 
@@ -52,7 +53,7 @@ private:
     AM335X::Gpio mGpio[ NUM_GPIO_HEADERS ];
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
-    Http::Server mServer;
+    NewHttp::Server mServer;
     System mSystem;
     Timer mHeartbeatTimer;
 
