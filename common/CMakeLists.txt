@@ -16,7 +16,6 @@ set(
     src/command/command_help.cpp
     src/command/command_led.cpp
     # src/command/command_server.cpp
-    src/command/command_smtp.cpp
     src/command/command_system.cpp
     src/command/command_heartbeat.cpp
     src/command/command_venus638flpx.cpp
@@ -55,9 +54,6 @@ set(
     # Resources
     src/resources/resources.cpp
 
-    # SMTP
-    src/smtp/client/client.cpp
-
     # System
     src/system/datetime.cpp
     src/system/system.cpp
@@ -85,7 +81,6 @@ set( HEADERS
     include/common/command/command_help.h
     include/common/command/command_led.h
     # include/common/command/command_server.h
-    include/common/command/command_smtp.h
     include/common/command/command_system.h
     include/common/command/command_template.h
     include/common/command/command_heartbeat.h
@@ -125,9 +120,6 @@ set( HEADERS
 
     # Resources
     include/common/resources/resources.h
-
-    # SMTP
-    include/common/smtp/client/client.h
 
     # System
     include/common/system/datetime.h

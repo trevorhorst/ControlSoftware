@@ -20,7 +20,7 @@ Hardware::Hardware()
     // mSmtpClient.setPassword( "Put password here" );
     // mSmtpClient.addTo( "Add recipient here" );
     mSmtpClient.setServer( smtp_gmail_server );
-    mSmtpClient.setReadFunction( &Smtp::Client::newReadFunction );
+    mSmtpClient.setReadFunction( &Smtp::Client::readFunction );
     mSmtpClient.setSubject( "ControlSoftware Example" );
     mSmtpClient.addTo( "trevorhorst1212@gmail.com" );
     mSmtpClient.applySettings();

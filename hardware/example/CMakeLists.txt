@@ -6,6 +6,7 @@ project(
 
 enable_language( C ASM )
 
+option( USE_SMTP "Use optional SMTP library" ON )
 option( USE_HTTP "Use optional HTTP library" ON )
 
 # List of source files
@@ -33,6 +34,7 @@ target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
         common
+        smtp
         http
         )
 
