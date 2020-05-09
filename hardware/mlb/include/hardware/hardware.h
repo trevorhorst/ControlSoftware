@@ -29,8 +29,9 @@
 #include "smtp/client.h"
 #include "smtp/command.h"
 
+#include "common/http/client/client.h"
+
 #include "http/client.h"
-#include "http/server/router.h"
 #include "http/server/server.h"
 
 #include "hardware/resources/resources.h"
@@ -61,14 +62,11 @@ private:
     const char *mBundleJs;
 
     DateTime mDateTime;
-    Http::Server mServer;
+    NewHttp::Server mServer;
     System mSystem;
     Timer mHeartbeatTimer;
     Smtp::Client mSmtpClient;
     NewHttp::Client mHttpClient;
-
-    NewHttp::Router mNewRouter;
-    NewHttp::Server mNewServer;
 
     CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;

@@ -224,7 +224,7 @@ void Client::send( const char *str )
     headers = curl_slist_append( headers, "charset=utf-8" );
 
     // Set the options for cURL
-    curl_easy_setopt( mCurl,           CURLOPT_URL, mUrl );
+    curl_easy_setopt( mCurl,           CURLOPT_URL, "localhost:8080" );
     curl_easy_setopt( mCurl,    CURLOPT_HTTPHEADER, headers );
     curl_easy_setopt( mCurl,  CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
     curl_easy_setopt( mCurl,    CURLOPT_POSTFIELDS, str );

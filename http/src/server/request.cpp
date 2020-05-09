@@ -6,41 +6,16 @@ namespace NewHttp
 const uint32_t Request::header_key_size_max   = 128;
 const uint32_t Request::header_value_size_max = 1024;
 
-int32_t bodyIterator( void* dRequestPtr,
-                      MHD_ValueKind valueKind,
-                      const char* key,
-                      const char* filename,
-                      const char* contentType,
-                      const char* transfer_encoding,
-                      const char* data,
-                      uint64_t dataOffset,
-                      size_t dataSize)
-{
-    (void)valueKind;
-    (void)key;
-    (void)filename;
-    (void)contentType;
-    (void)transfer_encoding;
-    (void)data;
-    (void)dataOffset;
-    (void)dataSize;
-    Request *request = static_cast< Request* >( dRequestPtr );
-    (void)request;
-    return 0;
-}
-
-
 /**
  * @brief Constructor
  * @param connection Connections associated with the request
  */
 Request::Request( MHD_Connection *connection )
-  : mFp( nullptr )
+  : mConnection( connection )
   , mPostProcessor( nullptr )
-  , mConnection( connection )
+  , mFp( nullptr )
   , mMethod( nullptr )
   , mPath( nullptr )
-  , mVersion( HttpVersion::UNKNOWNVERSION )
   , mData( nullptr )
   , mDataSize( 0 )
 {
@@ -58,7 +33,7 @@ Request::~Request()
  * @param key Header key
  * @param value Header value
  */
-void Request::appendHeader( const char *key, const char *value )
+void Request::addHeader( const char *key, const char *value )
 {
     mHeaders[ key ] = value;
 }
@@ -104,16 +79,6 @@ int Request::sendResponse( const char *responseData, const char *responseType
     return ret;
 }
 
-uint64_t Request::parseBody( const char *data, uint64_t length )
-{
-    (void)data;
-    (void)length;
-    if( mPostProcessor == nullptr ) {
-        // mPostProcessor = MHD_create_post_processor( mConnection, 65536)
-    }
-    return 0;
-}
-
 /**
  * @brief Sets the method type of the request
  * @param method Desired method type
@@ -132,41 +97,13 @@ void Request::setPath( const char *path )
     mPath = path;
 }
 
-void Request::setHttpVersion( HttpVersion version )
-{
-    mVersion = version;
-}
-
-void Request::setQuery(const std::unordered_map<std::string, std::string> query)
-{
-    mQuery = query;
-}
-
-void Request::setHeader( const std::string name, const std::string value )
-{
-    mHeaders[ name ] = value;
-}
-
-void Request::setHeaders( const HeaderMap &headers )
-{
-    mHeaders.clear();
-    for( auto it = headers.begin(); it != headers.end(); it++ ) {
-        setHeader( it->first, it->second );
-    }
-}
-
-void Request::setResponse( Response *response )
-{
-    mResponse = response;
-}
-
 /**
  * @brief Retrieves the method type of the request
  * @return Character array representation of the method type
  */
-Method Request::getMethod()
+const char *Request::getMethod()
 {
-    return stringToMethod(mMethod);
+    return mMethod;
 }
 
 /**
@@ -191,7 +128,7 @@ Body *Request::getBody()
  * @brief Retrieves the headers of the request
  * @return Pointer to the header map of the request
  */
-std::unordered_map< std::string, std::string > *Request::getHeaders()
+Request::HeaderMap *Request::getHeaders()
 {
     return &mHeaders;
 }

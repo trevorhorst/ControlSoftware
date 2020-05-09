@@ -15,7 +15,7 @@ set(
     src/command/command_handler.cpp
     src/command/command_help.cpp
     src/command/command_led.cpp
-    src/command/command_server.cpp
+    # src/command/command_server.cpp
     src/command/command_smtp.cpp
     src/command/command_system.cpp
     src/command/command_heartbeat.cpp
@@ -43,11 +43,11 @@ set(
     src/hardware/hardware_base.cpp
 
     # HTTP
-    src/http/http.cpp
+    # src/http/http.cpp
     # src/http/client.cpp
     src/http/client/client.cpp
-    src/http/server/request.cpp
-    src/http/server/server.cpp
+    # src/http/server/request.cpp
+    # src/http/server/server.cpp
 
     # Logger
     src/logger/log.cpp
@@ -84,7 +84,7 @@ set( HEADERS
     include/common/command/command_handler.h
     include/common/command/command_help.h
     include/common/command/command_led.h
-    include/common/command/command_server.h
+    # include/common/command/command_server.h
     include/common/command/command_smtp.h
     include/common/command/command_system.h
     include/common/command/command_template.h
@@ -111,11 +111,11 @@ set( HEADERS
     include/common/hardware/hardware_base.h
 
     # HTTP
-    include/common/http/http.h
+    # include/common/http/http.h
     # include/common/http/client.h
     include/common/http/client/client.h
-    include/common/http/server/request.h
-    include/common/http/server/server.h
+    # include/common/http/server/request.h
+    # include/common/http/server/server.h
 
     # Logger
     include/common/logger/log.h
