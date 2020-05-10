@@ -17,7 +17,7 @@
 const char *Console::history_file = "control.history";
 const char *Console::history_file_location = "/tmp";
 
-Http::Client Console::client;
+NewHttp::Client Console::client;
 
 /**
  * @brief Constructor

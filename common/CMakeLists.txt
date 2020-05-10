@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(common)
 
+option( USE_HTTP "Use optional HTTP library" ON )
+
 set(
     SOURCE ${SOURCE}
 
@@ -150,7 +152,8 @@ target_link_libraries(
     PRIVATE
         readline
         microhttpd
-        curl)
+        curl
+        http)
 
 # Specifies include directories to use when compiling a given target
 target_include_directories(

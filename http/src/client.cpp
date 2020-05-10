@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "common/cjson/cJSON.h"
-
 #include "http/client.h"
 
 namespace NewHttp {
@@ -10,8 +9,8 @@ namespace NewHttp {
 /**
  * @brief Constructor
  */
-Client::Data::Data()
-    : mData( nullptr )
+Client::DataString::DataString()
+    : mDataString( nullptr )
     , mSize( 0 )
 {
 }
@@ -19,7 +18,7 @@ Client::Data::Data()
 /**
  * @brief Destructor
  */
-Client::Data::~Data()
+Client::DataString::~DataString()
 {
     clear();
 }
@@ -28,31 +27,31 @@ Client::Data::~Data()
  * @brief Read what has been written to the data block
  * @return Pointer to the data block
  */
-const char *Client::Data::read()
+const char *Client::DataString::read()
 {
-    return mData;
+    return mDataString;
 }
 
 /**
  * @brief Writes to our data block
- * @param data Data to write
+ * @param data DataString to write
  * @param size Size of the data to write
  */
-void Client::Data::write( const char *data, size_t size )
+void Client::DataString::write( const char *data, size_t size )
 {
     // Increase the size of our data
     mSize += size;
     // Save off a pointer to the old data
-    char *t = mData;
+    char *t = mDataString;
     // Create a new block of memory
-    mData = new char[ mSize + 1 ];
+    mDataString = new char[ mSize + 1 ];
     // Copy the old data to the new block
-    memcpy( static_cast< void* >( mData ), t, mSize - size );
+    memcpy( static_cast< void* >( mDataString ), t, mSize - size );
     // Copy the new data to the end of the new block
-    char *n = &mData[ mSize - size ];
+    char *n = &mDataString[ mSize - size ];
     memcpy( static_cast< void* >( n ), data, size );
     // Append the null character
-    mData[ mSize ] = '\0';
+    mDataString[ mSize ] = '\0';
 
     if( t ) {
         // Delete the pointer to the old data block
@@ -63,12 +62,12 @@ void Client::Data::write( const char *data, size_t size )
 /**
  * @brief Clears the data
  */
-void Client::Data::clear()
+void Client::DataString::clear()
 {
-    if( mData ) {
+    if( mDataString ) {
         mSize = 0;
-        delete[] mData;
-        mData = nullptr;
+        delete[] mDataString;
+        mDataString = nullptr;
     }
 }
 
@@ -79,23 +78,25 @@ void Client::Data::clear()
  */
 Client::Client( const char *address , uint16_t port )
     : mCurl( nullptr )
-    , mHeaders( nullptr )
     , mPort( port )
     , mResponse( nullptr )
     , mResponseSize( 0 )
 {
+    curl_global_init( CURL_GLOBAL_ALL );
     mCurl = curl_easy_init();
-
-    // Default cURL settings
-    applyUrl( "https://postman-echo.com/get?foo1=bar1&foo2=bar2" );
-    // curl_easy_setopt(mCurl, CURLOPT_USERPWD, "user:pass");
-    curl_easy_setopt( mCurl, CURLOPT_NOPROGRESS, 1L );
-    curl_easy_setopt( mCurl, CURLOPT_USERAGENT, "curl/7.42.0" );
-    curl_easy_setopt( mCurl, CURLOPT_MAXREDIRS, 50L );
-    curl_easy_setopt( mCurl, CURLOPT_TCP_KEEPALIVE, 1L );
-
-    applyWriteFunction( &writeFunction );
-
+    if( address == nullptr || address[ 0 ] == '\0' ) {
+        snprintf( mUrl
+                  , HTTP_URL_SIZE_MAX
+                  , HTTP_URL_TEMPLATE
+                  , HTTP_LOCALHOST
+                  , port );
+    } else {
+        snprintf( mUrl
+                  , HTTP_URL_SIZE_MAX
+                  , HTTP_URL_TEMPLATE
+                  , address
+                  , port );
+    }
 }
 
 /**
@@ -103,73 +104,8 @@ Client::Client( const char *address , uint16_t port )
  */
 Client::~Client()
 {
-    close();
-}
-
-/**
- * @brief Cleans up the HTTP connection
- */
-void Client::close()
-{
-    clearHeaders();
     curl_easy_cleanup( mCurl );
-    mCurl = nullptr;
-}
-
-/**
- * @brief Cleans up the headers list
- * @return Error code
- */
-uint32_t Client::clearHeaders()
-{
-    uint32_t error = Error::Code::NONE;
-    if( mHeaders ) {
-        curl_slist_free_all( mHeaders );
-        mHeaders = nullptr;
-    }
-    return error;
-}
-
-/**
- * @brief Applies the URL to the cURL object
- * @param url Reference to the desired server
- * @return Error code
- */
-uint32_t Client::applyUrl( const std::string &url )
-{
-    uint32_t error = Error::Code::NONE;
-    curl_easy_setopt( mCurl, CURLOPT_URL, url.c_str() );
-    return error;
-}
-
-/**
- * @brief Applies headers to the cURL object
- * @param headers Reference to the list of desired headers
- * @return Error code
- */
-uint32_t Client::applyHeaders( const std::vector<std::string> &headers )
-{
-    uint32_t error = Error::Code::NONE;
-
-    for( auto i = headers.begin(); i != headers.end(); i++ ) {
-        mHeaders = curl_slist_append( mHeaders, (*i).c_str() );
-    }
-
-    curl_easy_setopt( mCurl, CURLOPT_MAIL_RCPT, mHeaders );
-
-    return error;
-}
-
-/**
- * @brief Applies the method for writing data back
- * @param writeFunction Pointer to the desired write function
- * @return Error code
- */
-uint32_t Client::applyWriteFunction( WriteFunction *writeFunction )
-{
-    uint32_t error = Error::Code::NONE;
-    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, *writeFunction );
-    return error;
+    curl_global_cleanup();
 }
 
 /**
@@ -180,36 +116,11 @@ uint32_t Client::applyWriteFunction( WriteFunction *writeFunction )
  * @param d Pointer to the existing data
  * @return
  */
-size_t Client::writeFunction(
-        void *ptr, size_t size, size_t nmemb, std::string *data )
+size_t Client::receive(
+        void *ptr, size_t size, size_t nmemb, struct DataString *d )
 {
-    data->append( (char*)ptr, size *nmemb );
+    d->write( static_cast< char* >( ptr ), size * nmemb );
     return size * nmemb;
-}
-
-/**
- * @brief Performs a GET request
- * @return Response string
- */
-std::string Client::get()
-{
-    std::string response_string;
-    if( mCurl ) {
-        std::string header_string;
-        curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &response_string);
-        curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &header_string);
-
-        char* url;
-        long response_code;
-        double elapsed;
-        curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &response_code);
-        curl_easy_getinfo(mCurl, CURLINFO_TOTAL_TIME, &elapsed);
-        curl_easy_getinfo(mCurl, CURLINFO_EFFECTIVE_URL, &url);
-
-        curl_easy_perform(mCurl);
-    }
-
-    return response_string;
 }
 
 /**
@@ -224,13 +135,13 @@ void Client::send( const char *str )
     headers = curl_slist_append( headers, "charset=utf-8" );
 
     // Set the options for cURL
-    curl_easy_setopt( mCurl,           CURLOPT_URL, "localhost:8080" );
+    curl_easy_setopt( mCurl,           CURLOPT_URL, mUrl );
     curl_easy_setopt( mCurl,    CURLOPT_HTTPHEADER, headers );
     curl_easy_setopt( mCurl,  CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
     curl_easy_setopt( mCurl,    CURLOPT_POSTFIELDS, str );
     curl_easy_setopt( mCurl,      CURLOPT_NOSIGNAL, 0 );
-    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::writeFunction );
-    curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mData );
+    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::receive );
+    curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mDataString );
 
     // Set up for cookie usage
     curl_easy_setopt( mCurl, CURLOPT_COOKIESESSION, true );
@@ -246,10 +157,10 @@ void Client::send( const char *str )
                       curl_easy_strerror( res ) );
     } else {
         // Handle the response
-        printf( "%s\n", mData.read() );
+        printf( "%s\n", mDataString.read() );
     }
 
-    mData.clear();
+    mDataString.clear();
 
     // Free the headers
     curl_slist_free_all( headers );

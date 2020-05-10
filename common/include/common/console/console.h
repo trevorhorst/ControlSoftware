@@ -20,7 +20,7 @@
 #include "common/singleton.h"
 #include "common/command/command.h"
 #include "common/control/control_template.h"
-#include "common/http/client/client.h"
+#include "http/client.h"
 
 class Console
         : public ControlTemplate< Console >
@@ -31,7 +31,7 @@ class Console
     static const char *history_file;
     static const char *history_file_location;
 
-    static Http::Client client;
+    static NewHttp::Client client;
 
 public:
     void run();
