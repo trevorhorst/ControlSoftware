@@ -95,30 +95,30 @@ uint32_t Hardware::getDate( char *buffer, size_t size )
 
 uint32_t Hardware::queryApi()
 {
-    char date[ 9 ];
-    getDate( date, 19);
-    char getUrl[512];
-    snprintf( getUrl, 256, mlb_api, date, date );
-    mHttpClient.applyUrl( getUrl );
+    // char date[ 9 ];
+    // getDate( date, 19);
+    // char getUrl[512];
+    // snprintf( getUrl, 256, mlb_api, date, date );
+    // mHttpClient.applyUrl( getUrl );
 
-    // Parse the information retrieved from the site
-    cJSON *parsed = cJSON_Parse( mHttpClient.get().c_str() );
-    cJSON *transactionAll = cJSON_GetObjectItem( parsed, "transaction_all" );
-    cJSON *queryResults = cJSON_GetObjectItem( transactionAll, "queryResults" );
-    cJSON *totalSize    = cJSON_GetObjectItem( queryResults, "totalSize" );
-    if( cJSON_IsString( totalSize ) ) {
-        int32_t size = atoi( totalSize->valuestring );
-        printf( "TotalSize: %d\n",  size );
-        cJSON *row = cJSON_GetObjectItem( queryResults, "row" );
-        if( cJSON_IsArray( row ) ) {
-            for( int32_t i = 0; i < size; i++ ) {
-                cJSON *item = cJSON_GetArrayItem( row, i );
-                char *printItem = cJSON_Print( item );
-                printf( "%s\n", printItem );
-                free( printItem );
-            }
-        }
-    }
-    cJSON_Delete( parsed );
+    // // Parse the information retrieved from the site
+    // cJSON *parsed = cJSON_Parse( mHttpClient.get().c_str() );
+    // cJSON *transactionAll = cJSON_GetObjectItem( parsed, "transaction_all" );
+    // cJSON *queryResults = cJSON_GetObjectItem( transactionAll, "queryResults" );
+    // cJSON *totalSize    = cJSON_GetObjectItem( queryResults, "totalSize" );
+    // if( cJSON_IsString( totalSize ) ) {
+    //     int32_t size = atoi( totalSize->valuestring );
+    //     printf( "TotalSize: %d\n",  size );
+    //     cJSON *row = cJSON_GetObjectItem( queryResults, "row" );
+    //     if( cJSON_IsArray( row ) ) {
+    //         for( int32_t i = 0; i < size; i++ ) {
+    //             cJSON *item = cJSON_GetArrayItem( row, i );
+    //             char *printItem = cJSON_Print( item );
+    //             printf( "%s\n", printItem );
+    //             free( printItem );
+    //         }
+    //     }
+    // }
+    // cJSON_Delete( parsed );
     return 0;
 }

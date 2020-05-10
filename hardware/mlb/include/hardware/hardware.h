@@ -28,8 +28,6 @@
 #include "smtp/client.h"
 #include "smtp/command.h"
 
-#include "common/http/client/client.h"
-
 #include "http/client.h"
 #include "http/server/server.h"
 #include "http/command.h"

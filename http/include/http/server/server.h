@@ -4,12 +4,12 @@
 #include <string.h>
 #include <microhttpd.h>
 
-#include "common/http/http.h"
 
 #include "common/cjson/cJSON.h"
 #include "common/control/control.h"
 #include "common/command/command_handler.h"
 
+#include "http/http.h"
 #include "http/server/request.h"
 
 #define POST_BUFFER_SIZE 512

@@ -3,8 +3,9 @@
 
 #include <curl/curl.h>
 
-#include "common/http/http.h"
 #include "common/transport/client.h"
+
+#include "http/http.h"
 
 namespace NewHttp {
 

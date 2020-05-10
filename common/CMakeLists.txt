@@ -46,7 +46,7 @@ set(
     # HTTP
     # src/http/http.cpp
     # src/http/client.cpp
-    src/http/client/client.cpp
+    # src/http/client/client.cpp
     # src/http/server/request.cpp
     # src/http/server/server.cpp
 
@@ -110,7 +110,7 @@ set( HEADERS
     # HTTP
     # include/common/http/http.h
     # include/common/http/client.h
-    include/common/http/client/client.h
+    # include/common/http/client/client.h
     # include/common/http/server/request.h
     # include/common/http/server/server.h
 
