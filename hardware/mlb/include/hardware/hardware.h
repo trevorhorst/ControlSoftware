@@ -51,10 +51,13 @@ class Hardware
     static const char *mlb_api_date;
     static const char *smtp_gmail_server;
     static const char *email_list[256];
+
 public:
+    Transport::Client * getClient() override;
+
 private:
     Hardware();
-    ~Hardware();
+    ~Hardware() override;
 
     const char *mIndexHtml;
     const char *mBundleJs;

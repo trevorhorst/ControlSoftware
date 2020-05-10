@@ -71,6 +71,15 @@ Hardware::~Hardware()
 }
 
 /**
+ * @brief Returns a pointer to hardware transport client for communication
+ * @return Transport::Client pointer
+ */
+Transport::Client *Hardware::getClient()
+{
+    return &mHttpClient;
+}
+
+/**
  * @brief Heartbeat for the hardware, update pertinant hardware information from
  * this method
  */
