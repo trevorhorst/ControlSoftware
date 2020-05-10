@@ -17,7 +17,7 @@
 const char *Console::history_file = "control.history";
 const char *Console::history_file_location = "/tmp";
 
-NewHttp::Client Console::client;
+Transport::Client *Console::client = nullptr;
 
 /**
  * @brief Constructor
@@ -197,7 +197,12 @@ void Console::evaluate( char *input )
             printf( "%s\n", msgStr );
         }
 
-        client.send( msgStr );
+        if( client ) {
+            client->send( msgStr );
+        } else {
+            LOG_INFO( "No client available" );
+        }
+
         cJSON_free( msgStr );
 
         // Clean up the message, this should delete all the components
@@ -213,4 +218,9 @@ void Console::evaluate( char *input )
         }
         free( input );
     }
+}
+
+void Console::applyClient( Transport::Client *c )
+{
+    client = c;
 }

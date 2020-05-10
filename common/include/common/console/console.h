@@ -20,7 +20,7 @@
 #include "common/singleton.h"
 #include "common/command/command.h"
 #include "common/control/control_template.h"
-#include "http/client.h"
+#include "common/transport/client.h"
 
 class Console
         : public ControlTemplate< Console >
@@ -31,13 +31,13 @@ class Console
     static const char *history_file;
     static const char *history_file_location;
 
-    static NewHttp::Client client;
-
 public:
     void run();
     void quit();
     static void evaluate( char *input );
     std::vector< std::string > tokenize( char *input, const char *delimiter = " " );
+
+    void applyClient( Transport::Client *c );
 
 private:
     Console();
@@ -45,6 +45,8 @@ private:
 
 
     bool mDone;
+
+    static Transport::Client *client;
 };
 
 #endif // CONSOLE_H

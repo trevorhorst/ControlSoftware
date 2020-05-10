@@ -27,7 +27,6 @@ public:
     static bool isSimulated();
 
 protected:
-    Transport::Client *mClient;
 
 private:
     CommandHandler mCommandHandler;

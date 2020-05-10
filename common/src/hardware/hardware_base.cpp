@@ -16,7 +16,6 @@ void HardwareBase::setSimulated( bool simulated )
  * @brief Constructor
  */
 HardwareBase::HardwareBase()
-    : mClient( nullptr )
 {
 
 }
@@ -49,5 +48,5 @@ void HardwareBase::addCommand( Command *cmd )
 
 Transport::Client *HardwareBase::getClient()
 {
-    return mClient;
+    return nullptr;
 }

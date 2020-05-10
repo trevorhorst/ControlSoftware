@@ -81,6 +81,7 @@ int main( int argc, char *argv[] )
     // Create the hardware
     Hardware::setSimulated( simulated );
     Hardware *hw = &Hardware::getInstance();
+    console->applyClient( hw->getClient() );
 
     CommandConsole cmdConsole;
     hw->addCommand( &cmdConsole );
