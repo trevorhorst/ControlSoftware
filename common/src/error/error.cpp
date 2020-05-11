@@ -10,6 +10,8 @@ const char* Error::mCodeString[] = {
     , "Parameter Missing"
     , "Parameter Out of Range"
     , "Parameter Access Denied"
+    , "Control Missing"
+    , "Generic Error"
 };
 
 /**

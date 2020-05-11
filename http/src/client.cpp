@@ -2,101 +2,33 @@
 #include <string.h>
 
 #include "common/cjson/cJSON.h"
+
 #include "http/client.h"
 
 namespace NewHttp {
 
-/**
- * @brief Constructor
- */
-Client::DataString::DataString()
-    : mDataString( nullptr )
-    , mSize( 0 )
-{
-}
-
-/**
- * @brief Destructor
- */
-Client::DataString::~DataString()
-{
-    clear();
-}
-
-/**
- * @brief Read what has been written to the data block
- * @return Pointer to the data block
- */
-const char *Client::DataString::read()
-{
-    return mDataString;
-}
-
-/**
- * @brief Writes to our data block
- * @param data DataString to write
- * @param size Size of the data to write
- */
-void Client::DataString::write( const char *data, size_t size )
-{
-    // Increase the size of our data
-    mSize += size;
-    // Save off a pointer to the old data
-    char *t = mDataString;
-    // Create a new block of memory
-    mDataString = new char[ mSize + 1 ];
-    // Copy the old data to the new block
-    memcpy( static_cast< void* >( mDataString ), t, mSize - size );
-    // Copy the new data to the end of the new block
-    char *n = &mDataString[ mSize - size ];
-    memcpy( static_cast< void* >( n ), data, size );
-    // Append the null character
-    mDataString[ mSize ] = '\0';
-
-    if( t ) {
-        // Delete the pointer to the old data block
-        delete[] t;
-    }
-}
-
-/**
- * @brief Clears the data
- */
-void Client::DataString::clear()
-{
-    if( mDataString ) {
-        mSize = 0;
-        delete[] mDataString;
-        mDataString = nullptr;
-    }
-}
+const std::string Client::default_url = "http://localhost:8080";
 
 /**
  * @brief Constructor
  * @param address Address to
  * @param port
  */
-Client::Client( const char *address , uint16_t port )
-    : mCurl( nullptr )
-    , mPort( port )
-    , mResponse( nullptr )
-    , mResponseSize( 0 )
+Client::Client()
+    : mWriteFunction( nullptr )
+    , mCurl( nullptr )
 {
     curl_global_init( CURL_GLOBAL_ALL );
     mCurl = curl_easy_init();
-    if( address == nullptr || address[ 0 ] == '\0' ) {
-        snprintf( mUrl
-                  , HTTP_URL_SIZE_MAX
-                  , HTTP_URL_TEMPLATE
-                  , HTTP_LOCALHOST
-                  , port );
-    } else {
-        snprintf( mUrl
-                  , HTTP_URL_SIZE_MAX
-                  , HTTP_URL_TEMPLATE
-                  , address
-                  , port );
-    }
+
+    // curl_easy_setopt(mCurl, CURLOPT_USERPWD, "user:pass");
+    curl_easy_setopt( mCurl, CURLOPT_NOPROGRESS, 1L );
+    curl_easy_setopt( mCurl, CURLOPT_USERAGENT, "curl/7.42.0" );
+    curl_easy_setopt( mCurl, CURLOPT_MAXREDIRS, 50L );
+    curl_easy_setopt( mCurl, CURLOPT_TCP_KEEPALIVE, 1L );
+
+    applyUrl( default_url );
+    applyWriteFunction( Client::writeFunction );
 }
 
 /**
@@ -104,7 +36,9 @@ Client::Client( const char *address , uint16_t port )
  */
 Client::~Client()
 {
+    clearHeaders();
     curl_easy_cleanup( mCurl );
+    mCurl = nullptr;
     curl_global_cleanup();
 }
 
@@ -116,31 +50,85 @@ Client::~Client()
  * @param d Pointer to the existing data
  * @return
  */
-size_t Client::receive(
-        void *ptr, size_t size, size_t nmemb, struct DataString *d )
+size_t Client::writeFunction(
+        void *ptr, size_t size, size_t nmemb, std::string *d )
 {
-    d->write( static_cast< char* >( ptr ), size * nmemb );
+    d->append( static_cast< char* >( ptr ), size * nmemb );
     return size * nmemb;
+}
+
+/**
+ * @brief Clear all headers
+ * @return Error code
+ */
+uint32_t Client::clearHeaders()
+{
+    uint32_t error = Error::Code::NONE;
+    if( mHeaders ) {
+        curl_slist_free_all( mHeaders );
+        mHeaders = nullptr;
+    }
+    return error;
+}
+
+/**
+ * @brief Applies URL to communicate with
+ * @param url Desired URL
+ * @return Error code
+ */
+uint32_t Client::applyUrl( const std::string &url )
+{
+    uint32_t error = Error::Code::NONE;
+    mUrl = url;
+    return error;
+}
+
+/**
+ * @brief Appliers headers to send data with
+ * @param headers Desired vector of headers
+ * @return Error code
+ */
+uint32_t Client::applyHeaders( const std::vector<std::string> &headers )
+{
+    uint32_t error = Error::Code::NONE;
+    for( auto i = headers.begin(); i != headers.end(); i++ ) {
+        mHeaders = curl_slist_append( mHeaders, (*i).c_str() );
+    }
+    return error;
+}
+
+/**
+ * @brief Applies the write function to record data
+ * @param function Desired write function
+ * @return Error code
+ */
+uint32_t Client::applyWriteFunction( WriteFunction *function )
+{
+    uint32_t error = Error::Code::NONE;
+    mWriteFunction = function;
+    return error;
 }
 
 /**
  * @brief Sends a message
  * @param str Message to send
  */
-void Client::send( const char *str )
+uint32_t Client::send( const char *str )
 {
+    uint32_t error = Error::Code::NONE;
+
     // Create the headers
     struct curl_slist *headers = nullptr;
     headers = curl_slist_append( headers, "Content-Type: application/json" );
     headers = curl_slist_append( headers, "charset=utf-8" );
 
     // Set the options for cURL
-    curl_easy_setopt( mCurl,           CURLOPT_URL, mUrl );
+    curl_easy_setopt( mCurl,           CURLOPT_URL, mUrl.c_str() );
     curl_easy_setopt( mCurl,    CURLOPT_HTTPHEADER, headers );
     curl_easy_setopt( mCurl,  CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
     curl_easy_setopt( mCurl,    CURLOPT_POSTFIELDS, str );
     curl_easy_setopt( mCurl,      CURLOPT_NOSIGNAL, 0 );
-    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::receive );
+    curl_easy_setopt( mCurl, CURLOPT_WRITEFUNCTION, Client::writeFunction );
     curl_easy_setopt( mCurl,     CURLOPT_WRITEDATA, &mDataString );
 
     // Set up for cookie usage
@@ -157,13 +145,42 @@ void Client::send( const char *str )
                       curl_easy_strerror( res ) );
     } else {
         // Handle the response
-        printf( "%s\n", mDataString.read() );
+        printf( "%s\n", mDataString.c_str() );
     }
 
     mDataString.clear();
 
     // Free the headers
     curl_slist_free_all( headers );
+
+    return error;
+}
+
+/**
+ * @brief Performs a GET request
+ * @return Response string
+ */
+std::string Client::get()
+{
+    std::string response_string;
+    if( mCurl ) {
+        std::string header_string;
+        curl_easy_setopt(mCurl, CURLOPT_URL, mUrl.c_str() );
+        curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, mWriteFunction);
+        curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &response_string);
+        curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, &header_string);
+
+        char* url;
+        long response_code;
+        double elapsed;
+        curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &response_code);
+        curl_easy_getinfo(mCurl, CURLINFO_TOTAL_TIME, &elapsed);
+        curl_easy_getinfo(mCurl, CURLINFO_EFFECTIVE_URL, &url);
+
+        curl_easy_perform(mCurl);
+    }
+
+    return response_string;
 }
 
 }

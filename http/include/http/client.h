@@ -2,6 +2,7 @@
 #define HTTP_CLIENT_H
 
 #include <curl/curl.h>
+#include <vector>
 
 #include "common/transport/client.h"
 
@@ -12,35 +13,33 @@ namespace NewHttp {
 class Client
         : public Transport::Client
 {
+    static const std::string default_url;
+
 public:
 
-    struct DataString {
-        DataString();
-        ~DataString();
-        const char* read();
-        void write( const char *data, size_t size );
-        void clear();
+    using WriteFunction = size_t ( void *, size_t, size_t, std::string* );
 
-    private:
-        char *mDataString;
-        size_t mSize;
-    };
-
-    Client( const char *address = HTTP_LOCALHOST
-            , uint16_t port = HTTP_DEFAULT_PORT );
+    Client();
     ~Client();
 
-    void send( const char *str );
-    static size_t receive( void *ptr, size_t size, size_t nmemb, DataString *data );
+    uint32_t send( const char *str );
+    std::string get();
+
+    uint32_t clearHeaders();
+
+    uint32_t applyUrl( const std::string &url );
+    uint32_t applyHeaders( const std::vector< std::string > &headers );
+    uint32_t applyWriteFunction( WriteFunction *function );
+
 private:
 
+    std::string mDataString;
+    std::string mUrl;
+    WriteFunction *mWriteFunction;
+    curl_slist *mHeaders;
     CURL *mCurl;
-    DataString mDataString;
-    char mUrl[ HTTP_URL_SIZE_MAX ];
-    uint16_t mPort;
 
-    char *mResponse;
-    uint16_t mResponseSize;
+    static WriteFunction writeFunction;
 };
 
 }

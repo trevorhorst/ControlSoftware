@@ -45,6 +45,8 @@ class Hardware
     static const char *mlb_api_host;
     static const char *mlb_api_path;
     static const char *endpoint_transaction_all;
+    static const char *endpoint_query_results;
+    static const char *endpoint_total_size;
     static const char *endpoint_wsfb_news_injury;
 
     static const char *mlb_api;
@@ -67,6 +69,7 @@ private:
     System mSystem;
     Timer mHeartbeatTimer;
     Smtp::Client mSmtpClient;
+    NewHttp::Client mMlbApiClient;
     NewHttp::Client mHttpClient;
 
     CommandHelp mCmdHelp;
@@ -78,7 +81,9 @@ private:
 
     uint32_t getDate( char *buffer, size_t size );
 
-    uint32_t queryApi();
+    uint32_t queryTransactions( const char *startDate,  const char *stopDate );
+
+    uint32_t testApi();
 
     void heartbeat();
 };
