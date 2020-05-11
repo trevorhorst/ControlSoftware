@@ -2,6 +2,8 @@
 
 const uint32_t Hardware::heartbeat_delay_1000_ms = 1000;
 
+const char *Hardware::smtp_gmail_server = "smtp://smtp.gmail.com:587";
+
 /**
  * @brief Constructor
  */
@@ -14,6 +16,15 @@ Hardware::Hardware()
                        , Timer::Type::INTERVAL
                        , std::bind( &Hardware::heartbeat, this ) )
 {
+    // mSmtpClient.setUsername( "Put username here" );
+    // mSmtpClient.setPassword( "Put password here" );
+    // mSmtpClient.addTo( "Add recipient here" );
+    mSmtpClient.setServer( smtp_gmail_server );
+    mSmtpClient.setReadFunction( &Smtp::Client::readFunction );
+    mSmtpClient.setSubject( "ControlSoftware Example" );
+    mSmtpClient.addTo( "trevorhorst1212@gmail.com" );
+    mSmtpClient.applySettings();
+
     // Add the individual commands
     addCommand( &mCmdHelp );
     addCommand( &mCmdHeartbeat );
@@ -40,6 +51,15 @@ Hardware::~Hardware()
     mServer.stop();
     Resources::unload( mIndexHtml );
     Resources::unload( mBundleJs );
+}
+
+/**
+ * @brief Returns a pointer to hardware transport client for communication
+ * @return Transport::Client pointer
+ */
+Transport::Client *Hardware::getClient()
+{
+    return &mHttpClient;
 }
 
 /**

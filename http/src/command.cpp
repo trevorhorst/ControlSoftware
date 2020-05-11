@@ -1,4 +1,4 @@
-#include "common/command/command_server.h"
+#include "http/command.h"
 
 CommandServer::CommandServer()
     : CommandTemplate< Http::Server >( COMMAND_SERVER, COMMAND_QSERVER )

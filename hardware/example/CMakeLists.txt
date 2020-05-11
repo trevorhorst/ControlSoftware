@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
-project(example)
+project(
+    example
+    DESCRIPTION "Example Library"
+    )
 
 enable_language( C ASM )
+
+option( USE_SMTP "Use optional SMTP library" ON )
+option( USE_HTTP "Use optional HTTP library" ON )
 
 # List of source files
 set( SOURCE
@@ -24,13 +30,20 @@ add_library(
     ${HEADERS}
     )
 
+target_link_libraries(
+    ${PROJECT_NAME}
+    PRIVATE
+        common
+        smtp
+        http
+        )
+
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
     # Include the project directories
-    ${PROJECT_SOURCE_DIR}/resources
-    ${PROJECT_SOURCE_DIR}/include
-    # Include the common directory
-    ${CMAKE_SOURCE_DIR}/common/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/resources>
+    $<INSTALL_INTERFACE:include>
     )
 
 install(TARGETS ${PROJECT_NAME}

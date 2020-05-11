@@ -11,7 +11,7 @@
 #include <microhttpd.h>
 
 #include "common/common_types.h"
-#include "common/http/http.h"
+#include "http/http.h"
 
 namespace Http
 {

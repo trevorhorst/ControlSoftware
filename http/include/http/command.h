@@ -2,7 +2,7 @@
 #define COMMAND_SERVER_H
 
 #include "common/command/command_template.h"
-#include "common/http/server/server.h"
+#include "http/server/server.h"
 
 #define COMMAND_SERVER  "server"
 #define COMMAND_QSERVER "qserver"

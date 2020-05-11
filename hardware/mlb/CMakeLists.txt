@@ -8,6 +8,7 @@ enable_language( C ASM )
 
 # Make use of the SMTP library
 option( USE_SMTP "Use optional SMTP library" ON )
+option( USE_HTTP "Use optional HTTP library" ON )
 
 # Configure a SOURCE variable that contains all the source files for the library
 set(
@@ -46,6 +47,7 @@ target_link_libraries(
     PRIVATE
         common
         smtp
+        http
     )
 
 # Specifies include directories to use when compiling a given target

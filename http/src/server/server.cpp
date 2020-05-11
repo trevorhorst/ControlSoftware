@@ -1,4 +1,4 @@
-#include "common/http/server/server.h"
+#include "http/server/server.h"
 
 /**
  * @brief Static method responsible for handling new connections
@@ -102,7 +102,7 @@ const char *Server::path_bundle_js         = "/bundle.js";
  * @param value
  * @return
  */
-int Http::Server::iterateHeaderValues(
+int Server::iterateHeaderValues(
         void *cls
         , MHD_ValueKind kind
         , const char *key
@@ -132,7 +132,7 @@ int Http::Server::iterateHeaderValues(
  * @param size
  * @return
  */
-int Http::Server::iteratePost(
+int Server::iteratePost(
         void *coninfo_cls
         , MHD_ValueKind kind
         , const char *key
