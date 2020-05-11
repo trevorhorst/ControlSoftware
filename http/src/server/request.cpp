@@ -1,6 +1,6 @@
 #include "http/server/request.h"
 
-namespace NewHttp
+namespace Http
 {
 
 const uint32_t Request::header_key_size_max   = 128;

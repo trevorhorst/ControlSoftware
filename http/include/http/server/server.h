@@ -1,5 +1,5 @@
-#ifndef NEWHTTP_SERVER_H
-#define NEWHTTP_SERVER_H
+#ifndef HTTP_SERVER_H
+#define HTTP_SERVER_H
 
 #include <string.h>
 #include <microhttpd.h>
@@ -18,7 +18,7 @@
 #define HTTP_SERVER_FAILED   	"Failed"
 #define HTTP_SERVER_BAD_REQUEST "Bad Request"
 
-namespace NewHttp {
+namespace Http {
 
 class Server
         : public ControlTemplate< Server >
@@ -103,4 +103,4 @@ private:
 
 }
 
-#endif // NEWHTTP_SERVER_H
+#endif // HTTP_SERVER_H

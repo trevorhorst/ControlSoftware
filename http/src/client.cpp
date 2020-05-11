@@ -5,7 +5,7 @@
 
 #include "http/client.h"
 
-namespace NewHttp {
+namespace Http {
 
 const std::string Client::default_url = "http://localhost:8080";
 

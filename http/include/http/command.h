@@ -12,7 +12,7 @@
 #define PARAM_SECURE    "secure"
 
 class CommandServer
-        : public CommandTemplate< NewHttp::Server >
+        : public CommandTemplate< Http::Server >
 {
 public:
     CommandServer();

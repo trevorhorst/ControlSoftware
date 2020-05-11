@@ -1,5 +1,5 @@
-#ifndef NEWHTTP_H
-#define NEWHTTP_H
+#ifndef HTTP_H
+#define HTTP_H
 
 #include <iostream>
 #include <fstream>
@@ -14,7 +14,7 @@
 #define HTTP_DEFAULT_PORT 8080
 #define HTTP_URL_SIZE_MAX 256
 
-namespace NewHttp
+namespace Http
 {
 
 enum Method : int32_t {

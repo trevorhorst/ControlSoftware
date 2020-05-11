@@ -53,7 +53,7 @@ private:
     AM335X::Gpio mGpio[ NUM_GPIO_HEADERS ];
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
-    NewHttp::Server mServer;
+    Http::Server mServer;
     System mSystem;
     Timer mHeartbeatTimer;
 

@@ -25,8 +25,8 @@ static int answerToConnection (
     ( void )( cls );
     ( void )( version );
 
-    NewHttp::Server *server = static_cast< NewHttp::Server* >( cls );
-    NewHttp::Request *request = static_cast< NewHttp::Request* >( *con_cls );
+    Http::Server *server = static_cast< Http::Server* >( cls );
+    Http::Request *request = static_cast< Http::Request* >( *con_cls );
 
     int32_t ret = 0;
 
@@ -64,7 +64,7 @@ static void onResponseSent(
     (void)connection;
     (void)rtc;
 
-    NewHttp::Request *r = static_cast< NewHttp::Request* >( *request );
+    Http::Request *r = static_cast< Http::Request* >( *request );
 
     if( r->mPostProcessor != nullptr ) {
         MHD_destroy_post_processor( r->mPostProcessor );
@@ -81,7 +81,7 @@ static void onResponseSent(
     delete r;
 }
 
-namespace NewHttp {
+namespace Http {
 
 const char *Server::response_success     = "Success";
 const char *Server::response_failed      = "Failed";

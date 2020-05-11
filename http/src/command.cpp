@@ -1,7 +1,7 @@
 #include "http/command.h"
 
 CommandServer::CommandServer()
-    : CommandTemplate< NewHttp::Server >( COMMAND_SERVER, COMMAND_QSERVER )
+    : CommandTemplate< Http::Server >( COMMAND_SERVER, COMMAND_QSERVER )
 {
     mAccessorMap[ PARAM_ACTIVE ] = PARAMETER_CALLBACK( &CommandServer::getActive );
     mAccessorMap[ PARAM_PORT ]   = PARAMETER_CALLBACK( &CommandServer::getPort );

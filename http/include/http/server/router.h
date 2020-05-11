@@ -11,16 +11,16 @@
 
 #define ROUTE_STRINGIZE( ARG ) #ARG
 
-namespace NewHttp
+namespace Http
 {
 
 class Route
 {
 public:
     Route();
-    const std::vector< NewHttp::Method > &getVerbs() const;
-    uint32_t setVerbs( const std::vector< NewHttp::Method > &verbs );
-    uint32_t setVerbs( NewHttp::Method verb );
+    const std::vector< Http::Method > &getVerbs() const;
+    uint32_t setVerbs( const std::vector< Http::Method > &verbs );
+    uint32_t setVerbs( Http::Method verb );
     uint32_t setAction( const std::string &action );
     uint32_t setPath( const std::string &path );
 
@@ -31,7 +31,7 @@ public:
                 , bool *methodOkPtr ) const;
 
 private:
-    std::vector< NewHttp::Method > mVerbs;
+    std::vector< Http::Method > mVerbs;
     std::string mPath;
     std::vector< std::string > mPathKeys;
     std::string mAction;

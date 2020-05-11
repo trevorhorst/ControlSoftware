@@ -15,7 +15,7 @@
 
 #include "http/http.h"
 
-namespace NewHttp {
+namespace Http {
 
 class Response
 {

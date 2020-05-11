@@ -65,12 +65,12 @@ private:
     const char *mBundleJs;
 
     DateTime mDateTime;
-    NewHttp::Server mServer;
+    Http::Server mServer;
     System mSystem;
     Timer mHeartbeatTimer;
     Smtp::Client mSmtpClient;
-    NewHttp::Client mMlbApiClient;
-    NewHttp::Client mHttpClient;
+    Http::Client mMlbApiClient;
+    Http::Client mHttpClient;
 
     CommandHelp mCmdHelp;
     CommandDateTime mCmdDateTime;

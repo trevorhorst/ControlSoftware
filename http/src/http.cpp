@@ -2,7 +2,7 @@
 
 #include "http/http.h"
 
-namespace NewHttp
+namespace Http
 {
 const char *localhost     = "localhost";
 

@@ -8,7 +8,7 @@
 
 #include "http/http.h"
 
-namespace NewHttp {
+namespace Http {
 
 class Client
         : public Transport::Client

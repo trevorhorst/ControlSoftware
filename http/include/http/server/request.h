@@ -5,15 +5,15 @@
  * @brief Request class declaration. Container for all information related to
  * a request. This class should not actually create any data.
  * ****************************************************************************/
-#ifndef NEWHTTP_REQUEST_H
-#define NEWHTTP_REQUEST_H
+#ifndef HTTP_REQUEST_H
+#define HTTP_REQUEST_H
 
 #include <microhttpd.h>
 
 #include "common/common_types.h"
 #include "http/http.h"
 
-namespace NewHttp
+namespace Http
 {
 
 class Request
