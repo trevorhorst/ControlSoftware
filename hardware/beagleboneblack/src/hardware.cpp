@@ -50,6 +50,11 @@ Hardware::~Hardware()
     Resources::unload( mBundleJs );
 }
 
+Transport::Client *Hardware::getClient()
+{
+    return &mClient;
+}
+
 /**
  * @brief Heartbeat for the hardware, update pertinant hardware information from
  * this method

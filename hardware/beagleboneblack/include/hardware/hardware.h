@@ -25,6 +25,8 @@
 #include "common/drivers/serial.h"
 
 #include "http/command.h"
+#include "http/server/server.h"
+#include "http/client.h"
 
 #include "hardware/resources/resources.h"
 
@@ -37,7 +39,10 @@ class Hardware
 {
     friend class Singleton< Hardware >;
     static const char *str_gps_device;
+
 public:
+    Transport::Client * getClient() override;
+
 private:
     Hardware();
     ~Hardware();
@@ -54,6 +59,7 @@ private:
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
     Http::Server mServer;
+    Http::Client mClient;
     System mSystem;
     Timer mHeartbeatTimer;
 
