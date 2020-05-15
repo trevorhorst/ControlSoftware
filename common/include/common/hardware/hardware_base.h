@@ -8,6 +8,7 @@
 #define HARDWARE_H
 
 #include "common/command/command_handler.h"
+#include "common/transport/client.h"
 
 class HardwareBase
 {
@@ -20,8 +21,12 @@ public:
     virtual CommandHandler *getCommandHandler();
     virtual void addCommand( Command* cmd );
 
+    virtual Transport::Client *getClient();
+
     static void setSimulated( bool simulated );
     static bool isSimulated();
+
+protected:
 
 private:
     CommandHandler mCommandHandler;

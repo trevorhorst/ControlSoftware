@@ -1,5 +1,8 @@
 #include "common/timer.h"
 
+const int32_t Timer::delay_1000_ms = 1000;
+const int32_t Timer::delay_100_ms = 100;
+
 /**
  * @brief Constructor
  */
@@ -23,17 +26,40 @@ Timer::~Timer()
         if( mEnable ) {
             stop();
         }
+    }
+}
 
-        // Attempt to join the thread
-        if( mThread->joinable() ) {
-            // Wait for the thread to finish then clean it up
-            mThread->join();
-            delete mThread;
-            mThread = nullptr;
-        } else {
-            LOG_ERROR( "failed to join timer" );
+/**
+ * @brief Run the timer thread
+ */
+void Timer::run()
+{
+    while( mEnable ) {
+
+        int32_t totalTime = 0;
+        while( totalTime < mDelay ) {
+            if( !mEnable ) {
+                return;
+            }
+            std::this_thread::sleep_for(
+                        std::chrono::milliseconds( delay_100_ms ) );
+            totalTime += 100;
+        }
+
+        if( !mEnable ) {
+            return;
+        }
+
+        if( mCallback != nullptr ) {
+            mCallback();
+        }
+
+        if( mType == Type::SINGLE_SHOT ) {
+            return;
         }
     }
+
+    stop();
 }
 
 /**
@@ -48,25 +74,7 @@ Timer::~Timer()
 void Timer::start()
 {
     mEnable = true;
-    mThread = new std::thread( [ this ] {
-        do {
-            // Super stoked for my first legitimate use of a do while loop
-            // Perform the sleep once, or forever until told to stop
-            if( !mEnable ) {
-                return;
-            }
-
-            std::this_thread::sleep_for( std::chrono::milliseconds( mDelay ) );
-
-            if( !mEnable ) {
-                return;
-            }
-
-            if( mCallback != nullptr ) {
-                mCallback();
-            }
-        } while( mType == Type::INTERVAL );
-    } );
+    mThread = new std::thread( &Timer::run, this );
 }
 
 /**
@@ -84,7 +92,7 @@ void Timer::stop()
             LOG_ERROR( "failed to join timer" );
         }
     } else {
-        LOG_INFO( "timer is not active" );
+        if( isVerbose() ){ LOG_INFO( "timer is not active" ); }
     }
 
 }

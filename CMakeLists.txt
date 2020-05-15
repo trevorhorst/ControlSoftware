@@ -25,9 +25,27 @@ else()
     set(CONTROL_BIN_DIR "$ENV{PWD}/bin")
 endif()
 
+if(DEFINED ENV{CONTROL_PROJECT})
+    set( CONTROL_PROJECT "$ENV{CONTROL_PROJECT}" )
+else()
+    message("No project set, building example project")
+    set( CONTROL_PROJECT "example" )
+endif()
+message("Building ${CONTROL_PROJECT}")
+
 add_subdirectory(app)
 add_subdirectory(remote)
 add_subdirectory(common)
-add_subdirectory(hardware/beagleboneblack)
+add_subdirectory(hardware/${CONTROL_PROJECT})
+
+if( USE_HTTP )
+    message( "Using HTTP library" )
+    add_subdirectory( http )
+endif()
+
+if( USE_SMTP )
+        message( "Using SMTP library" )
+        add_subdirectory( smtp )
+endif()
 
 # install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CONTROL_BIN_DIR})

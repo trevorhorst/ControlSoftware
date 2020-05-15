@@ -8,6 +8,7 @@
 #define COMMAND_QSYSTEM "qsystem"
 
 #define PARAM_HOSTNAME  "hostname"
+#define PARAM_INTERFACE "interface"
 
 class CommandSystem
         : public CommandTemplate< System >
@@ -15,6 +16,9 @@ class CommandSystem
 public:
     CommandSystem();
     uint32_t getHostname( cJSON *response );
+    uint32_t getInterfaces( cJSON *response );
+
+    uint32_t setHostname( cJSON *val );
 };
 
 #endif // COMMAND_SYSTEM_H

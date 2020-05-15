@@ -11,6 +11,9 @@
 class Timer
         : public ControlTemplate< Timer >
 {
+    static const int32_t delay_1000_ms;
+    static const int32_t delay_100_ms;
+
 public:
 
     enum Type {
@@ -33,6 +36,8 @@ private:
 
     std::thread *mThread;
     std::function< void() > mCallback;
+
+    void run();
 };
 
 #endif // TIMER_H

@@ -27,6 +27,10 @@
 #include "common/drivers/serial.h"
 #include "common/drivers/i2c.h"
 
+#include "http/command.h"
+#include "http/server/server.h"
+#include "http/client.h"
+
 #include "hardware/resources/resources.h"
 
 #define NUM_GPIO_HEADERS 4
@@ -42,6 +46,8 @@ class Hardware
     static const char *str_dev_i2c0;
     static const uint8_t ssd1306_address;
 public:
+    Transport::Client * getClient() override;
+
 private:
     Hardware();
     ~Hardware();
@@ -60,6 +66,7 @@ private:
     DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
     Http::Server mServer;
+    Http::Client mClient;
     System mSystem;
     Timer mHeartbeatTimer;
 
