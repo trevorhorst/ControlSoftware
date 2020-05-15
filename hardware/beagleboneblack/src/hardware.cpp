@@ -26,6 +26,7 @@ Hardware::Hardware()
     , mHeartbeatTimer( 1000, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
 {
     // Add the individual commands
+    addCommand( &mCmdHelp );
     addCommand( &mCmdGpio );
     addCommand( &mCmdHeartbeat );
     addCommand( &mCmdSystem );
