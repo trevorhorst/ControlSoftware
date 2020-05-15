@@ -1,6 +1,8 @@
 #include "hardware/hardware.h"
 
 const char *Hardware::str_gps_device = "/dev/ttyO1";
+const char *Hardware::str_dev_i2c0 = "/dev/i2c-2";
+const uint8_t Hardware::ssd1306_address = 0x3C;
 
 /**
  * @brief Constructor
@@ -10,6 +12,8 @@ Hardware::Hardware()
     , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
     , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
     , mGpsSerial( str_gps_device, Serial::Speed::BAUD_9600, isSimulated() )
+    , mI2C{ { str_dev_i2c0, ssd1306_address, 0 } }
+    , mDisplay( &mI2C[ 0 ], ssd1306_address )
     , mGps( &mGpsSerial )
     , mControlModule( AM335X::addr_control_module, isSimulated() )
     , mClockModule( AM335X::addr_clock_module, isSimulated() )
@@ -22,6 +26,7 @@ Hardware::Hardware()
     , mHeartbeatTimer( 1000, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
 {
     // Add the individual commands
+    addCommand( &mCmdHelp );
     addCommand( &mCmdGpio );
     addCommand( &mCmdHeartbeat );
     addCommand( &mCmdSystem );
