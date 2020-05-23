@@ -3,15 +3,27 @@
 /**
  * @brief Constructor
  */
-Led::Led()
+Led::Led(AM335X::Gpio *bank, uint32_t pin)
+    : mEnable( false )
+    , mPin( pin )
+    , mBank( bank )
 {
 }
 
 uint32_t Led::setEnable( bool enable )
 {
-    uint32_t r = Error::Code::NONE;
-    mEnable = enable;
-    return r;
+    uint32_t error = Error::Code::NONE;
+
+    error = mBank->setDirection( mPin, AM335X::Gpio::str_output );
+    if( error == Error::Code::NONE ) {
+        mBank->setOutput( mPin, enable );
+    }
+
+    if( error == Error::Code::NONE ) {
+        mEnable = enable;
+    }
+
+    return error;
 }
 
 bool Led::isEnabled()

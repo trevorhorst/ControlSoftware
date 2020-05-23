@@ -63,8 +63,8 @@ private:
     AM335X::ControlModule mControlModule;
     AM335X::ClockModule mClockModule;
     AM335X::Gpio mGpio[ NUM_GPIO_HEADERS ];
-    DateTime mDateTime;
     Led mLed[ LED_HEADERS ];
+    DateTime mDateTime;
     Http::Server mServer;
     Http::Client mClient;
     System mSystem;

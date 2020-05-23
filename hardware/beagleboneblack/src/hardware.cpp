@@ -22,6 +22,11 @@ Hardware::Hardware()
              , { AM335X::addr_gpio2_base, isSimulated() }
              , { AM335X::addr_gpio3_base, isSimulated() }
              }
+    , mLed{ { &mGpio[ 0 ], 21 }
+            , { &mGpio[ 1 ], 22 }
+            , { &mGpio[ 2 ], 23 }
+            , { &mGpio[ 3 ], 24 }
+            }
     , mServer( mIndexHtml, mBundleJs )
     , mHeartbeatTimer( 1000, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
 {
