@@ -31,11 +31,12 @@ Gpio::Gpio( uint32_t address, bool simulated )
  */
 uint32_t Gpio::setOutput( uint32_t pin, bool output )
 {
-    uint32_t mask = ( 1 << pin ) | mRegister.map()->dataout.mData;
+    uint32_t mask = ( 1 << pin );
+    uint32_t reg = mRegister.map()->dataout.pin();
     if( output ) {
-        mRegister.map()->dataout.set_pin( mask );
+        mRegister.map()->dataout.set_pin( reg |= mask );
     } else {
-        mRegister.map()->dataout.pin();
+        mRegister.map()->dataout.set_pin( reg &= ~mask );
     }
     return 0;
 }
@@ -50,13 +51,14 @@ uint32_t Gpio::setDirection( uint32_t pin, const char *direction )
 {
     uint32_t err = Error::Code::NONE;
 
-    uint32_t mask = ( 1 << pin ) | mRegister.map()->oe.mData;
+    uint32_t mask = ( 1 << pin );
+    uint32_t reg = mRegister.map()->oe.pin();
     if( direction == nullptr ) {
         err = Error::Code::PARAM_INVALID;
     } else if( strcmp( str_input, direction ) == 0 ) {
-        mRegister.map()->oe.mData |= mask;
+        mRegister.map()->oe.set_pin( reg |= mask );
     } else if( strcmp( str_output, direction ) == 0 ) {
-        mRegister.map()->oe.mData &= ~mask;
+        mRegister.map()->oe.set_pin( reg &= ~mask );
     } else {
         err = Error::Code::PARAM_OUT_OF_RANGE;
     }

@@ -1,6 +1,6 @@
 #include "hardware/hardware.h"
 
-const char *Hardware::str_gps_device = "/dev/ttyO1";
+const char *Hardware::str_gps_device = "/dev/ttyS1";
 const char *Hardware::str_dev_i2c0 = "/dev/i2c-2";
 const uint8_t Hardware::ssd1306_address = 0x3C;
 
