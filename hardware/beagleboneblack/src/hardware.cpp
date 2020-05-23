@@ -22,10 +22,10 @@ Hardware::Hardware()
              , { AM335X::addr_gpio2_base, isSimulated() }
              , { AM335X::addr_gpio3_base, isSimulated() }
              }
-    , mLed{ { &mGpio[ 0 ], 21 }
+    , mLed{ { &mGpio[ 1 ], 21 }
             , { &mGpio[ 1 ], 22 }
-            , { &mGpio[ 2 ], 23 }
-            , { &mGpio[ 3 ], 24 }
+            , { &mGpio[ 1 ], 23 }
+            , { &mGpio[ 1 ], 24 }
             }
     , mServer( mIndexHtml, mBundleJs )
     , mHeartbeatTimer( 1000, Timer::Type::INTERVAL, std::bind( &Hardware::heartbeat, this ) )
@@ -74,4 +74,7 @@ void Hardware::heartbeat()
     // LOG_INFO( "Calling heartbeat" );
     // Periodically flush the serial buffer to keep data flowing
     // mGpsSerial.flushReceiver();
+
+    // Toggle LED for heartbeat
+    mLed[ 0 ].setEnable( !mLed[ 0 ].isEnabled() );
 }

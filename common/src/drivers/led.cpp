@@ -8,6 +8,7 @@ Led::Led(AM335X::Gpio *bank, uint32_t pin)
     , mPin( pin )
     , mBank( bank )
 {
+    setEnable( mEnable );
 }
 
 uint32_t Led::setEnable( bool enable )
