@@ -40,7 +40,7 @@ class Hardware
 {
     friend class Singleton< Hardware >;
 
-    static const uint32_t heartbeat_delay_1000_ms;
+    static const uint32_t heartbeat_delay_60000_ms;
 
     static const char *mlb_api_host;
     static const char *mlb_api_path;

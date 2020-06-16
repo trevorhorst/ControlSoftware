@@ -1,6 +1,7 @@
 #include "hardware/hardware.h"
 
-const uint32_t Hardware::heartbeat_delay_1000_ms = 1000;
+/// @brief 60 second delay
+const uint32_t Hardware::heartbeat_delay_60000_ms = 60000;
 
 const char *Hardware::mlb_api_host = "http://lookup-service-prod.mlb.com";
 const char *Hardware::mlb_api_path = "/json/named.%s.bam?";
@@ -28,7 +29,7 @@ Hardware::Hardware()
     , mIndexHtml( Resources::load( Resources::index_html, Resources::index_html_size ) )
     , mBundleJs( Resources::load( Resources::bundle_js, Resources::bundle_js_size ) )
     , mServer( mIndexHtml, mBundleJs )
-    , mHeartbeatTimer( heartbeat_delay_1000_ms
+    , mHeartbeatTimer( heartbeat_delay_60000_ms
                        , Timer::Type::INTERVAL
                        , std::bind( &Hardware::heartbeat, this ) )
 {
@@ -36,6 +37,7 @@ Hardware::Hardware()
     // mSmtpClient.setUsername( "Put username here" );
     // mSmtpClient.setPassword( "Put password here" );
     // mSmtpClient.addTo( "Add recipient here" );
+
     mSmtpClient.setServer( smtp_gmail_server );
     mSmtpClient.setReadFunction( &Smtp::Client::readFunction );
     mSmtpClient.setSubject( "MLB Transactions" );
@@ -87,6 +89,9 @@ Transport::Client *Hardware::getClient()
  */
 void Hardware::heartbeat()
 {
+    // char date[ 9 ] = "20171201";
+    // getDate( date, 9 );
+    // queryTransactions( date, date );
 }
 
 /**
@@ -146,7 +151,8 @@ uint32_t Hardware::queryTransactions( const char *startDate, const char *stopDat
                 for( int32_t i = 0; i < size; i++ ) {
                     cJSON *item = cJSON_GetArrayItem( row, i );
                     char *printItem = cJSON_Print( item );
-                    printf( "%s\n", printItem );
+                    // printf( "%s\n", printItem );
+                    mSmtpClient.send( printItem );
                     free( printItem );
                 }
             }
@@ -160,6 +166,9 @@ uint32_t Hardware::queryTransactions( const char *startDate, const char *stopDat
 uint32_t Hardware::testApi()
 {
     uint32_t error = Error::Code::NONE;
-    queryTransactions( "20171201", "20171201" );
+    char date[ 9 ] = "20171201";
+    getDate( date, 9 );
+    queryTransactions( date, date );
+    // queryTransactions( "20171201", "20171201" );
     return error;
 }
