@@ -38,4 +38,14 @@ add_subdirectory(remote)
 add_subdirectory(common)
 add_subdirectory(hardware/${CONTROL_PROJECT})
 
+if( USE_HTTP )
+    message( "Using HTTP library" )
+    add_subdirectory( http )
+endif()
+
+if( USE_SMTP )
+        message( "Using SMTP library" )
+        add_subdirectory( smtp )
+endif()
+
 # install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CONTROL_BIN_DIR})

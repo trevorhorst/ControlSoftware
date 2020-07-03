@@ -12,7 +12,12 @@
 #define CONSOLE_MAX_TOKENS  10
 #define CONSOLE_MAX_TOKEN_SIZE 64
 
-Http::Client Console::mClient;
+#define MAX_HISTORY_LINES 1000
+
+const char *Console::history_file = "control.history";
+const char *Console::history_file_location = "/tmp";
+
+Transport::Client *Console::client = nullptr;
 
 /**
  * @brief Constructor
@@ -28,9 +33,6 @@ Console::Console()
 Console::~Console()
 {
 }
-
-#define MAX_HISTORY_LINES 1000
-#define HISTORY_FNAME "control.history"
 
 /**
  * @brief Console::Run Main thread loop
@@ -59,7 +61,7 @@ void Console::run()
 
     char hfile[ 512 ];
     snprintf( hfile, sizeof( hfile ), "%s/%s"
-              , CONSOLE_HISTORY_FILE_LOCATION, CONSOLE_HISTORY_FILE );
+              , history_file_location, history_file );
     if( read_history( hfile ) ) {
         perror("read_history");
     }
@@ -118,20 +120,6 @@ void Console::run()
 void Console::quit()
 {
     mDone = true;
-}
-
-/**
- * @brief Console::processLine Wrapper function to evaluate a line
- * @param line Line to evaluate
- */
-void Console::processInput( char *input )
-{
-    std::vector< std::string > tokenized = getInstance().tokenize( input );
-    getInstance().evaluate( tokenized );
-    if( input ) {
-        add_history( input );
-    }
-    free( input );
 }
 
 std::vector<std::string> Console::tokenize( char *input, const char *delimiter )
@@ -209,7 +197,12 @@ void Console::evaluate( char *input )
             printf( "%s\n", msgStr );
         }
 
-        mClient.send( msgStr );
+        if( client ) {
+            client->send( msgStr );
+        } else {
+            LOG_INFO( "No client available" );
+        }
+
         cJSON_free( msgStr );
 
         // Clean up the message, this should delete all the components
@@ -227,54 +220,7 @@ void Console::evaluate( char *input )
     }
 }
 
-void Console::evaluate( std::vector<std::string> input )
+void Console::applyClient( Transport::Client *c )
 {
-    if( input.empty() ) {
-        // The input is empty, nothing to do
-        return;
-    }
-
-    if( input.at( 0 ) == "quit" ) {
-        getInstance().quit();
-        return;
-    }
-
-    // Add the cmd string to the object
-    cJSON *msg    = cJSON_CreateObject();
-    cJSON *params = cJSON_CreateObject();
-    cJSON *cmd    = nullptr;
-
-    for( auto it = input.begin(); it != input.end(); it++ ) {
-        if( *it == input.at( 0 ) ) {
-            // Add the command parameter
-            cmd = cJSON_CreateString( (*it).c_str() );
-        } else {
-            auto t = it;
-            it++;
-            if( it == input.end() ) {
-                LOG_INFO( "parameter mismatch\n" );
-                break;
-            } else {
-                // Parse the parameter
-                cJSON *param = cJSON_Parse( (*it).c_str() );
-                // Add the item to the parameter list
-                cJSON_AddItemToObject( params, (*t).c_str(), param );
-            }
-        }
-    }
-
-    cJSON_AddItemToObject( msg, PARAM_COMMAND, cmd );
-    cJSON_AddItemToObject( msg, PARAM_PARAMS, params );
-
-    char *msgStr = cJSON_PrintUnformatted( msg );
-
-    if( getInstance().isVerbose() ) {
-        LOG_DEBUG( "%s", msgStr );
-    }
-
-    mClient.send( msgStr );
-    cJSON_free( msgStr );
-
-    // Clean up the message, this should delete all the components
-    cJSON_Delete( msg );
+    client = c;
 }

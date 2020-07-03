@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(common)
 
-set( SOURCE
-    ${SOURCE}
+set(
+    SOURCE ${SOURCE}
+
     # cJSON Library
     src/cjson/cJSON.c
 
@@ -14,7 +15,6 @@ set( SOURCE
     src/command/command_handler.cpp
     src/command/command_help.cpp
     src/command/command_led.cpp
-    src/command/command_server.cpp
     src/command/command_system.cpp
     src/command/command_heartbeat.cpp
     src/command/command_venus638flpx.cpp
@@ -29,8 +29,10 @@ set( SOURCE
     src/drivers/am335x/gpio.cpp
     src/drivers/am335x/clock_module.cpp
     src/drivers/am335x/control_module.cpp
+    src/drivers/devices/displays/ssd1306.cpp
     src/drivers/devices/gps/gps.cpp
     src/drivers/devices/gps/venus638flpx.cpp
+    src/drivers/i2c.cpp
     src/drivers/led.cpp
     src/drivers/serial.cpp
 
@@ -40,22 +42,19 @@ set( SOURCE
     # Hardware library
     src/hardware/hardware_base.cpp
 
-    # HTTP
-    src/http/http.cpp
-    # src/http/client.cpp
-    src/http/client/client.cpp
-    src/http/server/request.cpp
-    src/http/server/server.cpp
-
     # Logger
     src/logger/log.cpp
 
     # Resources
     src/resources/resources.cpp
+    src/resources/font/glcd.cpp
 
     # System
     src/system/datetime.cpp
     src/system/system.cpp
+
+    # Transport
+    src/transport/client.cpp
 
     # Miscellaneous
     src/common_types.cpp
@@ -76,7 +75,6 @@ set( HEADERS
     include/common/command/command_handler.h
     include/common/command/command_help.h
     include/common/command/command_led.h
-    include/common/command/command_server.h
     include/common/command/command_system.h
     include/common/command/command_template.h
     include/common/command/command_heartbeat.h
@@ -90,8 +88,10 @@ set( HEADERS
     include/common/drivers/am335x/gpio.h
     include/common/drivers/am335x/clock_module.h
     include/common/drivers/am335x/control_module.h
+    include/common/drivers/devices/displays/ssd1306.h
     include/common/drivers/devices/gps/gps.h
     include/common/drivers/devices/gps/venus638flpx.h
+    include/common/drivers/i2c.h
     include/common/drivers/led.h
     include/common/drivers/serial.h
 
@@ -101,13 +101,6 @@ set( HEADERS
     # Hardware library
     include/common/hardware/hardware_base.h
 
-    # HTTP
-    include/common/http/http.h
-    # include/common/http/client.h
-    include/common/http/client/client.h
-    include/common/http/server/request.h
-    include/common/http/server/server.h
-
     # Logger
     include/common/logger/log.h
 
@@ -116,10 +109,14 @@ set( HEADERS
 
     # Resources
     include/common/resources/resources.h
+    include/common/resources/font/glcd.h
 
     # System
     include/common/system/datetime.h
     include/common/system/system.h
+
+    # Transport
+    include/common/transport/client.h
 
     # Console
     include/common/console/console.h
@@ -138,9 +135,19 @@ add_library(
     ${HEADERS}
     )
 
+target_link_libraries(
+    ${PROJECT_NAME}
+    PRIVATE
+        readline
+        microhttpd
+        curl
+        http)
+
+# Specifies include directories to use when compiling a given target
 target_include_directories(
     ${PROJECT_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
     )
 
 install(TARGETS ${PROJECT_NAME}

@@ -1,7 +1,7 @@
 /** ****************************************************************************
   * @file       console.h
   * @author     Trevor Horst
-  * @copyright  G3 Technologies, Inc. 2018
+  * @copyright
   * @brief      Console class declarations
   * ***************************************************************************/
 #ifndef CONSOLE_H
@@ -20,10 +20,7 @@
 #include "common/singleton.h"
 #include "common/command/command.h"
 #include "common/control/control_template.h"
-#include "common/http/client/client.h"
-
-#define CONSOLE_HISTORY_FILE            "control.history"
-#define CONSOLE_HISTORY_FILE_LOCATION   "/tmp"
+#include "common/transport/client.h"
 
 class Console
         : public ControlTemplate< Console >
@@ -31,21 +28,25 @@ class Console
 {
     friend class Singleton< Console >;
 
+    static const char *history_file;
+    static const char *history_file_location;
+
 public:
     void run();
     void quit();
-    void evaluate( std::vector< std::string > input );
-    static void processInput( char *input );
     static void evaluate( char *input );
     std::vector< std::string > tokenize( char *input, const char *delimiter = " " );
+
+    void applyClient( Transport::Client *c );
 
 private:
     Console();
     ~Console();
 
-    static Http::Client mClient;
 
     bool mDone;
+
+    static Transport::Client *client;
 };
 
 #endif // CONSOLE_H

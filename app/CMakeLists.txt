@@ -8,9 +8,6 @@ target_link_libraries(
     ${CONTROL_PROJECT}
     common
     pthread
-    readline
-    microhttpd
-    curl
     )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CONTROL_BIN_DIR})

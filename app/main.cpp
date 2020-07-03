@@ -1,10 +1,10 @@
+#include <signal.h>
 #include <thread>
 #include <iostream>
 
 #include "common/option_parser.h"
 #include "common/console/console.h"
 #include "common/command/command_console.h"
-#include "common/command/command_help.h"
 
 #include "hardware/hardware.h"
 
@@ -24,11 +24,32 @@ const option::Descriptor usage[] = {
 };
 
 /**
+ * @brief Signal handler method
+ * @param signal Received signal
+ */
+void signalHandler( int32_t signal )
+{
+    LOG_INFO( "Signal received: %d\n", signal );
+    Console::getInstance().quit();
+    // LOG_INFO( "Waiting for restart\n" );
+    // usleep( 1000000 );
+    // int32_t returnVal = execvp("./app/controld", nullptr);
+}
+
+/**
  * @brief Entry point of the program
  * @return
  */
 int main( int argc, char *argv[] )
 {
+    // Signal handler
+    struct sigaction sa_sigsev;
+    struct sigaction sa_quit;
+    sigemptyset(&sa_sigsev.sa_mask);
+    sigemptyset(&sa_quit.sa_mask);
+    sa_quit.sa_handler = signalHandler;
+    sigaction( SIGINT, &sa_quit, nullptr );
+
     // Skip program name if present
     argc -= ( argc > 0 );
     argv += ( argc > 0 );
@@ -60,12 +81,10 @@ int main( int argc, char *argv[] )
     // Create the hardware
     Hardware::setSimulated( simulated );
     Hardware *hw = &Hardware::getInstance();
+    console->applyClient( hw->getClient() );
 
     CommandConsole cmdConsole;
     hw->addCommand( &cmdConsole );
-
-    CommandHelp help;
-    hw->addCommand( &help );
 
     std::thread *app = new std::thread( &Console::run, console );
 

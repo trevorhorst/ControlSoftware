@@ -97,7 +97,6 @@ public:
     static const char str_output[];
 
     Gpio( uint32_t addr, bool simulated = false );
-    // ~Gpio();
 
     void dumpRevision();
 

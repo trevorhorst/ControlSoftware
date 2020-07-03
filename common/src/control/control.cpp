@@ -22,3 +22,8 @@ bool Control::isVerbose()
 {
     return mVerbose;
 }
+
+uint32_t Control::applySettings()
+{
+    return 0;
+}

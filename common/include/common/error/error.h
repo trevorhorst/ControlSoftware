@@ -23,6 +23,8 @@ public:
         , PARAM_MISSING
         , PARAM_OUT_OF_RANGE
         , PARAM_ACCESS_DENIED
+        , CONTROL_MISSING
+        , GENERIC
         , MAX
     };
 

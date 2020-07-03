@@ -20,7 +20,7 @@ private:
     Command *mCmdObj;
 };
 
-using CommandMap = CharHashMap< CommandContainer* >;
+using CommandMap = Types::CharHashMap< CommandContainer* >;
 
 /**
  * @brief Handles any received commands by calling the required methods

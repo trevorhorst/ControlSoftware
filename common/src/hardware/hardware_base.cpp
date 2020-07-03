@@ -45,3 +45,8 @@ void HardwareBase::addCommand( Command *cmd )
 {
     mCommandHandler.addCommand( cmd );
 }
+
+Transport::Client *HardwareBase::getClient()
+{
+    return nullptr;
+}
